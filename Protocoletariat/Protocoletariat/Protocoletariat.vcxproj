@@ -111,6 +111,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="FileDownloader.h" />
+    <ClInclude Include="FileUploader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FileDownloader.cpp" />
+    <ClCompile Include="FileUploader.cpp" />
+    <ClCompile Include="TesterMain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

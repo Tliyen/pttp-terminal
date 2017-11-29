@@ -3,16 +3,14 @@
 
 namespace protocoletariat
 {
-	FileUploader::FileUploader(std::queue<char*>* uploadQueue, std::string filePath)
-		: mUploadQueue(uploadQueue)
-		, mFilePath(filePath)
-	{
-		
-	}
+	std::queue<char*>* FileUploader::mUploadQueue = nullptr;
+	std::string FileUploader::mFilePath = "";
 
-	void FileUploader::LoadTextFile()
+	void FileUploader::LoadTextFile(paramFileUploader* param)
 	{
-		
+		mUploadQueue = param->uploadQueue;
+		mFilePath = param->filePath;
+
 	}
 
 	void FileUploader::ConvertFileIntoFrames()

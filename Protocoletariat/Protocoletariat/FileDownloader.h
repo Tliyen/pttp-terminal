@@ -1,15 +1,26 @@
 #pragma once
 
-#include <memory>
 #include <queue>
+#include <Windows.h>
 
 namespace protocoletariat
 {
-	class FileDownloader
+	struct paramFileDownloader
+	{
+		std::queue<char*>* downloadQueue;
+		HWND* handle;
+	};
+
+	static class FileDownloader
 	{
 	public:
-		void ReadSerialPort();
+		FileDownloader() = delete;
+		void ReadSerialPort(paramFileDownloader* param);
 
 	private:
+		const size_t MAX_FRAME_SIZE = 512;
+
+		static std::queue<char*>* mDownloadQueue;
+		static HWND* mHandle;
 	};
 }
