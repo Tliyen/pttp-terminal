@@ -1,5 +1,6 @@
 #pragma once
 
+#include <windows.h>
 #include <queue>
 
 namespace protocoletariat

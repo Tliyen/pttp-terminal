@@ -1,0 +1,20 @@
+#include "Menu.h"
+
+MYMENU MENU
+{
+	MENUITEM "&Upload",			IDM_UPLOAD
+	POPUP "&Settings"
+	{
+		POPUP "&Port"
+		{
+			MENUITEM "&COM1",	IDM_COM1
+				MENUITEM "&COM2",	IDM_COM2
+				MENUITEM "&COM3",	IDM_COM3
+				MENUITEM "&COM4",	IDM_COM4
+		}
+		MENUITEM "&Configure",	IDM_CONFIG
+	}
+	MENUITEM "&About",			IDM_ABOUT
+	MENUITEM "&Help",			IDM_HELP
+	MENUITEM "&Exit",			IDM_EXIT
+}
