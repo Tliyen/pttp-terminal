@@ -172,12 +172,42 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 		{
 		case IDM_UPLOAD: // Start upload file thread
 
-			uploadQ.push("hello");
+			uploadQ.push("hello");	// put dummy data in upload queue
 			fileUploadParam = new paramFileUploader();
-			fileUploadParam->filePath = "testing string";
-			fileUploadParam->uploadQueue = &uploadQ;
 
-			uploadThrd = CreateThread(NULL, 0, FileUploader::LoadTextFile, fileUploadParam, 0, &uploadThrdID);
+			OPENFILENAME ofn;       // common dialog box structure
+			char szFile[300];       // buffer for file name
+
+			// Initialize OPENFILENAME
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = hwnd;
+			ofn.lpstrFile = szFile;
+			// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
+			// use the contents of szFile to initialize itself.
+			ofn.lpstrFile[0] = '\0';
+			ofn.nMaxFile = sizeof(szFile);
+			ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+			ofn.nFilterIndex = 1;
+			ofn.lpstrFileTitle = NULL;
+			ofn.nMaxFileTitle = 0;
+			ofn.lpstrInitialDir = NULL;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+			// Display the Open dialog box. 
+			if (GetOpenFileName(&ofn) == TRUE)
+			{
+				//hf = CreateFile(ofn.lpstrFile, GENERIC_READ, 0, (LPSECURITY_ATTRIBUTES)NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, (HANDLE)NULL);
+				fileUploadParam->filePath = ofn.lpstrFile;
+				fileUploadParam->uploadQueue = &uploadQ;
+				uploadThrd = CreateThread(NULL, 0, FileUploader::LoadTextFile, fileUploadParam, 0, &uploadThrdID);
+			}
+			else
+			{
+				MessageBox(hwnd
+					, TEXT("Unable to open specified file")
+					, TEXT("Access Denied"), MB_ICONHAND | MB_OK);
+			}
 			break;
 
 		case IDM_CONFIG: // Settings > Configure
