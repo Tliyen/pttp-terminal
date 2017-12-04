@@ -1,10 +1,29 @@
 #pragma once
+
+#include <windows.h>
+#include <stdio.h>
+#include <string.h>
+#include <tchar.h>
+#include "atlstr.h"
+#include <vector>
 #include <queue>
 
-bool printActive;
-<<<<<<< HEAD
-std::queue<char> printQueue;
-=======
-std::queue<char*> printQueue;
->>>>>>> 959b47d3f1e8dcf042507ddc7c8d164651e9610a
+namespace protocoletariat
+{
+	static class PrintData
+	{
+	public:
+		bool printActive;
+		unsigned int mCurrentRow;
 
+		std::queue<char*> printQueue;
+
+		void PrintReceivedData();
+		void DrawCharsByRow(const TCHAR* chars, unsigned int row);
+		void UpdateLog(const TCHAR* chars, unsigned int row);
+
+	private:
+	};
+
+
+}
