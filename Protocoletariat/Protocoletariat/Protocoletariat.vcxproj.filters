@@ -21,6 +21,9 @@
     <ClInclude Include="FileDownloader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PrintData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileUploader.cpp">
@@ -30,6 +33,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TesterMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PrintData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

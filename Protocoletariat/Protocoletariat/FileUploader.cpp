@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "FileUploader.h"
 
 namespace protocoletariat
@@ -10,6 +11,7 @@ namespace protocoletariat
 	{
 		mUploadQueue = param->uploadQueue;
 		mFilePath = param->filePath;
+
 
 	}
 

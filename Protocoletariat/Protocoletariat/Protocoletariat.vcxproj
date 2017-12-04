@@ -113,10 +113,12 @@
   <ItemGroup>
     <ClInclude Include="FileDownloader.h" />
     <ClInclude Include="FileUploader.h" />
+    <ClInclude Include="PrintData.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileDownloader.cpp" />
     <ClCompile Include="FileUploader.cpp" />
+    <ClCompile Include="PrintData.cpp" />
     <ClCompile Include="TesterMain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
