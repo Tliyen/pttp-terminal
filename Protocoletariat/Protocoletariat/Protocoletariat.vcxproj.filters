@@ -21,14 +21,13 @@
     <ClInclude Include="FileDownloader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-<<<<<<< HEAD
     <ClInclude Include="PrintData.h">
-=======
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Menu.h">
->>>>>>> be6942966c68949346036d5f6745b586337416be
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -42,11 +41,9 @@
     <ClCompile Include="TesterMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-<<<<<<< HEAD
     <ClCompile Include="PrintData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-=======
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -55,6 +52,5 @@
     <ResourceCompile Include="Menu.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
->>>>>>> be6942966c68949346036d5f6745b586337416be
   </ItemGroup>
 </Project>
