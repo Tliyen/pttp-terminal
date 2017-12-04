@@ -45,6 +45,7 @@
 #include "Menu.h"
 #include "Main.h"
 #include "FileUploader.h"
+#include "FileDownloader.h"
 
 using namespace protocoletariat;
 
@@ -88,6 +89,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	//}
 
 	logfile = new LogFile();
+	fileUploadParam = new paramFileUploader();
+	fileDownloadParam = new paramFileDownloader();
 
 	while (GetMessage(&Msg, NULL, 0, 0))
 	{
@@ -170,9 +173,6 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 		switch (LOWORD(wParam)) // menu
 		{
 		case IDM_UPLOAD: // Start upload file thread
-
-			uploadQ.push("hello");	// put dummy data in upload queue
-			fileUploadParam = new paramFileUploader();
 
 			OPENFILENAME ofn;       // common dialog box structure
 			char szFile[300];       // buffer for file name
@@ -450,7 +450,7 @@ boolean protocoletariat::ConfigureCommSettings(HWND hwnd)
 
 void protocoletariat::StartEngine()
 {
-	//downloadThrd = CreateThread(NULL, 0, ReadSerialPort, (LPVOID)hwnd, 0, &downloadThrdID);
+	downloadThrd = CreateThread(NULL, 0, FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
 	//printThrd = CreateThread(NULL, 0, PrintReceivedData, (LPVOID)hwnd, 0, &printThrdID);
 	//mainThrd = CreateThread(NULL, 0, Idle, (LPVOID)hwnd, 0, &mainThrdID);
 }
