@@ -5,7 +5,7 @@
 --
 -- FUNCTIONS:
 --		void Idle();
---		void BidForLine();
+--		void BidForLine(char ENQ);
 --		void SendData();
 --		void ConfirmTransmission();
 --		void Retransmit();
@@ -86,42 +86,161 @@ namespace protocoletariat
 
 	}
 
-
+	/*----------------------------------------------------------------------
+	-- FUNCTION: BidForLine
+	--
+	-- DATE: December 2, 2017
+	--
+	-- DESIGNER: Morgan Ariss & Jeremy Lee
+	--
+	-- PROGRAMMER: Li-Yan Tong
+	--
+	-- INTERFACE:  BidForLine(char ENQ)
+	--
+	-- RETURNS: void
+	--
+	-- NOTES:
+	----------------------------------------------------------------------*/
 	void Protocol::BidForLine(char ENQ)
 	{
 
 	}
 
+	/*----------------------------------------------------------------------
+	-- FUNCTION: SendData
+	--
+	-- DATE: December 2, 2017
+	--
+	-- DESIGNER: Morgan Ariss & Jeremy Lee
+	--
+	-- PROGRAMMER: Li-Yan Tong
+	--
+	-- INTERFACE: SendData()
+	--
+	-- RETURNS: void
+	--
+	-- NOTES:
+	----------------------------------------------------------------------*/
 	void Protocol::SendData()
 	{
 
 	}
 
+	/*----------------------------------------------------------------------
+	-- FUNCTION: ConfirmTransmission
+	--
+	-- DATE: December 2, 2017
+	--
+	-- DESIGNER: Morgan Ariss & Jeremy Lee
+	--
+	-- PROGRAMMER: Li-Yan Tong
+	--
+	-- INTERFACE: ConfirmTransmission()
+	--
+	-- RETURNS: void
+	--
+	-- NOTES:
+	----------------------------------------------------------------------*/
 	void Protocol::ConfirmTransmission()
 	{
 
 	}
 
+	/*----------------------------------------------------------------------
+	-- FUNCTION: Retransmit
+	--
+	-- DATE: December 2, 2017
+	--
+	-- DESIGNER: Morgan Ariss & Jeremy Lee
+	--
+	-- PROGRAMMER: Li-Yan Tong
+	--
+	-- INTERFACE: Retransmit()
+	--
+	-- RETURNS: void
+	--
+	-- NOTES:
+	----------------------------------------------------------------------*/
 	void Protocol::Retransmit()
 	{
 
 	}
 
+	/*----------------------------------------------------------------------
+	-- FUNCTION: LinkReset
+	--
+	-- DATE: December 2, 2017
+	--
+	-- DESIGNER: Morgan Ariss & Jeremy Lee
+	--
+	-- PROGRAMMER: Li-Yan Tong
+	--
+	-- INTERFACE: LinkReset()
+	--
+	-- RETURNS: void
+	--
+	-- NOTES:
+	----------------------------------------------------------------------*/
 	void Protocol::LinkReset()
 	{
 
 	}
 
+	/*----------------------------------------------------------------------
+	-- FUNCTION: AcknowledgeBid
+	--
+	-- DATE: December 2, 2017
+	--
+	-- DESIGNER: Morgan Ariss & Jeremy Lee
+	--
+	-- PROGRAMMER: Li-Yan Tong
+	--
+	-- INTERFACE: AcknowledgeBid()
+	--
+	-- RETURNS: void
+	--
+	-- NOTES:
+	----------------------------------------------------------------------*/
 	void Protocol::AcknowledgeBid()
 	{
 
 	}
 
+	/*----------------------------------------------------------------------
+	-- FUNCTION: ReceiveData
+	--
+	-- DATE: December 2, 2017
+	--
+	-- DESIGNER: Morgan Ariss & Jeremy Lee
+	--
+	-- PROGRAMMER: Li-Yan Tong
+	--
+	-- INTERFACE: ReceiveData()
+	--
+	-- RETURNS: void
+	--
+	-- NOTES:
+	----------------------------------------------------------------------*/
 	void Protocol::ReceiveData()
 	{
 
 	}
 
+	/*----------------------------------------------------------------------
+	-- FUNCTION: ErrorDetection
+	--
+	-- DATE: December 2, 2017
+	--
+	-- DESIGNER: Morgan Ariss & Jeremy Lee
+	--
+	-- PROGRAMMER: Li-Yan Tong
+	--
+	-- INTERFACE: ErrorDetection()
+	--
+	-- RETURNS: void
+	--
+	-- NOTES:
+	----------------------------------------------------------------------*/
 	void Protocol::ErrorDetection()
 	{
 
