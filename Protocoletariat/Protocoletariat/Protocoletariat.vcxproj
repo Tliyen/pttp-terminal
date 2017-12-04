@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{30442996-D8A8-4417-8C80-78F5900B7375}</ProjectGuid>
+    <ProjectGuid>{7812D6DE-F352-405B-81D4-0E05A56B0B6A}</ProjectGuid>
     <RootNamespace>Protocoletariat</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -111,24 +111,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="FileDownloader.h" />
-    <ClInclude Include="FileUploader.h" />
-<<<<<<< HEAD
-    <ClInclude Include="PrintData.h" />
-=======
-    <ClInclude Include="Main.h" />
-    <ClInclude Include="Menu.h" />
->>>>>>> be6942966c68949346036d5f6745b586337416be
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="FileDownloader.cpp" />
     <ClCompile Include="FileUploader.cpp" />
-<<<<<<< HEAD
-    <ClCompile Include="PrintData.cpp" />
-=======
     <ClCompile Include="Main.cpp" />
->>>>>>> be6942966c68949346036d5f6745b586337416be
+    <ClCompile Include="PrintData.cpp" />
     <ClCompile Include="TesterMain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FileDownloader.h" />
+    <ClInclude Include="FileUploader.h" />
+    <ClInclude Include="Main.h" />
+    <ClInclude Include="Menu.h" />
+    <ClInclude Include="PrintData.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Menu.rc" />

@@ -2,12 +2,18 @@
 
 namespace protocoletariat
 {
-	std::queue<char*>* mDownloadQueue = nullptr;
-	HWND* mHandle = nullptr;
+	//std::queue<char*>* mDownloadQueue = nullptr;
+	//HWND* mHandle = nullptr;
 
-	void FileDownloader::ReadSerialPort(paramFileDownloader* param)
+	DWORD WINAPI FileDownloader::ReadSerialPort(paramFileDownloader* param)
 	{
-		mDownloadQueue = param->downloadQueue;
-		mHandle = param->handle;
+		//mDownloadQueue = param->downloadQueue;
+		//mHandle = param->handle;
+		std::queue<char*>* downloadQueue = param->downloadQueue;
+		HWND* handle = param->handle;
+
+
+
+		return 0;
 	}
 }
