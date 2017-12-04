@@ -15,12 +15,14 @@ namespace protocoletariat
 	{
 	public:
 		FileDownloader() = delete;
-		void ReadSerialPort(paramFileDownloader* param);
+		static DWORD WINAPI ReadSerialPort(paramFileDownloader* param);
 
 	private:
-		const size_t MAX_FRAME_SIZE = 512;
+		const size_t MAX_FRAME_SIZE = 518;
+		static const char STX = 2;
+		static const char SYN = 22;
 
-		static std::queue<char*>* mDownloadQueue;
-		static HWND* mHandle;
+		//static std::queue<char*>* mDownloadQueue;
+		//static HWND* mHandle;
 	};
 }

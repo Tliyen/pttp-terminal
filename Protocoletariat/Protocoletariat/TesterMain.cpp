@@ -7,13 +7,32 @@
 --
 ----------------------------------------------------------------------*/
 #include <iostream>
+#include <fstream>
 #include "FileUploader.h"
 #include "FileDownloader.h"
 
+using namespace protocoletariat;
+
 int main()
 {
-	
+	paramFileUploader* param = new paramFileUploader();
+	std::queue<char*>* queue = new std::queue<char*>();
 
+	param->filePath = "c:\\test.txt";
+	param->uploadQueue = queue;
+
+	FileUploader::LoadTextFile(param);
+
+	while (!queue->empty())
+	{
+		char* queued = queue->front();
+		queue->pop();
+
+		for (unsigned i = 0; i < 518; ++i)
+		{
+			std::cout << queued[i];
+		}
+	}
 
 	return 0;
 }

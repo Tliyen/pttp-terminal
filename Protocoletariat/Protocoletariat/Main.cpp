@@ -139,7 +139,6 @@ boolean protocoletariat::InitializeWindows(HINSTANCE hInst, int nCmdShow)
 	return true;
 }
 
-
 /*----------------------------------------------------------------------
 -- FUNCTION: WndProc
 --
@@ -200,7 +199,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 				//hf = CreateFile(ofn.lpstrFile, GENERIC_READ, 0, (LPSECURITY_ATTRIBUTES)NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, (HANDLE)NULL);
 				fileUploadParam->filePath = ofn.lpstrFile;
 				fileUploadParam->uploadQueue = &uploadQ;
-				uploadThrd = CreateThread(NULL, 0, FileUploader::LoadTextFile, fileUploadParam, 0, &uploadThrdID);
+				uploadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) FileUploader::LoadTextFile, fileUploadParam, 0, &uploadThrdID);
 			}
 			else
 			{
@@ -448,7 +447,6 @@ boolean protocoletariat::ConfigureCommSettings(HWND hwnd)
 
 	return true;
 }
-
 
 void protocoletariat::StartEngine()
 {

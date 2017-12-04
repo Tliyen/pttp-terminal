@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{30442996-D8A8-4417-8C80-78F5900B7375}</ProjectGuid>
+    <ProjectGuid>{7812D6DE-F352-405B-81D4-0E05A56B0B6A}</ProjectGuid>
     <RootNamespace>Protocoletariat</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -111,16 +111,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FileDownloader.cpp" />
+    <ClCompile Include="FileUploader.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="PrintData.cpp" />
+    <ClCompile Include="TesterMain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="FileDownloader.h" />
     <ClInclude Include="FileUploader.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Menu.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="FileDownloader.cpp" />
-    <ClCompile Include="FileUploader.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="TesterMain.cpp" />
+    <ClInclude Include="PrintData.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Menu.rc" />
