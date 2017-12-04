@@ -68,6 +68,8 @@ namespace protocoletariat
 				//GetWindowText()
 
 				DrawCharsByRow((TCHAR*)printPayload, mCurrentRow);
+				
+				// Remove Data from queue.
 				printQueue.pop();
 			}
 
@@ -97,7 +99,7 @@ namespace protocoletariat
 	--
 	-- DESIGNER:	Jeremy Lee, Luke Lee
 	--
-	-- PROGRAMMER:	Jeremy Lee, Luke Lee
+	-- PROGRAMMER:	Li-Yan Tong
 	--
 	-- INTERFACE:	void DrawCharsByRow(const TCHAR* chars,
 	--									unsigned int row)
@@ -112,9 +114,8 @@ namespace protocoletariat
 	-- NOTES:
 	-- A function to draw a character string to the Window.
 	-- Finds the x and y coordinate to start drawing the input character
-	-- string from. Erases the previously drawn character string on the line
-	-- specified by the row input, and then draws the input character string
-	-- on the same line.
+	-- string from. Continues to print data on a new line specified by the 
+	-- row input, and then draws the input character string.
 	----------------------------------------------------------------------*/
 	void PrintData::DrawCharsByRow(const TCHAR* chars, unsigned int row)
 	{
@@ -140,13 +141,13 @@ namespace protocoletariat
 	}
 
 	/*----------------------------------------------------------------------
-	-- FUNCTION:	DrawCharsByRow
+	-- FUNCTION:	UpdateLog
 	--
 	-- DATE:		October 15, 2017
 	--
 	-- DESIGNER:	Jeremy Lee, Luke Lee
 	--
-	-- PROGRAMMER:	Jeremy Lee, Luke Lee
+	-- PROGRAMMER:	Li-Yan Tong
 	--
 	-- INTERFACE:	void DrawCharsByRow(const TCHAR* chars,
 	--									unsigned int row)
@@ -161,7 +162,7 @@ namespace protocoletariat
 	-- NOTES:
 	-- A function to draw a character string to the Window.
 	-- Finds the x and y coordinate to start drawing the input character
-	-- string from. Erases the previously drawn character string on the line
+	-- string from. Erases the previously log information string on the line
 	-- specified by the row input, and then draws the input character string
 	-- on the same line.
 	----------------------------------------------------------------------*/
