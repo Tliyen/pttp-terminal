@@ -31,11 +31,12 @@
 -- event triggers.
 --
 -- When a file requires immediate transfer, the program will listen for
--- for a Reverse Interrupt (RVI) to take over the connection and 
+-- for a Reverse Interrupt (RVI) to take over the connection and
 -- prioritize transfering this file.
 ----------------------------------------------------------------------*/
 
 #include "Protocol.h"
+#include "Main.h"
 #include "FileDownloader.h"
 #include "FileUploader.h"
 #include "PrintData.h"
@@ -68,22 +69,28 @@ namespace protocoletariat
 	----------------------------------------------------------------------*/
 	void Protocol::Idle()
 	{
+		// Switch on when engine starts
 		while (protocolActive)
 		{
-			if (CommEvent)
+			// Check Character in Serial Port
+			if (SetCommMask(hComm, EV_RXCHAR))
 			{
-				if (downloadQ.peek() == CHAR_ENQ)
+				// Continously Keep Reading if there is a byte in Serial Port
+				while (bReading)
 				{
-					downloadQ.pop(); // Popping a frame?
-					AcknowledgeBid();
+					if (*downloadQ.front() == CHAR_ENQ)
+					{
+						downloadQ.pop(); // Popping a frame?
+						AcknowledgeBid();
+					}
+
+					else if (EnqRequest)
+					{
+						BidForLine(CHAR_ENQ);
+					}
 				}
 			}
-			else if (EnqRequest)
-			{
-				BidForLine(CHAR_ENQ);
-			}
 		}
-
 	}
 
 	/*----------------------------------------------------------------------
@@ -103,7 +110,39 @@ namespace protocoletariat
 	----------------------------------------------------------------------*/
 	void Protocol::BidForLine(char ENQ)
 	{
+		// Start TOR
+		dwRet = WaitForSingleObject(hwnd, TIMEOUT);
 
+		if (CommEvent)
+		{
+			if (*downloadQ.front() == CHAR_ACK)
+			{
+				sendData = true;
+				SendData();
+			}
+		}
+
+		// Handle TOR
+		switch (dwRet)
+		{
+		case WAIT_ABANDONED:
+			wprintf(L"Mutex object was not released by the thread that\n"
+				L"owned the mutex object before the owning thread terminates...\n");
+			LinkReset();
+			break;
+		case WAIT_OBJECT_0:
+			wprintf(L"The child thread state was signaled!\n");
+
+			break;
+		case WAIT_TIMEOUT:
+			wprintf(L"Time-out interval elapsed, and the child thread's state is nonsignaled.\n");
+			LinkReset();
+			break;
+		case WAIT_FAILED:
+			wprintf(L"WaitForSingleObject() failed, error %u\n", GetLastError());
+			LinkReset();
+			ExitProcess(0);
+		}
 	}
 
 	/*----------------------------------------------------------------------
@@ -123,8 +162,51 @@ namespace protocoletariat
 	----------------------------------------------------------------------*/
 	void Protocol::SendData()
 	{
+		BYTE inbuff[512];
+		DWORD nBytesRead, dwEvent, dwError;
+		COMSTAT cs;
 
+		while (sendData)
+		{
+			if (*uploadQ.front() == CHAR_RVI)
+			{
+				RVI = false;
+				// Clear download buffer
+				// EOT control frame
+				LinkReset();
+			}
+			else if (*uploadQ.front() == CHAR_EOT)
+			{
+				// EOT control frame
+				LinkReset();
+			}
+			else if (*uploadQ.front() == CHAR_STX)
+			{
+				/* read all available bytes */
+				ClearCommError(hComm, &dwError, &cs);
+
+				if ((dwEvent & EV_RXCHAR) && cs.cbInQue)
+				{
+					if (!ReadFile(hComm, inbuff, cs.cbInQue,
+						&nBytesRead, NULL)) {
+
+
+						for (int i = 0; i < 512; i++)
+						{
+							if (inbuff[i] != CHAR_ETX)
+							{
+
+							}
+						}
+
+						/* handle error */
+						//locProcessCommError(GetLastError());
+					}
+				}
+			}
+		}
 	}
+
 
 	/*----------------------------------------------------------------------
 	-- FUNCTION: ConfirmTransmission

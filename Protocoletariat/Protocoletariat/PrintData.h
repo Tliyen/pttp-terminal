@@ -2,5 +2,5 @@
 #include <queue>
 
 bool printActive;
-queue<char> printQueue;
+std::queue<char*> printQueue;
 
