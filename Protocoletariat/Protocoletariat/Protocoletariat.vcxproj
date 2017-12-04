@@ -113,13 +113,25 @@
   <ItemGroup>
     <ClInclude Include="FileDownloader.h" />
     <ClInclude Include="FileUploader.h" />
+<<<<<<< HEAD
     <ClInclude Include="PrintData.h" />
+=======
+    <ClInclude Include="Main.h" />
+    <ClInclude Include="Menu.h" />
+>>>>>>> be6942966c68949346036d5f6745b586337416be
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileDownloader.cpp" />
     <ClCompile Include="FileUploader.cpp" />
+<<<<<<< HEAD
     <ClCompile Include="PrintData.cpp" />
+=======
+    <ClCompile Include="Main.cpp" />
+>>>>>>> be6942966c68949346036d5f6745b586337416be
     <ClCompile Include="TesterMain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Menu.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
