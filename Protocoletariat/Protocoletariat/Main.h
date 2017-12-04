@@ -63,4 +63,5 @@ namespace protocoletariat
 
 	// Parameter to pass to ThreadProc
 	struct paramFileUploader* fileUploadParam;
+	struct paramFileDownloader* fileDownloadParam;
 }
