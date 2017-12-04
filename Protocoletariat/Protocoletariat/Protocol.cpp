@@ -198,7 +198,9 @@ namespace protocoletariat
 
 							}
 						}
-
+						transferConfirmed = true;
+						ConfirmTransmission();
+						sendData = false;
 						/* handle error */
 						//locProcessCommError(GetLastError());
 					}
@@ -225,7 +227,11 @@ namespace protocoletariat
 	----------------------------------------------------------------------*/
 	void Protocol::ConfirmTransmission()
 	{
+		while (transferConfirmed)
+		{
+			// Download Queue front is ACK
 
+		}
 	}
 
 	/*----------------------------------------------------------------------

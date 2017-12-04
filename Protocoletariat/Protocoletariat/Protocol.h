@@ -36,6 +36,7 @@ namespace protocoletariat
 		bool protocolActive;
 		bool sendData;
 		bool receiveData;
+		bool transferConfirmed;
 		bool RVI;
 
 		DWORD dwRet;
