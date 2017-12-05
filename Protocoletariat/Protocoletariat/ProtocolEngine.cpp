@@ -39,6 +39,8 @@
 ----------------------------------------------------------------------*/
 #include <iostream>
 #include <fstream>
+#include <string>
+
 #include "ProtocolEngine.h"
 
 namespace protocoletariat
@@ -47,22 +49,24 @@ namespace protocoletariat
 	std::queue<char*>* ProtocolEngine::mUploadQueue = nullptr;
 	std::queue<char*>* ProtocolEngine::mDownloadQueue = nullptr;
 	std::queue<char*>* ProtocolEngine::mPrintQueue = nullptr;
-	
-	char ENQframe[];
-	char ACKframe[];
-	char EOTframe[];
-	
-	char* incFrame;
-	char* outFrame;
 
-	struct logfile;
+	// const char* ProtocolEngine::ENQframe = CHAR_SYN + ASCII_ENQ;
+	// const char* ProtocolEngine::ACKframe = { ASCII_SYN, ASCII_ACK };
+	// const char* ProtocolEngine::EOTframe = { ASCII_SYN, ASCII_EOT };
 	
-	HANDLE* mHandle = nullptr;
-	OVERLAPPED& olWrite;
-	
-	DWORD& dwThreadExit;
+	char* ProtocolEngine::incFrame;
+	char* ProtocolEngine::outFrame;
 
-	DWORD dwEvent, dwError;
+	LogFile* ProtocolEngine::mLogfile;
+
+	bool* ProtocolEngine::mDownloadReady;
+
+	bool ProtocolEngine::protocolActive;
+	
+	HANDLE* ProtocolEngine::mHandle = nullptr;
+	//OVERLAPPED& ProtocolEngine::olWrite;
+
+	DWORD ProtocolEngine::dwEvent, ProtocolEngine::dwError;
 
 	bool linkReceivedENQ;
 
@@ -75,19 +79,23 @@ namespace protocoletariat
 		mDownloadQueue = param->downloadQueue;
 		mUploadQueue = param->uploadQueue;
 		mPrintQueue = param->printQueue;
+
+		mLogfile = param->logfile;
 		
-		HANDLE* mHandle = param->hComm;
-		OVERLAPPED& olWrite = param->olWrite;
+		mHandle = param->hComm;
+		olWrite = param->olWrite;
 	
-		DWORD& dwThreadExit = param->dwThreadExit;
-		
-		char ENQframe[] = {ASCII_SYN, ASCII_ENQ};
-		char ACKframe[] = {ASCII_SYN, ASCII_ACK};
-		char EOTframe[] = {ASCII_SYN, ASCII_EOT};
+		dwThreadExit = param->dwThreadExit;
+
+		mDownloadReady = param->downloadReady;
 
 		linkReceivedENQ = false;
+
+		protocolActive = true;
 		
 		Idle();
+
+		return 0;
 	}
 
 	/*
@@ -104,26 +112,41 @@ namespace protocoletariat
 		
 		bool status;
 
-		//olWrite.hEvent(NULL, true, false, NULL);
+		olWrite.hEvent= CreateEvent(NULL, true, false, NULL);
+		if (olWrite.hEvent == NULL)
+		{
+			// Event could not be created
+			return false;
+		}
+		
 		
 		if(control)
 		{
+			lpBuffer = new char[CONTROL_FRAME_SIZE];
+			lpBuffer[0] = CHAR_SYN;
 			switch(type)
 			{
 				case ASCII_ENQ:
-					lpBuffer = ENQframe[];
+					lpBuffer[1] = CHAR_ENQ;
+					break;
 				case ASCII_ACK:
-					lpBuffer = ACKframe[];
+					lpBuffer[1] = CHAR_ACK;
+					break;
 				case ASCII_EOT:
-					lpBuffer = EOTframe[];
+					lpBuffer[1] = CHAR_EOT;
+					break;
+				default:
+					//should not get here
+					break;
 			}
 		}
 		else
 		{
+			lpBuffer = new char[DATA_FRAME_SIZE];
 			lpBuffer = outFrame;
 		}
 		
-		DWORD  dNoOfBytesWritten = 0;          
+		dNoOfBytesWritten = 0;          
 		dNoOFBytestoWrite = sizeof(lpBuffer);  // Calculating the no of bytes to write into the port
 
 		status = WriteFile(mHandle,             // Handle to the Serialport
@@ -131,6 +154,9 @@ namespace protocoletariat
 						   dNoOFBytestoWrite,   // No of bytes to write into the port
 						   &dNoOfBytesWritten,  // No of bytes written to the port
 						   NULL);
+
+		delete lpBuffer;
+		return status;
 	}
 
 	/*
@@ -159,18 +185,22 @@ namespace protocoletariat
 			// A signal has been received
 			if(WaitCommEvent (mHandle, &dwEvent, NULL))
 			{
-				// read the front frame from the downloadQueue into frame
-				incFrame = mDownloadQueue->front();
-				
-				// Check if the front of the queue an ENQ
-				if(incFrame[1] == ASCII_ENQ)
+				while (true)
 				{
-					incFrame = nullptr;
-					AcknowledgeBid();
-				}
-				else
-				{
-					break;
+					if (*mDownloadReady)
+					{
+						// read the front frame from the downloadQueue into frame
+						incFrame = mDownloadQueue->front();
+
+						// Check if the front of the queue an ENQ
+						if (incFrame[1] == ASCII_ENQ)
+						{
+							incFrame = nullptr;
+							AcknowledgeBid();
+							*mDownloadReady = false;
+							break;
+						}
+					}
 				}
 			}
 			
@@ -330,7 +360,7 @@ namespace protocoletariat
 					// Pop front of upload buffer
 					mUploadQueue->pop();
 					// Increment logfile successful frames variable
-					//logfile.successfulFrames++;
+					mLogfile->sent_packet++;
 					// Move back to SendData
 					return true;
 				}
@@ -383,7 +413,7 @@ namespace protocoletariat
 						// Pop front of upload buffer
 						mUploadQueue->pop();
 						// Increment logfile successful frames variable
-						//logfile.successfulFrames++;
+						mLogfile->sent_packet++;
 						// Move back to SendData
 						return true;
 					}
@@ -420,6 +450,7 @@ namespace protocoletariat
 				// Check if the front of the queue an ENQ
 				if(incFrame[1] == CHAR_ENQ)
 				{
+					delete incFrame;
 					incFrame = nullptr;
 					linkReceivedENQ = true;
 					// Pop download queue front
@@ -472,7 +503,7 @@ namespace protocoletariat
 		int RxCounter = 0;
 		int FailedFrames = 0;
 		
-		// Loop until 3 consecutive failures
+		// Loop until 3 consecutive failures or 10 successful frames
 		do
 		{
 			// Loop while timeout not exceeded
@@ -514,7 +545,7 @@ namespace protocoletariat
 						else
 						{
 							// Increment the failed frames counter
-							FailedFrames++;
+							mLogfile->lost_packet++;
 							// Reset the timer
 							timer = 0;
 							continue;
@@ -544,7 +575,7 @@ namespace protocoletariat
 
 		bool errorDetected = false;
 		
-		while (timer < 20)
+		while (timer < 200)
 		{
 			// Get the 512 data characters from the download queue
 			for(int i = 1; i < 513; i++)
@@ -567,7 +598,7 @@ namespace protocoletariat
 			if(errorDetected)
 			{
 				// Increment logfile corrupt frame counter
-				//logfile.corruptFrameCounter++;
+				mLogfile->received_corrupted_packet++;
 				// Move back to ReceiveData
 				return false;
 			}
@@ -576,9 +607,9 @@ namespace protocoletariat
 				// Send data to print
 				
 				// Increment the logfile successful frames counter
-				//logfile.successfulFramesCounter++;
+				mLogfile->sent_packet++;
 				// Transmit ACK control frame
-				
+				TransmitFrame(true, ASCII_ACK);
 				// Move back to ReceiveData
 				return true;
 			}
