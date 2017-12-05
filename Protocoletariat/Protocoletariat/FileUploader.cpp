@@ -1,5 +1,3 @@
-#include <iostream>
-#include <fstream>
 #include "FileUploader.h"
 
 namespace protocoletariat
@@ -66,23 +64,23 @@ namespace protocoletariat
 			}
 
 			// CRC_32
-			char* framePayloadOnly = new char[MAX_FRAME_SIZE - 6];
+			char* framePayloadOnly = new char[MAX_FRAME_SIZE - 5];
 			for (unsigned int k = 0; k < MAX_FRAME_SIZE - 6; ++k)
 			{
 				framePayloadOnly[k] = frame[k + 2];
 			}
-
+			framePayloadOnly[MAX_FRAME_SIZE - 6] = '\0';
 			std::uint32_t crc = CRC::Calculate(framePayloadOnly, sizeof(framePayloadOnly), CRC::CRC_32());
 
 			// debug ---------------------------------------------------
-			//std::cout << "payload only: " << std::endl;
-			//for (unsigned int z = 0; z < MAX_FRAME_SIZE - 6; ++z)
-			//{
-			//	std::cout << framePayloadOnly[z];
-			//}
-			//std::cout << std::endl;
+			std::cout << "payload only: " << std::endl;
+			for (unsigned int z = 0; z < MAX_FRAME_SIZE - 6; ++z)
+			{
+				std::cout << framePayloadOnly[z];
+			}
+			std::cout << std::endl;
 
-			//std::cout << "crc generated: " << std::endl << std::hex << crc << std::endl;
+			std::cout << "crc generated: " << std::hex << crc << std::endl;
 			// debug ---------------------------------------------------
 
 			delete framePayloadOnly;
@@ -90,13 +88,13 @@ namespace protocoletariat
 			unsigned char* crcStr = new unsigned char[4];
 
 			// second approach
-			crcStr[0] = (crc >> 24) & 0xFF;
-			crcStr[1] = (crc >> 16) & 0xFF;
-			crcStr[2] = (crc >> 8) & 0xFF;
-			crcStr[3] = crc & 0xFF;
+			//crcStr[0] = (crc >> 24) & 0xFF;
+			//crcStr[1] = (crc >> 16) & 0xFF;
+			//crcStr[2] = (crc >> 8) & 0xFF;
+			//crcStr[3] = crc & 0xFF;
 
 			// third approach
-			//memcpy(crcStr, &crc, sizeof(crc));
+			memcpy(crcStr, &crc, sizeof(crc));
 
 			//std::cout << "CRC first method: " << std::endl;
 			for (unsigned int k = 514; k < MAX_FRAME_SIZE; ++k)
