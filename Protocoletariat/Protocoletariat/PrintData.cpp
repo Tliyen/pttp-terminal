@@ -45,7 +45,7 @@ namespace protocoletariat
 	----------------------------------------------------------------------*/
 	DWORD WINAPI PrintData::PrintReceivedData(paramPrintData* param)
 	{
-		mCurrentRow = 1;
+		mCurrentRow = 4;
 
 		std::queue<char*>* printQ = param->printQueue;
 		LogFile* logfile = param->logfile;
@@ -70,21 +70,30 @@ namespace protocoletariat
 			// Remove Data from queue.
 			printQ->pop();
 
-			std::string logPrint;
+			// Print Sent Packets
+			std::string logSent;
+			logSent.append("Sent Packets: ");
+			logSent.append(logfile->sent_packet + " ");
+			PrintLog((TCHAR*)logSent.c_str(), 0);
 
-			logPrint.append("Sent Packets: ");
-			logPrint.append(logfile->sent_packet + " ");
+			// Print Lost Packets
+			std::string logLost;
+			logLost.append("Lost Packets: ");
+			logLost.append(logfile->lost_packet + " ");
+			PrintLog((TCHAR*)logLost.c_str(), 1);
 
-			logPrint.append("Lost/Corrupt Packets: ");
-			logPrint.append(logfile->lost_packet + " ");
+			// Print Recieved Packets
+			std::string logReceive;
+			logReceive.append("Recieved Packets: ");
+			logReceive.append(logfile->received_packet + " ");
+			PrintLog((TCHAR*)logReceive.c_str(), 2);
 
-			logPrint.append("Recieved Packets: ");
-			logPrint.append(logfile->received_packet + " ");
+			// Print Corrupt Packets
+			std::string logCorrupt;
+			logCorrupt.append("Lost/Corrupt Packets: ");
+			logCorrupt.append(logfile->received_corrupted_packet + "");
+			PrintLog((TCHAR*)logCorrupt.c_str(), 3);
 
-			logPrint.append("Lost/Corrupt Packets: ");
-			logPrint.append(logfile->received_corrupted_packet + "");
-
-			UpdateLog((TCHAR*)logPrint.c_str(), 0);
 			Sleep(1000);
 			
 			return 1;
@@ -122,6 +131,25 @@ namespace protocoletariat
 	{
 		HDC hdc;
 		TEXTMETRIC tm;
+		SIZE size;
+		RECT rect;
+
+		const int offsetRightSide = 25;
+
+		hdc = GetDC(*hwnd); // Acquire DC
+		GetTextMetrics(hdc, &tm); // get text metrics
+		GetTextExtentPoint32(hdc, (char*)*chars, 1, &size); // compute length of a string 
+		TextOut(hdc, X, Y, (char*)*chars, 1);
+		X += size.cx; // advance to end of previous string
+		if (GetWindowRect(*hwnd, &rect))
+		{
+			int width = rect.right - rect.left; // get Window width
+			if (X >= width - offsetRightSide)
+			{
+				X = 0;
+				Y = Y + tm.tmHeight + tm.tmExternalLeading; // next line
+			}
+		}
 
 		hdc = GetDC(*hwnd); // Acquire DC
 		GetTextMetrics(hdc, &tm); // get text metrics
@@ -167,7 +195,7 @@ namespace protocoletariat
 	-- specified by the row input, and then draws the input character string
 	-- on the same line.
 	----------------------------------------------------------------------*/
-	void PrintData::UpdateLog(const TCHAR* chars, unsigned int row)
+	void PrintData::PrintLog(const TCHAR* chars, unsigned int row)
 	{
 		HDC hdc;
 		TEXTMETRIC tm;
