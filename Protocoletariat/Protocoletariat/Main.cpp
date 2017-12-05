@@ -92,7 +92,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	logfile = new LogFile();
 	fileUploadParam = new paramFileUploader();
 	fileDownloadParam = new paramFileDownloader();
-
+	
 	while (GetMessage(&Msg, NULL, 0, 0))
 	{
 		TranslateMessage(&Msg);
@@ -470,23 +470,17 @@ boolean protocoletariat::ConfigureCommSettings(HWND hwnd)
 
 void protocoletariat::StartEngine()
 {
-<<<<<<< HEAD
-	downloadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
-	//printThrd = CreateThread(NULL, 0, PrintReceivedData, (LPVOID)hwnd, 0, &printThrdID);
-	//mainThrd = CreateThread(NULL, 0, Idle, (LPVOID)hwnd, 0, &mainThrdID);
-=======
 	// initialize fileDownloadParam
 	olRead = {0};
 	fileDownloadParam->downloadQueue = &downloadQ;
 	fileDownloadParam->olRead = olRead;
 	fileDownloadParam->dwThreadExit = readThreadExit;
 	fileDownloadParam->handle = &hwnd;
-	downloadThrd = CreateThread(NULL, 0, FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
+	downloadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
 	
 	std::queue<char*>* printQ = &dataToPrintQ;
-	printThrd = CreateThread(NULL, 0, PrintData::PrintReceivedData, printQ, 0, &printThrdID);
-	protocolThrd = CreateThread(NULL, 0, ProtocolThread, (LPVOID)hwnd, 0, &protocolThrdID);
->>>>>>> 3debdbcc7fa3397a33dac93eca45279c51498377
+	printThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)PrintData::PrintReceivedData, printQ, 0, &printThrdID);
+	//protocolThrd = CreateThread(NULL, 0, ProtocolThread, (LPVOID)hwnd, 0, &protocolThrdID);
 }
 
 void protocoletariat::ClearQueue(std::queue<char*> &q)

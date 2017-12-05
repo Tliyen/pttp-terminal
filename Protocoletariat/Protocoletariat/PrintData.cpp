@@ -19,10 +19,11 @@
 ----------------------------------------------------------------------*/
 
 #include "PrintData.h"
-#include "Main.h"
 
 namespace protocoletariat
 {
+	static HWND* hwnd = nullptr;
+
 	/*----------------------------------------------------------------------
 	-- FUNCTION: PrintReceivedData()
 	--
@@ -42,15 +43,20 @@ namespace protocoletariat
 	-- calculates the position of the last character written on screen, and
 	-- determines if it is off the Window by calculating the Window's width.
 	----------------------------------------------------------------------*/
-	DWORD WINAPI PrintData::PrintReceivedData(std::queue<char*> printQueue)
+	DWORD WINAPI PrintData::PrintReceivedData(paramPrintData* param)
 	{
 		mCurrentRow = 1;
 
-		while (!printQueue.empty()) {
+		std::queue<char*>* printQ = param->printQueue;
+		LogFile* logfile = param->logfile;
+		HWND* hwnd = param->hwnd;
+		PrintData::hwnd = hwnd;
+
+		while (!printQ->empty()) {
 			// Load up
 			char* payload = new char[512];
 
-			payload = printQueue.front();
+			payload = printQ->front();
 
 			wchar_t printPayload[513];
 
@@ -62,7 +68,7 @@ namespace protocoletariat
 			mCurrentRow++;
 
 			// Remove Data from queue.
-			printQueue.pop();
+			printQ->pop();
 
 			std::string logPrint;
 
@@ -117,7 +123,7 @@ namespace protocoletariat
 		HDC hdc;
 		TEXTMETRIC tm;
 
-		hdc = GetDC(hwnd); // Acquire DC
+		hdc = GetDC(*hwnd); // Acquire DC
 		GetTextMetrics(hdc, &tm); // get text metrics
 
 		X = 0; // move to the beginning of line
@@ -132,7 +138,7 @@ namespace protocoletariat
 
 		// draws the specified input string
 		TextOut(hdc, X, Y, chars, _tcslen(chars));
-		ReleaseDC(hwnd, hdc); // release device context
+		ReleaseDC(*hwnd, hdc); // release device context
 	}
 
 	/*----------------------------------------------------------------------
@@ -161,12 +167,12 @@ namespace protocoletariat
 	-- specified by the row input, and then draws the input character string
 	-- on the same line.
 	----------------------------------------------------------------------*/
-	void UpdateLog(const TCHAR* chars, unsigned int row)
+	void PrintData::UpdateLog(const TCHAR* chars, unsigned int row)
 	{
 		HDC hdc;
 		TEXTMETRIC tm;
 
-		hdc = GetDC(hwnd); // Acquire DC
+		hdc = GetDC(*hwnd); // Acquire DC
 		GetTextMetrics(hdc, &tm); // get text metrics
 
 		X = 0; // move to the beginning of line
@@ -186,6 +192,6 @@ namespace protocoletariat
 		TextOut(hdc, X, Y, eraser, _tcslen(eraser));
 		// draws the specified input string
 		TextOut(hdc, X, Y, chars, _tcslen(chars));
-		ReleaseDC(hwnd, hdc); // release device context
+		ReleaseDC(*hwnd, hdc); // release device context
 	}
 }
