@@ -36,14 +36,15 @@ namespace protocoletariat
 	int X = 0, Y = 0; // current str coordinates
 
 					  // Thread handles
-	HANDLE		uploadThrd, downloadThrd, printThrd, mainThrd;
-	DWORD		uploadThrdID, downloadThrdID, printThrdID, mainThrdID;
+	HANDLE		uploadThrd, downloadThrd, printThrd, protocolThrd;
+	DWORD		uploadThrdID, downloadThrdID, printThrdID, protocolThrdID;
 
 	// Global variables - for Protocol Comm
 	std::queue<char*> uploadQ;
 	std::queue<char*> downloadQ;
 	std::queue<char*> dataToPrintQ;
 	LogFile* logfile;
+	boolean globalRVI;
 
 	// Functions
 	LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
