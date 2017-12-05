@@ -16,9 +16,9 @@ namespace protocoletariat
 		bool printActive;
 		unsigned int mCurrentRow;
 
-		std::queue<char*> printQueue;
+		//std::queue<char*> printQueue; Moved to main
 
-		void PrintReceivedData();
+		DWORD WINAPI  PrintReceivedData(const std::queue<char*> printQueue);
 		void DrawCharsByRow(const TCHAR* chars, unsigned int row);
 		void UpdateLog(const TCHAR* chars, unsigned int row);
 
