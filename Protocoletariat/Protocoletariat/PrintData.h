@@ -7,8 +7,8 @@
 #include "atlstr.h"
 #include <vector>
 #include <queue>
-#include "Main.h"
-
+#include "global.h"
+//#include "Main.h"
 
 namespace protocoletariat
 {
@@ -25,13 +25,15 @@ namespace protocoletariat
 	static class PrintData
 	{
 	public:
-		static DWORD WINAPI PrintReceivedData(paramPrintData* param);
-		static void DrawCharsByRow(const TCHAR* chars, unsigned int row);
-		static void PrintData::UpdateLog(const TCHAR* chars, unsigned int row);
+		static DWORD WINAPI PrintData::PrintReceivedData(paramPrintData* param);
+		static void PrintData::PrintPayload(HWND* hwnd, const TCHAR* chars, unsigned int row, int* X, int*Y);
+		static void PrintData::PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row, int* X, int*Y);
+
+		//static bool printDataActive;
 
 	private:
-		static unsigned int mCurrentRow;
-		static HWND* hwnd;
+		//static unsigned int mCurrentRow;
+		//static HWND* hwnd;
 		
 	};
 }
