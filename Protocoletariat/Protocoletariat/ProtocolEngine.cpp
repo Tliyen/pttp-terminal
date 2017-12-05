@@ -52,8 +52,8 @@ namespace protocoletariat
 	char ACKframe[];
 	char EOTframe[];
 	
-	char* incFrame[517];
-	char* outFrame[518];
+	char* incFrame;
+	char* outFrame;
 
 	struct logfile;
 	
@@ -533,38 +533,41 @@ namespace protocoletariat
 	A Data Frame has been RECEIVED
 	This state will handle the detection of errors using the CRC at the end of the of the Data Frame. All remaining bytes will be read from the download queue; the first 512 will be the data bytes, the next 4 will be the CRC bytes. If no error is detected the system will TRANSMIT an ACK, send the received data to be printed, and return to the Receive state. Otherwise the system will timeout and return to the Receive state without TRANSMITTING an ACK. This timeout must be very short.
 	*/
-	bool ErrorDetection()
+	bool ProtocolEngine::ErrorDetection()
 	{
 		// Start TOS
 		int timer = 0;
 		
 		// Initialize frame and CRC holder
-		String frame = "";
-		String CRC = "";
+		char frame[512];
+		char CRC[4];
+
+		bool errorDetected = false;
 		
 		while (timer < 20)
 		{
-			// Get the next 512 characters from the download queue
-			for(i = 0; i < 512; i++)
+			// Get the 512 data characters from the download queue
+			for(int i = 1; i < 513; i++)
 			{
 				// Read all chars from the front of the queue and remove it
-				frame += globalDownloadQueue.front();
-				globlaDownloadQueue.pop();
-			}
-			for(i = 0; i < 4; i ++)
-			{
-				// Read the remaining chars from the front of the queue as CRC
-				frame += globalDownloadQueue.front();
-				globlaDownloadQueue.pop();
+				frame[i - 1] = incFrame[i];
+				
 			}
 			
+			for(int i = 513; i < 4; i ++)
+			{
+				// Read the remaining chars from the front of the queue as CRC
+				CRC[i - 513] = incFrame[i];
+			}
+			mDownloadQueue->pop();
+
 			// Implement CRC error detection -- use available source code
 			
 			// If an error is detected
 			if(errorDetected)
 			{
 				// Increment logfile corrupt frame counter
-				logfile.corruptFrameCounter++;
+				//logfile.corruptFrameCounter++;
 				// Move back to ReceiveData
 				return false;
 			}
@@ -573,13 +576,13 @@ namespace protocoletariat
 				// Send data to print
 				
 				// Increment the logfile successful frames counter
-				logfile.successfulFramesCounter++;
+				//logfile.successfulFramesCounter++;
 				// Transmit ACK control frame
 				
 				// Move back to ReceiveData
 				return true;
 			}
-			sleep(20);
+			Sleep(20);
 			timer++;
 		} // TOS Ends
 		// Move back to ReceiveData
