@@ -95,7 +95,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	printDataParam = new paramPrintData();
 
 	StartEngine();
-
+  
 	while (GetMessage(&Msg, NULL, 0, 0))
 	{
 		TranslateMessage(&Msg);
@@ -488,6 +488,7 @@ boolean protocoletariat::ConfigureCommSettings(HWND hwnd)
 ----------------------------------------------------------------------*/
 void protocoletariat::StartEngine()
 {
+
 	// initialize download (read) thread
 	olRead = { 0 };
 	fileDownloadParam->downloadQueue = &downloadQ;
@@ -515,6 +516,7 @@ void protocoletariat::StartEngine()
 	//protocolParam->handle = hComm;
 	//protocolParam->logfile = logfile;
 	//protocolThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ProtocolThread, protocolParam, 0, &protocolThrdID);
+
 }
 
 void protocoletariat::ClearQueue(std::queue<char*> &q)

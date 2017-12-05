@@ -4,23 +4,11 @@
 #include <stdio.h>
 #include <strsafe.h>
 #include <queue>
+#include "global.h"
 
 namespace protocoletariat
 {
-	struct LogFile {
-		int sent_packet;
-		int lost_packet;
-		int received_packet;
-		int received_corrupted_packet;
 
-		LogFile()
-			: sent_packet(0)
-			, lost_packet(0)
-			, received_packet(0)
-			, received_corrupted_packet(0)
-		{
-		}
-	};
 
 	// Global variables - for creating WinMain
 	const TCHAR tchrProgramName[] = TEXT("PTTP Protocol");
