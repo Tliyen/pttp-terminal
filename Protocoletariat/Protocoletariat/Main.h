@@ -8,8 +8,6 @@
 
 namespace protocoletariat
 {
-
-
 	// Global variables - for creating WinMain
 	const TCHAR tchrProgramName[] = TEXT("PTTP Protocol");
 	const LPTSTR lpszDefaultCommPort = TEXT("COM1"); // default port
