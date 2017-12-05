@@ -507,6 +507,7 @@ void protocoletariat::StartEngine()
 	//protocolParam->olWrite = olWrite;
 	//protocolParam->dwThreadExit = writeThreadExit;
 	//protocolParam->handle = hComm;
+	protocolParam->logfile = logfile;
 	//protocolThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ProtocolThread, protocolParam, 0, &protocolThrdID);
 }
 
