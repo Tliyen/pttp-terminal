@@ -46,6 +46,7 @@
 #include "Main.h"
 #include "FileUploader.h"
 #include "FileDownloader.h"
+#include "PrintData.h"
 
 using namespace protocoletariat;
 
@@ -357,7 +358,7 @@ boolean protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 {
 	// create communcation handle
 	hComm = CreateFile(CommPort, GENERIC_READ | GENERIC_WRITE, 0,
-		NULL, OPEN_EXISTING, 0, NULL);
+		NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
 	if (hComm == INVALID_HANDLE_VALUE) // failed to create handle
 	{
 		//ReportError(TEXT("CreatFile"));
@@ -469,8 +470,16 @@ boolean protocoletariat::ConfigureCommSettings(HWND hwnd)
 
 void protocoletariat::StartEngine()
 {
+	// initialize fileDownloadParam
+	olRead = {0};
+	fileDownloadParam->downloadQueue = &downloadQ;
+	fileDownloadParam->olRead = olRead;
+	fileDownloadParam->dwThreadExit = readThreadExit;
+	fileDownloadParam->handle = &hwnd;
 	downloadThrd = CreateThread(NULL, 0, FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
-	//printThrd = CreateThread(NULL, 0, PrintReceivedData, (LPVOID)hwnd, 0, &printThrdID);
+	
+	std::queue<char*>* printQ = &dataToPrintQ;
+	printThrd = CreateThread(NULL, 0, PrintData::PrintReceivedData, printQ, 0, &printThrdID);
 	protocolThrd = CreateThread(NULL, 0, ProtocolThread, (LPVOID)hwnd, 0, &protocolThrdID);
 }
 

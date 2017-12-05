@@ -115,6 +115,7 @@
     <ClCompile Include="FileUploader.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="PrintData.cpp" />
+    <ClCompile Include="Protocol.cpp" />
     <ClCompile Include="TesterMain.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -123,6 +124,7 @@
     <ClInclude Include="Main.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="PrintData.h" />
+    <ClInclude Include="Protocol.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Menu.rc" />

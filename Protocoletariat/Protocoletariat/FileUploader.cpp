@@ -64,7 +64,7 @@ namespace protocoletariat
 				frame[j++] = bufferRead[i++];
 			}
 
-			// CRC
+			// CRC_32
 			frame[514] = '*';
 			frame[515] = 'C';
 			frame[516] = 'R';
