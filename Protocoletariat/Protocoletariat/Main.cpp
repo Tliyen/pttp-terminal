@@ -450,7 +450,7 @@ boolean protocoletariat::ConfigureCommSettings(HWND hwnd)
 
 void protocoletariat::StartEngine()
 {
-	downloadThrd = CreateThread(NULL, 0, FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
+	downloadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
 	//printThrd = CreateThread(NULL, 0, PrintReceivedData, (LPVOID)hwnd, 0, &printThrdID);
 	//mainThrd = CreateThread(NULL, 0, Idle, (LPVOID)hwnd, 0, &mainThrdID);
 }

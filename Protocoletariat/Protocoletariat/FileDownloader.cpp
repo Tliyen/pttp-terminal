@@ -46,16 +46,16 @@ namespace protocoletariat
 						// process read char
 						if (combineCharsIntoFrame(bufferFrame, bufferChar[0])) // frame complete
 						{
-							frame = new char[MAX_FRAME_SIZE];
+							frame = new char[MAX_FRAME_SIZE - 1]; // exclude first char (SYN)
 
 							unsigned int i = 0;
-							while (i < bufferFrame.size() && i < MAX_FRAME_SIZE)
+							while (i < bufferFrame.size() && i < MAX_FRAME_SIZE - 1) // exclude first char (SYN)
 							{
-								frame[i++] = bufferFrame[i++];
+								frame[i++] = bufferFrame[1 + (i++)];
 							}
 
 							downloadQueue->push(frame); // queue the downloaded frame
-							// TODO: call event for protocol engine
+														// TODO: call event for protocol engine
 
 							bufferFrame.clear(); // clean the frame buffer
 						}
@@ -73,12 +73,12 @@ namespace protocoletariat
 					// process read char
 					if (combineCharsIntoFrame(bufferFrame, bufferChar[0])) // frame complete
 					{
-						frame = new char[MAX_FRAME_SIZE];
+						frame = new char[MAX_FRAME_SIZE - 1]; // exclude first char (SYN)
 
 						unsigned int i = 0;
-						while (i < bufferFrame.size() && i < MAX_FRAME_SIZE)
+						while (i < bufferFrame.size() && i < MAX_FRAME_SIZE - 1) // exclude first char (SYN)
 						{
-							frame[i++] = bufferFrame[i++];
+							frame[i++] = bufferFrame[1 + (i++)];
 						}
 
 						downloadQueue->push(frame); // queue the downloaded frame

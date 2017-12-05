@@ -2,6 +2,7 @@
 
 #include <queue>
 #include <windows.h>
+#include "CRC.h"
 
 namespace protocoletariat
 {
