@@ -24,7 +24,7 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TesterMain.cpp">
+    <ClCompile Include="PrintData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProtocolEngine.cpp">
@@ -53,7 +53,11 @@
     <ClInclude Include="ProtocolEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="PrintData.h">
+=======
+    <ClInclude Include="global.h">
+>>>>>>> e9c11812929e26441234ccc04f33743d0b8ce380
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -99,7 +99,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	protocolParam = new paramProtocolEngine();
 
 	StartEngine();
-
+  
 	while (GetMessage(&Msg, NULL, 0, 0))
 	{
 		TranslateMessage(&Msg);
@@ -503,6 +503,7 @@ bool protocoletariat::ConfigureCommSettings(HWND hwnd)
 ----------------------------------------------------------------------*/
 void protocoletariat::StartEngine()
 {
+
 	// initialize download (read) thread
 	olRead = { 0 };
 	fileDownloadParam->downloadQueue = &downloadQ;
