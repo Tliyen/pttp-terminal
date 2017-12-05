@@ -8,6 +8,10 @@
 #define ASCII_ENQ 0x05
 #define ASCII_ACK 0x06
 
+#define ASCII_RVI 0x07
+
+#define ASCII_SYN 0x22
+
 #define TIMEOUT 2000
 
 #include <windows.h>
@@ -23,7 +27,7 @@ namespace protocoletariat
 		std::queue<char*>* downloadQueue;
 		std::queue<char*>* printQueue;
 		
-		Struct* logfile;
+		struct logfile;
 		
 		HANDLE* hComm;
 		OVERLAPPED& olWrite = *(new OVERLAPPED());;
@@ -39,33 +43,33 @@ namespace protocoletariat
 		//ProtocolThread
 		static DWORD WINAPI ProtocolThread(paramProtocolEngine* param);
 	
-		void Idle();
+		static void Idle();
 
 		// Transmit Data Methods
-		void BidForLine();
-		void SendData();
-		void ConfirmTransmission();
-		void Retransmit();
-		void LinkReset();
+		static void BidForLine();
+		static void SendData();
+		static bool ConfirmTransmission();
+		static bool Retransmit();
+		static void LinkReset();
 
 		// Transmit Frames
-		bool TransmitFrame(bool control, char type)
+		static bool TransmitFrame(bool control, char type);
 		
 		// Recieve Data Methods
-		void AcknowledgeBid();
-		void ReceiveData();
-		void ErrorDetection();
+		static void AcknowledgeBid();
+		static void ReceiveData();
+		static bool ErrorDetection();
 		
 		bool sendData;
 		bool receiveData;
-		bool transferConfirmed;
+		static bool linkReceivedENQ;
 
 	private:
 		static std::queue<char*>* mUploadQueue;
 		static std::queue<char*>* mDownloadQueue;
 		static std::queue<char*>* mPrintQueue;
 		
-		static Struct* mLogfile;
+		struct mLogfile;
 		
 		static HANDLE* mHandle;
 		static OVERLAPPED& olWrite;
@@ -82,13 +86,15 @@ namespace protocoletariat
 		
 		DWORD dwRet;
 
-		const char CHAR_STX = 0x02; // Start of Text Char
-		// const char CHAR_ETX = 0x03; // End of Text Char
-		const char CHAR_EOT = 0x04; // End of Transmission Char
-		const char CHAR_ENQ = 0x05; // Enquiry Char
-		const char CHAR_ACK = 0x06; // Acknowledge Char
+		static const char CHAR_SYN = 22; // Start of Text Char
 
-		const char CHAR_RVI = 0x07; // RVI originally windows bell
+		static const char CHAR_STX = 2; // Start of Text Char
+		// static const char CHAR_ETX = 3; // End of Text Char
+		static const char CHAR_EOT = 4; // End of Transmission Char
+		static const char CHAR_ENQ = 5; // Enquiry Char
+		static const char CHAR_ACK = 6; // Acknowledge Char
+
+		const char CHAR_RVI = 7; // RVI originally windows bell
 	};
 }
 

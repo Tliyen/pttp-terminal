@@ -54,11 +54,17 @@ namespace protocoletariat
 	
 	char* incFrame[517];
 	char* outFrame[518];
+
+	struct logfile;
 	
 	HANDLE* mHandle = nullptr;
-	OVERLAPPED& olWrite = nullptr;
+	OVERLAPPED& olWrite;
 	
-	DWORD& dwThreadExit = nullptr;
+	DWORD& dwThreadExit;
+
+	DWORD dwEvent, dwError;
+
+	bool linkReceivedENQ;
 
 	/*
 	Protocol Structure (Protocol Thread)
@@ -75,9 +81,11 @@ namespace protocoletariat
 	
 		DWORD& dwThreadExit = param->dwThreadExit;
 		
-		char ENQframe[] = {CHAR_SYN, CHAR_ENQ};
-		char ACKframe[] = {CHAR_SYN, CHAR_ACK};
-		char EOTframe[] = {CHAR_SYN, CHAR_EOT};
+		char ENQframe[] = {ASCII_SYN, ASCII_ENQ};
+		char ACKframe[] = {ASCII_SYN, ASCII_ACK};
+		char EOTframe[] = {ASCII_SYN, ASCII_EOT};
+
+		linkReceivedENQ = false;
 		
 		Idle();
 	}
@@ -92,31 +100,33 @@ namespace protocoletariat
 		DWORD  dNoOfBytesWritten; // No of bytes written to the port
 		DWORD  dNoOFBytestoWrite; // No of bytes to write into the port
 		
-		char lpBuffer[];
+		char* lpBuffer;
 		
-		olWrite.hEvent(NULL, true, false, NULL);
+		bool status;
+
+		//olWrite.hEvent(NULL, true, false, NULL);
 		
 		if(control)
 		{
 			switch(type)
 			{
-				case CHAR_ENQ:
-					lpBuffer[] = ENQframe[];
-				case CHAR_ACK:
-					lpBuffer[] = ACKframe[];
-				case CHAR_EOT:
-					lpBuffer[] = EOTframe[];
+				case ASCII_ENQ:
+					lpBuffer = ENQframe[];
+				case ASCII_ACK:
+					lpBuffer = ACKframe[];
+				case ASCII_EOT:
+					lpBuffer = EOTframe[];
 			}
 		}
 		else
 		{
-			lpBuffer[] = outFrame;
+			lpBuffer = outFrame;
 		}
 		
 		DWORD  dNoOfBytesWritten = 0;          
 		dNoOFBytestoWrite = sizeof(lpBuffer);  // Calculating the no of bytes to write into the port
 
-		Status = WriteFile(mHandle,             // Handle to the Serialport
+		status = WriteFile(mHandle,             // Handle to the Serialport
 						   lpBuffer,            // Data to be written to the port 
 						   dNoOFBytestoWrite,   // No of bytes to write into the port
 						   &dNoOfBytesWritten,  // No of bytes written to the port
@@ -131,25 +141,31 @@ namespace protocoletariat
 	void ProtocolEngine::Idle()
 	{
 		// Loop
-		while(true)
+		while(protocolActive)
 		{
 			if (globalRVI)
 			{
 				globalRVI = false;
-				downloadQueue->pop();
+				mDownloadQueue->pop();
 				BidForLine();
+			}
+
+			if (linkReceivedENQ)
+			{
+				linkReceivedENQ = false;
+				AcknowledgeBid();
 			}
 			
 			// A signal has been received
-			if(CommEvent (hComm, &dwEvent, NULL))
+			if(WaitCommEvent (mHandle, &dwEvent, NULL))
 			{
 				// read the front frame from the downloadQueue into frame
-				frame = downloadQueue->front();
+				incFrame = mDownloadQueue->front();
 				
 				// Check if the front of the queue an ENQ
-				if(frame[0] == CHAR_ENQ)
+				if(incFrame[1] == ASCII_ENQ)
 				{
-					frame = nullptr;
+					incFrame = nullptr;
 					AcknowledgeBid();
 				}
 				else
@@ -159,10 +175,10 @@ namespace protocoletariat
 			}
 			
 			// If this device wants to take the handle
-			if(EnqRequestEvent (hComm, &dwEvent, NULL))
+			if( (mHandle, &dwEvent, NULL))
 			{
 				// Transmit ENQ
-				TransmitFrame(true, CHAR_ENQ)
+				TransmitFrame(true, ASCII_ENQ);
 				
 				// Move to BidForLine
 				BidForLine();
@@ -184,24 +200,25 @@ namespace protocoletariat
 		while(timer < 200)
 		{
 			// Check for a CommEventTrigger
-			if (CommEvent (hComm, &dwEvent, NULL))
+			if (WaitCommEvent (mHandle, &dwEvent, NULL))
 			{
+				Sleep(10);
 				// read the front frame from the downloadQueue into frame
-				frame = downloadQueue->front();
+				incFrame = mDownloadQueue->front();
 				
 				// Check if the front of the queue an ACK
-				if(frame[1] = CHAR_ACK)
+				if(incFrame[1] = ASCII_ACK)
 				{
-					frame = nullptr;
+					incFrame = nullptr;
 					// Remove the ACK
-					downloadQueue->pop();
+					mDownloadQueue->pop();
 					
 					// Move to SendData()
 					SendData();
 					return;
 				}
 			}
-			sleep(10);
+			Sleep(10);
 			timer++;
 		}
 		LinkReset();
@@ -213,7 +230,7 @@ namespace protocoletariat
 	An ACK has been RECEIVED in the BidForLine state OR returning from ConfirmTransmission OR a Retransmit has been acknowledged
 	The program’s bid for the line has been acknowledged and the other system is moving into a RECEIVING state. The program will start a loop to wait for the CommEvent triggered by the upload buffer. The program will send the frame,created in the File Upload Thread, at the front of it’s queue. It will then move to the ConfirmTransmission state on a Data Frame transmission. If the EOT Control Frame is submitted or the system has sent 10 frames, it will instead proceed to the LinkReset State.
 	*/
-	void Protocol::SendData()
+	void ProtocolEngine::SendData()
 	{
 		// Start TOS
 		int timer = 0;
@@ -225,46 +242,48 @@ namespace protocoletariat
 			while(timer < 200)
 			{
 				// If CommEvent Triggered
-				if (CommEvent (hComm, &dwEvent, NULL))
+				if (WaitCommEvent (mHandle, &dwEvent, NULL))
 				{
-					// read the front frame from the downloadQueue into frame
-					incFrame = downloadQueue->front();
+					// read the front frame from the downloadQueue into incFrame
+					incFrame = mDownloadQueue->front();
+
+					// read the front of the upload queue into the outFrame
+					outFrame = mUploadQueue->front();
+
 					// If front of download queue is RVI
-					if(incFrame[1] == CHAR_RVI)
+					if(incFrame[1] == ASCII_RVI)
 					{
 						incFrame = nullptr;
 						// Set global RVI variable to false
 						globalRVI = true;
 						// Clear download buffer
-						downloadQueue->clear();
+						mDownloadQueue->empty();
 						// Transmit EOT control frame through serial port
-						TransmitFrame(true, CHAR_EOT);
+						TransmitFrame(true, ASCII_EOT);
 						// Move to LinkReset
 						LinkReset();
 						return;
 					}
-					// read the front of the upload queue into the outFrame
-					outFrame = uploadQueue->front();
 					// If front of upload queue is EOT
-					else if (outFrame[1] = CHAR_EOT)
+					else if (outFrame[1] == ASCII_EOT)
 					{
 						// Transmit EOT control frame through Serial Port
-						TransmitFrame(true, CHAR_EOT);
+						TransmitFrame(true, ASCII_EOT);
 						// Move to LinkReset
 						LinkReset();
 						return;
 					}
 					// If the frame at the front of the upload queue is a data frame
-					else if (outFrame[1] = CHAR_STX)
+					else if (outFrame[1] == ASCII_STX)
 					{
 						// Transmit the data frame through the serial port
-						TransmitFrame(false, null);
+						TransmitFrame(false, NULL);
 						
 						// Move to ConfirmTransmission
 						if (!ConfirmTransmission())
 						{
 							// Transmit EOT control frame through Serial Port
-							TransmitFrame(true, CHAR_EOT);
+							TransmitFrame(true, ASCII_EOT);
 							// Move to LinkReset
 							LinkReset();
 							return;
@@ -274,10 +293,10 @@ namespace protocoletariat
 						break;
 					}
 				}
-				sleep(10);
+				Sleep(10);
 				timer++;
 			} // TOS expires
-		} while (dfs < 10) // 10 Frames confirmed
+		} while (dfs < 10); // 10 Frames confirmed
 		return;
 	}
 
@@ -286,7 +305,7 @@ namespace protocoletariat
 	A Data Frame has been TRANSMITTED
 	The program must wait for an ACK control frames from the paired device to continue with its transmission. If the program RECEIVES the ACK Control Frame it can pop the TRANSMITTED Data Frame from the queue and return to the SendData state. If the timeout expires, then the program will instead move to the Retransmit state.
 	*/
-	bool ConfirmTransmission()
+	bool ProtocolEngine::ConfirmTransmission()
 	{
 		// Start TOR
 		int timer = 0;
@@ -295,24 +314,29 @@ namespace protocoletariat
 		bool success = false;
 		
 		// Loop while timeout has not expired
-		while(timer < 20 && success == false)
+		while(timer < 200 && success == false)
 		{
 			// If CommEvent Triggered
-			if (CommEvent (hComm, &dwEvent, NULL))
+			if (WaitCommEvent (mHandle, &dwEvent, NULL))
 			{
+				// read the front frame from the downloadQueue into frame
+				incFrame = mDownloadQueue->front();
+
 				// If download queue front is ACK
-				if (globalUploadQueue.front() = ACK)
+				if (incFrame[1] == ASCII_ACK)
 				{
 					// Pop front of download buffer
-					globaldownloadQueue.pop();
+					mDownloadQueue->pop();
 					// Pop front of upload buffer
-					globaluploadQueue.pop();
+					mUploadQueue->pop();
 					// Increment logfile successful frames variable
-					logfile.successfulFrames++;
+					//logfile.successfulFrames++;
 					// Move back to SendData
 					return true;
 				}
 			}
+			Sleep(10);
+			timer++;
 		} // TOR expires
 		
 		if(success == false)
@@ -330,36 +354,42 @@ namespace protocoletariat
 	A Data Frame has failed to TRANSMIT
 	The program will attempt three retransmissions of the same frame, and wait to RECEIVE the ACK. If all three transmissions fail, then the program will move to the LinkDelay state. If however, one of the transmission is responded to by an ACK then the program will pop the front frame from the output queue and return to the SendData state.
 	*/
-	Retransmit()
+	bool ProtocolEngine::Retransmit()
 	{
 		// Initialize txCounter variable to 1
 		int txCounter = 1;
 		
 		// Start TOR
-		int timer;
+		int timer = 0;
 		
 		// Retransmit up to 3 times
 		do
 		{
 			// Loop while timer has not expired
-			while(timer < 20)
+			while(timer < 200)
 			{
 				// If CommEvent Triggered
-				if (CommEvent (hComm, &dwEvent, NULL))
+				if (WaitCommEvent (mHandle, &dwEvent, NULL))
 				{
+					// read the front frame from the downloadQueue into frame
+					incFrame = mDownloadQueue->front();
+
 					// If download queue front is ACK
-					if (globalUploadQueue.front() = ACK)
+					if (incFrame[1] == CHAR_ACK)
 					{
+						incFrame = nullptr;
 						// Pop front of download buffer
-						globaldownloadQueue.pop();
+						mDownloadQueue->pop();
 						// Pop front of upload buffer
-						globaluploadQueue.pop();
+						mUploadQueue->pop();
 						// Increment logfile successful frames variable
-						logfile.successfulFrames++;
+						//logfile.successfulFrames++;
 						// Move back to SendData
 						return true;
 					}
 				}
+				Sleep(10);
+				timer++;
 			} // TOR expires
 			txCounter++;
 		} while (txCounter < 3);
@@ -373,7 +403,7 @@ namespace protocoletariat
 	Any State on the TRANSMIT side has experienced a timeout expiry, or failed
 	This state exists as a buffer for the post-TRANSMIT states, to stop one device from hogging the line. This state begins a TOR listens to RECEIVE an ENQ from the pair device. If the TOR expires before an ENQ is RECEIVED, the program move to the idle state.
 	*/
-	LinkReset()
+	void ProtocolEngine::LinkReset()
 	{
 		// Start TOR
 		int timer = 0;
@@ -382,21 +412,28 @@ namespace protocoletariat
 		while(timer < 20)
 		{
 			// If CommEvent Triggered
-			if (CommEvent (hComm, &dwEvent, NULL))
+			if (WaitCommEvent (mHandle, &dwEvent, NULL))
 			{
+				// read the front frame from the downloadQueue into frame
+				incFrame = mDownloadQueue->front();
+
 				// Check if the front of the queue an ENQ
-				if(globalDownloadQueue.front() = ENQ)
+				if(incFrame[1] == CHAR_ENQ)
 				{
+					incFrame = nullptr;
+					linkReceivedENQ = true;
 					// Pop download queue front
-					globalDownloadQueue.pop();
-					// Move to AcknowledgeBid
-					Idle(true);
+					mDownloadQueue->pop();
+					// Return to Idle
+					return;
 				}
 				else
 				{
 					return;
 				}
 			}
+			Sleep(10);
+			timer++;
 		}		
 	}
 
@@ -410,10 +447,10 @@ namespace protocoletariat
 	An ENQ has been RECEIVED
 	This state is necessary to acknowledge the other device’s bid for the line.
 	*/
-	AcknowledgeBid()
+	void ProtocolEngine::AcknowledgeBid()
 	{
 		// Transmit ACK control frame
-		
+		TransmitFrame(true, ASCII_ACK);
 		// Move to ReceiveData
 		ReceiveData();
 	}
@@ -423,13 +460,10 @@ namespace protocoletariat
 	An ACK has been TRANSMITTED in response to the RECEIVED ENQ
 	This state will prepare the system to RECEIVE Data Frames from the serial port. This state will wait for a Data Frame from the serial port, until the timeout expires. This timeout is required to be 3 times longer than the corresponding wait on the TRANSMIT Data Side since it must account for 3 failed transmissions.
 	*/
-	ReceiveData()
+	void ProtocolEngine::ReceiveData()
 	{
 		// Start TOR
 		int timer = 0;
-		
-		// Initialize string holder
-		String frame = "";
 		
 		// Initialize error detection success
 		bool errorDetection = false;
@@ -442,30 +476,33 @@ namespace protocoletariat
 		do
 		{
 			// Loop while timeout not exceeded
-			while(timer < 20)
+			while(timer < 200)
 			{
 				// If RVIevent triggered
-				if (RVIevent (hComm, &dwEvent, NULL))
+				if (globalRVI)
 				{
 					// Move to Idle
 					return;
 				}
 				// If CommEvent is triggered
-				if (CommEvent (hComm, &dwEvent, NULL))
+				if (WaitCommEvent (mHandle, &dwEvent, NULL))
 				{
-					// If download queue front is EOT
-					if(globalDownloadQueue.front() = EOT)
+					// read the front frame from the downloadQueue into frame
+					incFrame = mDownloadQueue->front();
+
+					// Check if the front of the queue an EOT frame
+					if (incFrame[1] == CHAR_EOT)
 					{
-						// Remove the EOT char
-						globalDownloadQueue.pop();
+						// Remove the EOT frame
+						mDownloadQueue->pop();
 						// Return to idle
 						return;
 					}
 					// Else if download queue front is STX
-					if(globalDownloadQueue.front() = STX)
+					if(incFrame[1] = CHAR_STX)
 					{
 						// Remove STX char
-						globlaDownloadQueue.pop();
+						// mDownloadQueue->pop();
 
 						// Send the frame for error detection
 						if(ErrorDetection())
@@ -485,10 +522,10 @@ namespace protocoletariat
 					}
 				}
 				// Increment the timer
-				sleep(10);
+				Sleep(10);
 				timer++;
 			}
-		} while (RxCounter < 10 && FailedFrames < 3) // 10 Frames have been successfully received	
+		} while (RxCounter < 10 && FailedFrames < 3); // 10 Frames have been successfully received or 3 concurrent fails have occurred
 	}
 
 	/*
