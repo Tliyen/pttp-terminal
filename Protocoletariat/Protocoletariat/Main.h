@@ -54,6 +54,7 @@ namespace protocoletariat
 	struct paramProtocolEngine* protocolParam;
 	OVERLAPPED olWrite;
 	DWORD writeThreadExit;
+	struct paramPrintData* printDataParam;
 
 
 	// Functions

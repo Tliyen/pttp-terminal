@@ -92,6 +92,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	logfile = new LogFile();
 	fileUploadParam = new paramFileUploader();
 	fileDownloadParam = new paramFileDownloader();
+	printDataParam = new paramPrintData();
 
 	StartEngine();
 
@@ -202,8 +203,6 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 			ofn.hwndOwner = hwnd;
 			ofn.lpstrFile = szFile;
 
-			// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
-			// use the contents of szFile to initialize itself.
 			ofn.lpstrFile[0] = '\0';
 			ofn.nMaxFile = sizeof(szFile);
 			ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
@@ -216,7 +215,6 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 			// Display the Open dialog box. 
 			if (GetOpenFileName(&ofn) == TRUE)
 			{
-				//hf = CreateFile(ofn.lpstrFile, GENERIC_READ, 0, (LPSECURITY_ATTRIBUTES)NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, (HANDLE)NULL);
 				fileUploadParam->filePath = ofn.lpstrFile;
 				fileUploadParam->uploadQueue = &uploadQ;
 				uploadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) FileUploader::LoadTextFile, fileUploadParam, 0, &uploadThrdID);
@@ -363,7 +361,6 @@ boolean protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 		NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
 	if (hComm == INVALID_HANDLE_VALUE) // failed to create handle
 	{
-		//ReportError(TEXT("CreatFile"));
 		MessageBox(NULL, "No Serial COM port found.", NULL, MB_OK | MB_ICONSTOP);
 		// TODO: release hComm memory
 		return false;
@@ -373,13 +370,12 @@ boolean protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 	ccfg.wVersion = 0x100;
 	if (!GetCommConfig(hComm, &ccfg, &ccfg.dwSize))
 	{
-		//ReportError(TEXT("GetCommConfig"));
-		MessageBox(NULL, "Error getting the COM port configuration", TEXT("Error"), MB_OK);
+		MessageBox(NULL, "Error getting the COM port configuration dialog", TEXT("Error"), MB_OK);
 		return false;
 	}
 	if (!SetCommState(hComm, &ccfg.dcb))
 	{
-		//ReportError("SetCommState");
+		MessageBox(NULL, "Error setting the COM port configuration", TEXT("Error"), MB_OK);
 		return false;
 	}
 
@@ -458,20 +454,19 @@ boolean protocoletariat::ConfigureCommSettings(HWND hwnd)
 	ccfg.wVersion = 0x100;
 	if (!GetCommConfig(hComm, &ccfg, &ccfg.dwSize))
 	{
-		//ReportError(TEXT("GetCommConfig"));
+		MessageBox(NULL, "Error getting the COM port configuration dialog", TEXT("Error"), MB_OK);
 		return false;
 	}
 	CommConfigDialog(lpszCommPort, hwnd, &ccfg);
 	if (!SetCommState(hComm, &ccfg.dcb))
 	{
-		//ReportError("SetCommState");
+		MessageBox(NULL, "Error setting the COM port configuration", TEXT("Error"), MB_OK);
 		return false;
 	}
 
 	return true;
 }
 
-<<<<<<< HEAD
 /*----------------------------------------------------------------------
 -- FUNCTION: StartEngine
 --
@@ -500,24 +495,18 @@ void protocoletariat::StartEngine()
 	fileDownloadParam->dwThreadExit = readThreadExit;
 	fileDownloadParam->handle = &hComm;
 	downloadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
-=======
-void protocoletariat::StartEngine()
-{
-	// initialize fileDownloadParam
-	olRead = {0};
-	fileDownloadParam->downloadQueue = &downloadQ;
-	fileDownloadParam->olRead = olRead;
-	fileDownloadParam->dwThreadExit = readThreadExit;
-	//fileDownloadParam->handle = &hwnd;
-	downloadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
->>>>>>> 8f15ab4c39360b4ea344562bf1089c0714d3db50
 	
-	std::queue<char*>* printQ = &dataToPrintQ;
-<<<<<<< HEAD
-	//printThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)PrintData::PrintReceivedData, printQ, 0, &printThrdID);
+	// initialize print data thread
+	printDataParam->printQueue = &dataToPrintQ;
+	printDataParam->hwnd = hwnd;
+	printDataParam->hComm = hComm;
+	printDataParam->X = &X;
+	printDataParam->Y = &Y;
+	printDataParam->logfile = logfile;
+	printThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)PrintData::PrintReceivedData, printDataParam, 0, &printThrdID);
 
 	// initialize main protocol engine thread
-	olWrite = { 0 };
+	//olWrite = { 0 };
 	//protocolParam->uploadQueue = &uploadQ;
 	//protocolParam->downloadQueue = &downloadQ;
 	//protocolParam->printQueue = &dataToPrintQ;
@@ -526,10 +515,6 @@ void protocoletariat::StartEngine()
 	//protocolParam->handle = hComm;
 	//protocolParam->logfile = logfile;
 	//protocolThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ProtocolThread, protocolParam, 0, &protocolThrdID);
-=======
-	//printThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) PrintData::PrintReceivedData, printQ, 0, &printThrdID);
-	//protocolThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ProtocolThread, (LPVOID)hwnd, 0, &protocolThrdID);
->>>>>>> 8f15ab4c39360b4ea344562bf1089c0714d3db50
 }
 
 void protocoletariat::ClearQueue(std::queue<char*> &q)
