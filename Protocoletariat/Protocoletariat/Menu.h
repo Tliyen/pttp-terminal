@@ -9,4 +9,4 @@
 #define IDM_COM4			107
 #define IDM_ABOUT			108
 #define IDM_HELP			109
-#define RVI_KEY				0x72
+#define RVI_KEY				0x07

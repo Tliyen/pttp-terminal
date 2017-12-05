@@ -16,7 +16,7 @@
 --
 -- DATE: November 29, 2017
 --
--- DESIGNER: Jeremy Lee
+-- DESIGNER: Jeremy Lee, Li-Yan Tong, Morgan Ariss, Luke Lee
 --
 -- PROGRAMMER: Luke Lee
 --
@@ -46,17 +46,18 @@
 #include "Main.h"
 #include "FileUploader.h"
 #include "FileDownloader.h"
+#include "PrintData.h"
 
 using namespace protocoletariat;
 
 /*----------------------------------------------------------------------
 -- FUNCTION: WinMain
 --
--- DATE: October 4, 2017
+-- DATE: November 29, 2017
 --
 -- DESIGNER: Jeremy Lee
 --
--- PROGRAMMER: Jeremy Lee
+-- PROGRAMMER: Luke Lee
 --
 -- INTERFACE: int WINAPI WinMain(HINSTANCE hInst
 --								 , HINSTANCE hprevInstance,
@@ -101,6 +102,23 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	return Msg.wParam;
 }
 
+/*----------------------------------------------------------------------
+-- FUNCTION: InitializeWindows
+--
+-- DATE: November 29, 2017
+--
+-- DESIGNER: Luke Lee
+--
+-- PROGRAMMER: Luke Lee
+--
+-- INTERFACE: boolean InitializeWindows(HINSTANCE hInst, int nCmdShow)
+--
+-- RETURNS: boolean
+--
+-- NOTES:
+-- This function initializes parameters for the wireless terminal Windows
+-- and opens the windows.
+----------------------------------------------------------------------*/
 boolean protocoletariat::InitializeWindows(HINSTANCE hInst, int nCmdShow)
 {
 	// application Window values
@@ -142,11 +160,11 @@ boolean protocoletariat::InitializeWindows(HINSTANCE hInst, int nCmdShow)
 /*----------------------------------------------------------------------
 -- FUNCTION: WndProc
 --
--- DATE: October 4, 2017
+-- DATE: November 29, 2017
 --
 -- DESIGNER: Jeremy Lee
 --
--- PROGRAMMER: Jeremy Lee
+-- PROGRAMMER: Luke Lee
 --
 -- INTERFACE: LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM)
 --
@@ -154,9 +172,8 @@ boolean protocoletariat::InitializeWindows(HINSTANCE hInst, int nCmdShow)
 --
 -- NOTES:
 -- This function receives Messages from WinMain and determines behavior
--- in switch statements. Selecting on menus defined in Menu.h and Menu.rc
--- is detected in this function, and it behaves accordingly. It also
--- many of the functions in this file.
+-- in switch statements. Selecting on menu items defined in Menu.h and Menu.rc
+-- is detected in this function, and it behaves accordingly.
 ----------------------------------------------------------------------*/
 LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 	WPARAM wParam, LPARAM lParam)
@@ -182,6 +199,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 			ofn.lStructSize = sizeof(ofn);
 			ofn.hwndOwner = hwnd;
 			ofn.lpstrFile = szFile;
+
 			// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
 			// use the contents of szFile to initialize itself.
 			ofn.lpstrFile[0] = '\0';
@@ -265,11 +283,11 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 			break;
 
 		case IDM_ABOUT: // Open About dialog
-						//StopCommunication();
+			//StopCommunication();
 			break;
 
 		case IDM_HELP: // Open user manual
-					   //StopCommunication();
+			//StopCommunication();
 			break;
 
 		case IDM_EXIT: // Exit program
@@ -306,7 +324,10 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 		break;
 
 	case WM_DESTROY: // terminate program
-					 //CleanUp();
+		if (IDOK == MessageBox(hwnd, "OK to close window?", "Exit", MB_ICONQUESTION | MB_OKCANCEL))
+		{
+			CleanUp();
+		}
 		break;
 
 	default:
@@ -331,8 +352,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 --
 -- NOTES:
 -- This function creates communication Handle and applies the
--- configuration settings to it. Note that FILE_FLAG_OVERLAPPED is
--- entered for asynchronous communication.
+-- configuration settings to it.
 ----------------------------------------------------------------------*/
 boolean protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 {
@@ -379,7 +399,7 @@ boolean protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 -- NOTES:
 -- This function is called by user Menu click in WndProc, and sets the
 -- target COM port based on the user selection. There are currently 4
--- COM ports are available.
+-- COM ports available.
 ----------------------------------------------------------------------*/
 boolean protocoletariat::SwitchCommPort(int commPort)
 {
@@ -450,9 +470,23 @@ boolean protocoletariat::ConfigureCommSettings(HWND hwnd)
 
 void protocoletariat::StartEngine()
 {
-	downloadThrd = CreateThread(NULL, 0, FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
+<<<<<<< HEAD
+	downloadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
 	//printThrd = CreateThread(NULL, 0, PrintReceivedData, (LPVOID)hwnd, 0, &printThrdID);
 	//mainThrd = CreateThread(NULL, 0, Idle, (LPVOID)hwnd, 0, &mainThrdID);
+=======
+	// initialize fileDownloadParam
+	olRead = {0};
+	fileDownloadParam->downloadQueue = &downloadQ;
+	fileDownloadParam->olRead = olRead;
+	fileDownloadParam->dwThreadExit = readThreadExit;
+	fileDownloadParam->handle = &hwnd;
+	downloadThrd = CreateThread(NULL, 0, FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
+	
+	std::queue<char*>* printQ = &dataToPrintQ;
+	printThrd = CreateThread(NULL, 0, PrintData::PrintReceivedData, printQ, 0, &printThrdID);
+	protocolThrd = CreateThread(NULL, 0, ProtocolThread, (LPVOID)hwnd, 0, &protocolThrdID);
+>>>>>>> 3debdbcc7fa3397a33dac93eca45279c51498377
 }
 
 void protocoletariat::ClearQueue(std::queue<char*> &q)
@@ -474,7 +508,7 @@ void protocoletariat::CleanUp()
 	CloseHandle(uploadThrd);
 	CloseHandle(downloadThrd);
 	CloseHandle(printThrd);
-	CloseHandle(mainThrd);
+	CloseHandle(protocolThrd);
 
 	delete logfile;
 	delete fileUploadParam;
