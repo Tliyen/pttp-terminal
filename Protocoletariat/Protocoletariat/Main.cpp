@@ -95,6 +95,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	fileDownloadParam = new paramFileDownloader();
 	protocolParam = new paramProtocolEngine();
 
+	StartEngine();
+
 	while (GetMessage(&Msg, NULL, 0, 0))
 	{
 		TranslateMessage(&Msg);
@@ -374,6 +376,7 @@ boolean protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 	if (!GetCommConfig(hComm, &ccfg, &ccfg.dwSize))
 	{
 		//ReportError(TEXT("GetCommConfig"));
+		MessageBox(NULL, "Error getting the COM port configuration", TEXT("Error"), MB_OK);
 		return false;
 	}
 	if (!SetCommState(hComm, &ccfg.dcb))
@@ -484,22 +487,26 @@ boolean protocoletariat::ConfigureCommSettings(HWND hwnd)
 -- RETURNS: boolean
 --
 -- NOTES:
--- This function is responsible 
+-- This function is responsible for initializing and starting the download
+-- thread, print data thread, and the main protocol engine thread. It
+-- initializes the required parameters in custom structs and passes them
+-- to the thread process in each of their respective classes.
 ----------------------------------------------------------------------*/
 void protocoletariat::StartEngine()
 {
-	// initialize fileDownloadParam
+	// initialize download (read) thread
 	olRead = { 0 };
 	fileDownloadParam->downloadQueue = &downloadQ;
 	fileDownloadParam->olRead = olRead;
 	fileDownloadParam->dwThreadExit = readThreadExit;
-	fileDownloadParam->handle = &hwnd;
+	fileDownloadParam->handle = &hComm;
 	downloadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
 	
 	// initialize print data thread
 	std::queue<char*>* printQ = &dataToPrintQ;
 	//printThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)PrintData::PrintReceivedData, printQ, 0, &printThrdID);
 
+	// initialize main protocol engine thread
 	olWrite = { 0 };
 	//protocolParam->uploadQueue = &uploadQ;
 	//protocolParam->downloadQueue = &downloadQ;
@@ -507,7 +514,7 @@ void protocoletariat::StartEngine()
 	//protocolParam->olWrite = olWrite;
 	//protocolParam->dwThreadExit = writeThreadExit;
 	//protocolParam->handle = hComm;
-	protocolParam->logfile = logfile;
+	//protocolParam->logfile = logfile;
 	//protocolThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ProtocolThread, protocolParam, 0, &protocolThrdID);
 }
 
