@@ -8,10 +8,10 @@
 #include <vector>
 #include <queue>
 
-<<<<<<< HEAD
+
 bool printActive;
 std::queue<char*> printQueue;
-=======
+
 namespace protocoletariat
 {
 	static class PrintData
@@ -20,15 +20,13 @@ namespace protocoletariat
 		bool printActive;
 		unsigned int mCurrentRow;
 
-		std::queue<char*> printQueue;
+		//std::queue<char*> printQueue; Moved to main
 
-		void PrintReceivedData();
+		DWORD WINAPI  PrintReceivedData(const std::queue<char*> printQueue);
 		void DrawCharsByRow(const TCHAR* chars, unsigned int row);
 		void UpdateLog(const TCHAR* chars, unsigned int row);
 
 	private:
 	};
-
->>>>>>> c455689ac91d98120a6ecb8d433868d79e6be1cf
 
 }
