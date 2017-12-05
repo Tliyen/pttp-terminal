@@ -33,6 +33,6 @@ int main()
 			std::cout << queued[i];
 		}
 	}
-
+	
 	return 0;
 }
