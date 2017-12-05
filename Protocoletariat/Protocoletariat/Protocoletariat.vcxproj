@@ -118,6 +118,7 @@
     <ClCompile Include="FileDownloader.cpp" />
     <ClCompile Include="FileUploader.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="PrintData.cpp" />
     <ClCompile Include="ProtocolEngine.cpp" />
     <ClCompile Include="TesterMain.cpp" />
   </ItemGroup>
@@ -127,6 +128,7 @@
     <ClInclude Include="FileUploader.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="PrintData.h" />
     <ClInclude Include="ProtocolEngine.h" />
   </ItemGroup>
   <ItemGroup>

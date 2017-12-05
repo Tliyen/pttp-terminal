@@ -31,7 +31,7 @@ namespace protocoletariat
 	HANDLE		hComm;
 	COMMCONFIG	ccfg;
 
-	boolean		bCommOn, bReading;
+	bool		bCommOn, bReading;
 
 	int indexReadChar = 0;
 	int X = 0, Y = 0; // current str coordinates
@@ -41,7 +41,7 @@ namespace protocoletariat
 	std::queue<char*> downloadQ;
 	std::queue<char*> dataToPrintQ;
 	LogFile* logfile;
-	boolean globalRVI;
+	bool globalRVI;
 
 	// Thread handles
 	HANDLE uploadThrd, downloadThrd, printThrd, protocolThrd;
@@ -59,15 +59,10 @@ namespace protocoletariat
 
 	// Functions
 	LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-	boolean InitializeWindows(HINSTANCE hInst, int nCmdShow);
-	boolean InitializeCommHandle(LPTSTR CommPort);
-	boolean SwitchCommPort(int commPort);
-	boolean ConfigureCommSettings(HWND hwnd);
-	//boolean StartCommunication(HWND hwnd);
-	//boolean StopCommunication();
-	//DWORD WINAPI DoRead(LPVOID lpvThreadParm);
-	//void DrawLetter(HWND hwnd, char* letter);
-	//void ReportError(LPTSTR lpszFunction);
+	bool InitializeWindows(HINSTANCE hInst, int nCmdShow);
+	bool InitializeCommHandle(LPTSTR CommPort);
+	bool SwitchCommPort(int commPort);
+	bool ConfigureCommSettings(HWND hwnd);
 
 	void ClearQueue(std::queue<char*> &q);
 	void CleanUp();
