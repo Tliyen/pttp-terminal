@@ -86,27 +86,28 @@ namespace protocoletariat
 
 			delete framePayloadOnly;
 
-			char* crcStr = new char[4];
+			unsigned char* crcStr = new unsigned char[4];
+
 			// first approach
 			//sprintf_s(crcStr, sizeof(crcStr), "%lu", crc);
 
 			// second approach
-			//crcStr[0] = (crc >> 24) & 0xFF;
-			//crcStr[1] = (crc >> 16) & 0xFF;
-			//crcStr[2] = (crc >> 8) & 0xFF;
-			//crcStr[3] = crc & 0xFF;
+			crcStr[0] = (crc >> 24) & 0xFF;
+			crcStr[1] = (crc >> 16) & 0xFF;
+			crcStr[2] = (crc >> 8) & 0xFF;
+			crcStr[3] = crc & 0xFF;
 
 			// third approach
-			memcpy(crcStr, &crc, sizeof(crc));
+			//memcpy(crcStr, &crc, sizeof(crc));
 
-			std::cout << "CRC first method: " << std::endl;
+			//std::cout << "CRC first method: " << std::endl;
 			for (unsigned int k = 514; k < MAX_FRAME_SIZE; ++k)
 			{
 				frame[k] = crcStr[k - 514];
 				// debug
-				std::cout << crcStr[k - 514];
+				//std::cout << crcStr[k - 514] << "(" << (int)crcStr[k - 514] << ")";
 			}
-			std::cout << std::endl;
+			//std::cout << std::endl;
 			delete crcStr;
 
 			mUploadQueue->push(frame);

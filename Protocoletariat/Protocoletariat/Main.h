@@ -30,6 +30,7 @@ namespace protocoletariat
 	LPTSTR		lpszCommPort;
 	HANDLE		hComm;
 	COMMCONFIG	ccfg;
+
 	boolean		bCommOn, bReading;
 
 	int indexReadChar = 0;
@@ -50,6 +51,10 @@ namespace protocoletariat
 	struct paramFileDownloader* fileDownloadParam;
 	OVERLAPPED olRead;
 	DWORD readThreadExit;
+	struct paramProtocolEngine* protocolParam;
+	OVERLAPPED olWrite;
+	DWORD writeThreadExit;
+	struct paramPrintData* printDataParam;
 
 
 	// Functions

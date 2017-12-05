@@ -11,7 +11,7 @@ namespace protocoletariat
 		//mHandle = param->handle;
 
 		std::queue<char*>* downloadQueue = param->downloadQueue;
-		HWND* handle = param->handle;
+		HANDLE* handle = param->handle;
 		OVERLAPPED& olRead = param->olRead;
 		DWORD& dwThreadExit = param->dwThreadExit;
 		DWORD dwRead, dwLrc, dwEndTime;
