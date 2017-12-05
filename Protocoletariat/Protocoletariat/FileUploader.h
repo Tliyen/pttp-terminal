@@ -17,12 +17,14 @@ namespace protocoletariat
 	public:
 		FileUploader() = delete;
 		static DWORD WINAPI LoadTextFile(paramFileUploader* param);
-		static bool FileUploader::ConvertFileIntoFrames(const std::vector<char>& bufferRead);
+		static bool ConvertFileIntoFrames(const std::vector<char>& bufferRead);
+		static void QueueControlFrame(const char controlChar);
 
 	private:
 		static const size_t MAX_FRAME_SIZE = 518;
 		static const char SYN = 22;
 		static const char STX = 2;
+		static const char EOT = 4;
 
 		static std::queue<char*>* mUploadQueue;
 		static std::string mFilePath;

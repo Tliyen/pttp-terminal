@@ -27,6 +27,7 @@ namespace protocoletariat
 		{
 			if (ConvertFileIntoFrames(bufferRead))
 			{
+				QueueControlFrame(EOT);
 				// trigger ENQ request event for the protocol engine
 			}
 			else
@@ -88,9 +89,6 @@ namespace protocoletariat
 
 			unsigned char* crcStr = new unsigned char[4];
 
-			// first approach
-			//sprintf_s(crcStr, sizeof(crcStr), "%lu", crc);
-
 			// second approach
 			crcStr[0] = (crc >> 24) & 0xFF;
 			crcStr[1] = (crc >> 16) & 0xFF;
@@ -129,4 +127,14 @@ namespace protocoletariat
 
 		return false;
 	}
+
+	void FileUploader::QueueControlFrame(const char controlChar)
+	{
+		char* frameCtr = new char[2];
+		frameCtr[0] = SYN;
+		frameCtr[1] = controlChar;
+
+		mUploadQueue->push(frameCtr);
+	}
+
 }
