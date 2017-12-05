@@ -15,7 +15,7 @@
 -- PROGRAMMER: Li-Yan Tong and Morgan Ariss
 --
 -- NOTES:
--- The program is responsible for displaying transfered data and 
+-- The program is responsible for displaying transfered data and
 ----------------------------------------------------------------------*/
 
 #include "PrintData.h"
@@ -26,11 +26,11 @@ namespace protocoletariat
 	/*----------------------------------------------------------------------
 	-- FUNCTION: PrintReceivedData()
 	--
-	-- DATE: October 4, 2017
+	-- DATE: December 1, 2017
 	--
-	-- DESIGNER: Jeremy Lee
+	-- DESIGNER: Jeremy Lee, Luke Lee
 	--
-	-- PROGRAMMER: Jeremy Lee
+	-- PROGRAMMER: Li-Yan Tong
 	--
 	-- INTERFACE: void DrawLetter(HWND hwnd, char* letter)
 	--
@@ -42,36 +42,27 @@ namespace protocoletariat
 	-- calculates the position of the last character written on screen, and
 	-- determines if it is off the Window by calculating the Window's width.
 	----------------------------------------------------------------------*/
-	void PrintData::PrintReceivedData()
+	DWORD WINAPI PrintData::PrintReceivedData(std::queue<char*> printQueue)
 	{
-		//needs to be globally set
-		printActive = TRUE;
+		mCurrentRow = 1;
 
-		while (printActive) {
-			if (!printQueue.empty()) {
+		while (!printQueue.empty()) {
+			// Load up
+			char* payload = new char[512];
 
-				// Load up
-				char* payload = new char[512];
+			payload = printQueue.front();
 
-				payload = printQueue.front();
+			wchar_t printPayload[513];
 
-				wchar_t printPayload[513];
+			size_t outSize;
 
-				size_t outSize;
+			mbstowcs_s(&outSize, printPayload, 513, payload, 512);
 
-//				_tcscpy_s(printPayload, payload);
+			DrawCharsByRow((TCHAR*)printPayload, mCurrentRow);
+			mCurrentRow++;
 
-				mbstowcs_s(&outSize, printPayload, 513, payload, 512);
-
-				// Get currentRow
-				char* printWindow = new char[20000];
-				//GetWindowText()
-
-				DrawCharsByRow((TCHAR*)printPayload, mCurrentRow);
-				
-				// Remove Data from queue.
-				printQueue.pop();
-			}
+			// Remove Data from queue.
+			printQueue.pop();
 
 			std::string logPrint;
 
@@ -89,7 +80,11 @@ namespace protocoletariat
 
 			UpdateLog((TCHAR*)logPrint.c_str(), 0);
 			Sleep(1000);
+			
+			return 1;
 		}
+
+		return 0;
 	}
 
 	/*----------------------------------------------------------------------
@@ -114,7 +109,7 @@ namespace protocoletariat
 	-- NOTES:
 	-- A function to draw a character string to the Window.
 	-- Finds the x and y coordinate to start drawing the input character
-	-- string from. Continues to print data on a new line specified by the 
+	-- string from. Continues to print data on a new line specified by the
 	-- row input, and then draws the input character string.
 	----------------------------------------------------------------------*/
 	void PrintData::DrawCharsByRow(const TCHAR* chars, unsigned int row)

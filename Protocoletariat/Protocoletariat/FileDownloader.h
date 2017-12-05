@@ -9,8 +9,8 @@ namespace protocoletariat
 	{
 		std::queue<char*>* downloadQueue;
 		HWND* handle;
-		OVERLAPPED& olRead;
-		DWORD& dwThreadExit;
+		OVERLAPPED& olRead = *(new OVERLAPPED());
+		DWORD& dwThreadExit = *(new DWORD());
 	};
 
 	static class FileDownloader
@@ -28,7 +28,6 @@ namespace protocoletariat
 		static const char ENQ = 5;
 		static const char ACK = 6;
 		static const char RVI = 7;
-
 
 		//static std::queue<char*>* mDownloadQueue;
 		//static HWND* mHandle;
