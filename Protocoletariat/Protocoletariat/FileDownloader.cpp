@@ -2,14 +2,8 @@
 
 namespace protocoletariat
 {
-	//std::queue<char*>* mDownloadQueue = nullptr;
-	//HWND* mHandle = nullptr;
-
 	DWORD WINAPI FileDownloader::ReadSerialPort(paramFileDownloader* param)
 	{
-		//mDownloadQueue = param->downloadQueue;
-		//mHandle = param->handle;
-
 		std::queue<char*>* downloadQueue = param->downloadQueue;
 		HANDLE* handle = param->handle;
 		OVERLAPPED& olRead = param->olRead;
@@ -82,7 +76,7 @@ namespace protocoletariat
 						}
 
 						downloadQueue->push(frame); // queue the downloaded frame
-													// TODO: call event for protocol engine
+						// TODO: call event for protocol engine
 
 						bufferFrame.clear(); // clean the frame buffer
 					}
