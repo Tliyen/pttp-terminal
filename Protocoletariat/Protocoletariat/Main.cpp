@@ -47,6 +47,7 @@
 #include "FileUploader.h"
 #include "FileDownloader.h"
 #include "PrintData.h"
+#include "Protocol.h"
 
 using namespace protocoletariat;
 
@@ -92,6 +93,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	logfile = new LogFile();
 	fileUploadParam = new paramFileUploader();
 	fileDownloadParam = new paramFileDownloader();
+	protocolParam = new paramProtocolEngine();
 
 	while (GetMessage(&Msg, NULL, 0, 0))
 	{
@@ -397,9 +399,9 @@ boolean protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 -- RETURNS: boolean
 --
 -- NOTES:
--- This function is called by user Menu click in WndProc, and sets the
--- target COM port based on the user selection. There are currently 4
--- COM ports available.
+-- This function is called by user's Menu click that is processed in
+-- WndProc, and sets the target COM port based on the user selection.
+-- There are currently 4 COM ports available.
 ----------------------------------------------------------------------*/
 boolean protocoletariat::SwitchCommPort(int commPort)
 {
@@ -444,10 +446,10 @@ boolean protocoletariat::SwitchCommPort(int commPort)
 -- RETURNS: boolean
 --
 -- NOTES:
--- This function is called by user Menu click that is processed in
+-- This function is called by user's Menu click that is processed in
 -- WndProc. Once called, it displays a separate Window containing
 -- communication settings. On that Window, user can configure values for
--- communication properties, and apply it for the next connection.
+-- communication properties.
 ----------------------------------------------------------------------*/
 boolean protocoletariat::ConfigureCommSettings(HWND hwnd)
 {
@@ -468,19 +470,44 @@ boolean protocoletariat::ConfigureCommSettings(HWND hwnd)
 	return true;
 }
 
+/*----------------------------------------------------------------------
+-- FUNCTION: StartEngine
+--
+-- DATE: December 4, 2017
+--
+-- DESIGNER: Luke Lee
+--
+-- PROGRAMMER: Luke Lee
+--
+-- INTERFACE: boolean ConfigureCommSettings(HWND hwnd)
+--
+-- RETURNS: boolean
+--
+-- NOTES:
+-- This function is responsible 
+----------------------------------------------------------------------*/
 void protocoletariat::StartEngine()
 {
 	// initialize fileDownloadParam
-	olRead = {0};
+	olRead = { 0 };
 	fileDownloadParam->downloadQueue = &downloadQ;
 	fileDownloadParam->olRead = olRead;
 	fileDownloadParam->dwThreadExit = readThreadExit;
 	fileDownloadParam->handle = &hwnd;
-	downloadThrd = CreateThread(NULL, 0, FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
+	downloadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
 	
+	// initialize print data thread
 	std::queue<char*>* printQ = &dataToPrintQ;
-	printThrd = CreateThread(NULL, 0, PrintData::PrintReceivedData, printQ, 0, &printThrdID);
-	protocolThrd = CreateThread(NULL, 0, ProtocolThread, (LPVOID)hwnd, 0, &protocolThrdID);
+	//printThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)PrintData::PrintReceivedData, printQ, 0, &printThrdID);
+
+	olWrite = { 0 };
+	//protocolParam->uploadQueue = &uploadQ;
+	//protocolParam->downloadQueue = &downloadQ;
+	//protocolParam->printQueue = &dataToPrintQ;
+	//protocolParam->olWrite = olWrite;
+	//protocolParam->dwThreadExit = writeThreadExit;
+	//protocolParam->handle = hComm;
+	//protocolThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ProtocolThread, protocolParam, 0, &protocolThrdID);
 }
 
 void protocoletariat::ClearQueue(std::queue<char*> &q)
