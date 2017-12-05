@@ -8,10 +8,6 @@
 #include <vector>
 #include <queue>
 
-<<<<<<< HEAD
-bool printActive;
-std::queue<char*> printQueue;
-=======
 namespace protocoletariat
 {
 	static class PrintData
@@ -28,7 +24,4 @@ namespace protocoletariat
 
 	private:
 	};
-
->>>>>>> c455689ac91d98120a6ecb8d433868d79e6be1cf
-
 }

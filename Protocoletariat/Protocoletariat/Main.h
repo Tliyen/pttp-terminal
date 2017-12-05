@@ -35,15 +35,22 @@ namespace protocoletariat
 	int indexReadChar = 0;
 	int X = 0, Y = 0; // current str coordinates
 
-					  // Thread handles
-	HANDLE		uploadThrd, downloadThrd, printThrd, mainThrd;
-	DWORD		uploadThrdID, downloadThrdID, printThrdID, mainThrdID;
-
 	// Global variables - for Protocol Comm
 	std::queue<char*> uploadQ;
 	std::queue<char*> downloadQ;
 	std::queue<char*> dataToPrintQ;
 	LogFile* logfile;
+	boolean globalRVI;
+
+	// Thread handles
+	HANDLE uploadThrd, downloadThrd, printThrd, protocolThrd;
+	DWORD  uploadThrdID, downloadThrdID, printThrdID, protocolThrdID;
+	// Parameter to pass to ThreadProc
+	struct paramFileUploader* fileUploadParam;
+	struct paramFileDownloader* fileDownloadParam;
+	OVERLAPPED olRead;
+	DWORD readThreadExit;
+
 
 	// Functions
 	LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -60,8 +67,4 @@ namespace protocoletariat
 	void ClearQueue(std::queue<char*> &q);
 	void CleanUp();
 	void StartEngine();
-
-	// Parameter to pass to ThreadProc
-	struct paramFileUploader* fileUploadParam;
-	struct paramFileDownloader* fileDownloadParam;
 }
