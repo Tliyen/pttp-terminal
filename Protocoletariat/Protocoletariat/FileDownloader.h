@@ -8,7 +8,7 @@ namespace protocoletariat
 	struct paramFileDownloader
 	{
 		std::queue<char*>* downloadQueue;
-		HWND* handle;
+		HANDLE* handle;
 		OVERLAPPED& olRead = *(new OVERLAPPED());
 		DWORD& dwThreadExit = *(new DWORD());
 	};
