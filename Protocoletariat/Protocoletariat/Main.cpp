@@ -16,37 +16,41 @@
 --
 -- DATE: November 29, 2017
 --
--- DESIGNER: Jeremy Lee, Li-Yan Tong, Morgan Ariss, Luke Lee
+-- DESIGNER: Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong 
 --
 -- PROGRAMMER: Luke Lee
 --
 -- NOTES:
--- The program reads user keystroke as well as serial port input,
--- sends user's character input to serial port, and displays incoming
+-- This is the entry point for the program. This method is responsible
+-- for creating the GUI to make the application easy for users. It is
+-- also responsible for initializing the connection to the serial port.
+-- If the connection is successful then the program will move to the
+-- next stage.
+--
+-- The program reads user keystroke as well as serial port input, sends
+-- text character in a file uploaded by the user, and displays incoming
 -- serial port input on screen.
 --
 -- Before starting data exchange, user can configure serial port or
 -- communication settings such as bit per second, data bits, parity,
 -- stop bit, and flow control.
 --
--- To start data exchange, user can select Connect menu, and start
--- typing on keyboard to send a character at a time to serial port.
--- At the same time, the program reads incoming serial port input and
+-- To start data exchange, user can select Upload menu, and upload a
+-- file, send a frame of characters at a time to serial port. At the
+-- same time, the program reads incoming serial port input and
 -- displays it on the screen.
---
--- To access to port or communication settings again, user must
--- disconnect first. Reconnection or exiting the program is allowed
--- anytime during the operation.
 ----------------------------------------------------------------------*/
 #pragma warning (disable: 4096)
 
 #define STRICT
 
 #include "Menu.h"
+#include "global.h"
 #include "Main.h"
 #include "FileUploader.h"
 #include "FileDownloader.h"
 #include "PrintData.h"
+#include "ProtocolEngine.h"
 
 using namespace protocoletariat;
 
@@ -55,7 +59,7 @@ using namespace protocoletariat;
 --
 -- DATE: November 29, 2017
 --
--- DESIGNER: Jeremy Lee
+-- DESIGNER: Luke Lee
 --
 -- PROGRAMMER: Luke Lee
 --
@@ -93,9 +97,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	fileUploadParam = new paramFileUploader();
 	fileDownloadParam = new paramFileDownloader();
 	printDataParam = new paramPrintData();
+	protocolParam = new paramProtocolEngine();
 
 	StartEngine();
-
+  
 	while (GetMessage(&Msg, NULL, 0, 0))
 	{
 		TranslateMessage(&Msg);
@@ -114,15 +119,17 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 --
 -- PROGRAMMER: Luke Lee
 --
--- INTERFACE: boolean InitializeWindows(HINSTANCE hInst, int nCmdShow)
+-- INTERFACE: bool InitializeWindows(HINSTANCE hInst, int nCmdShow)
 --
--- RETURNS: boolean
+-- RETURNS: bool
 --
 -- NOTES:
--- This function initializes parameters for the wireless terminal Windows
--- and opens the windows.
+-- This function initializes required parameters for the wireless
+-- terminal Windows and opens the windows. It also assigns a process to
+-- the program which will listen to user's keystroke or menu item clicks
+-- input and response accordingly.
 ----------------------------------------------------------------------*/
-boolean protocoletariat::InitializeWindows(HINSTANCE hInst, int nCmdShow)
+bool protocoletariat::InitializeWindows(HINSTANCE hInst, int nCmdShow)
 {
 	// application Window values
 	const int intWindowW = 500; // Window width
@@ -182,10 +189,11 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 	WPARAM wParam, LPARAM lParam)
 {
 	char bufferWrite[2] = "";
-	DWORD dwWritten;
+	//DWORD dwWritten;
 	HDC hdc;
 	PAINTSTRUCT paintstruct;
 	TEXTMETRIC tm;
+	HINSTANCE manInst;
 
 	switch (Message)
 	{
@@ -283,11 +291,19 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 			break;
 
 		case IDM_ABOUT: // Open About dialog
-			//StopCommunication();
+			MessageBox(hwnd, "PTTP Wireless Protocol Terminal v.1\nCreated by M.Ariss, J.Lee, L.Lee, L.Tong",
+				"About", MB_ICONINFORMATION | MB_OK);
 			break;
 
 		case IDM_HELP: // Open user manual
-			//StopCommunication();
+			manInst = ShellExecute(NULL, "open", "UserManual.pdf", NULL,
+				NULL, SW_SHOW);
+			if ((int)manInst == ERROR_FILE_NOT_FOUND)
+			{
+				MessageBox(NULL,
+					TEXT("UserManual.pdf not found."), TEXT("Error"),
+					MB_OK);
+			}
 			break;
 
 		case IDM_EXIT: // Exit program
@@ -310,7 +326,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 		}
 		else if (wParam == RVI_KEY)
 		{
-			MessageBox(hwnd, "RVI key pressed", "Title", MB_OKCANCEL);
+			MessageBox(hwnd, "RVI key is detected", "RVI Event", MB_OK);
 			break;
 		}
 		break;
@@ -324,10 +340,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 		break;
 
 	case WM_DESTROY: // terminate program
-		if (IDOK == MessageBox(hwnd, "OK to close window?", "Exit", MB_ICONQUESTION | MB_OKCANCEL))
-		{
-			CleanUp();
-		}
+		CleanUp();
 		break;
 
 	default:
@@ -346,15 +359,15 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 --
 -- PROGRAMMER: Jeremy Lee
 --
--- INTERFACE: boolean InitializeCommHandle(LPTSTR CommPort)
+-- INTERFACE: bool InitializeCommHandle(LPTSTR CommPort)
 --
--- RETURNS: boolean
+-- RETURNS: bool
 --
 -- NOTES:
 -- This function creates communication Handle and applies the
 -- configuration settings to it.
 ----------------------------------------------------------------------*/
-boolean protocoletariat::InitializeCommHandle(LPTSTR CommPort)
+bool protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 {
 	// create communcation handle
 	hComm = CreateFile(CommPort, GENERIC_READ | GENERIC_WRITE, 0,
@@ -391,16 +404,16 @@ boolean protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 --
 -- PROGRAMMER: Jeremy Lee
 --
--- INTERFACE: boolean SwitchCommPort(int commPort)
+-- INTERFACE: bool SwitchCommPort(int commPort)
 --
--- RETURNS: boolean
+-- RETURNS: bool
 --
 -- NOTES:
 -- This function is called by user Menu click in WndProc, and sets the
 -- target COM port based on the user selection. There are currently 4
 -- COM ports available.
 ----------------------------------------------------------------------*/
-boolean protocoletariat::SwitchCommPort(int commPort)
+bool protocoletariat::SwitchCommPort(int commPort)
 {
 	switch (commPort)
 	{
@@ -438,9 +451,9 @@ boolean protocoletariat::SwitchCommPort(int commPort)
 --
 -- PROGRAMMER: Jeremy Lee
 --
--- INTERFACE: boolean ConfigureCommSettings(HWND hwnd)
+-- INTERFACE: bool ConfigureCommSettings(HWND hwnd)
 --
--- RETURNS: boolean
+-- RETURNS: bool
 --
 -- NOTES:
 -- This function is called by user Menu click that is processed in
@@ -448,7 +461,7 @@ boolean protocoletariat::SwitchCommPort(int commPort)
 -- communication settings. On that Window, user can configure values for
 -- communication properties, and apply it for the next connection.
 ----------------------------------------------------------------------*/
-boolean protocoletariat::ConfigureCommSettings(HWND hwnd)
+bool protocoletariat::ConfigureCommSettings(HWND hwnd)
 {
 	ccfg.dwSize = sizeof(COMMCONFIG);
 	ccfg.wVersion = 0x100;
@@ -476,9 +489,9 @@ boolean protocoletariat::ConfigureCommSettings(HWND hwnd)
 --
 -- PROGRAMMER: Luke Lee
 --
--- INTERFACE: boolean ConfigureCommSettings(HWND hwnd)
+-- INTERFACE: void StartEngine()
 --
--- RETURNS: boolean
+-- RETURNS: void
 --
 -- NOTES:
 -- This function is responsible for initializing and starting the download
@@ -488,35 +501,57 @@ boolean protocoletariat::ConfigureCommSettings(HWND hwnd)
 ----------------------------------------------------------------------*/
 void protocoletariat::StartEngine()
 {
+
 	// initialize download (read) thread
 	olRead = { 0 };
 	fileDownloadParam->downloadQueue = &downloadQ;
 	fileDownloadParam->olRead = olRead;
 	fileDownloadParam->dwThreadExit = readThreadExit;
 	fileDownloadParam->handle = &hComm;
+	fileDownloadParam->dlReady = &dlReady;
+	fileDownloadParam->RVIflag = &RVIflag;
 	downloadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
 	
 	// initialize print data thread
 	printDataParam->printQueue = &dataToPrintQ;
-	printDataParam->hwnd = hwnd;
-	printDataParam->hComm = hComm;
+	printDataParam->hwnd = &hwnd;
+	printDataParam->hComm = &hComm;
 	printDataParam->X = &X;
 	printDataParam->Y = &Y;
 	printDataParam->logfile = logfile;
 	printThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)PrintData::PrintReceivedData, printDataParam, 0, &printThrdID);
 
 	// initialize main protocol engine thread
-	//olWrite = { 0 };
-	//protocolParam->uploadQueue = &uploadQ;
-	//protocolParam->downloadQueue = &downloadQ;
-	//protocolParam->printQueue = &dataToPrintQ;
-	//protocolParam->olWrite = olWrite;
-	//protocolParam->dwThreadExit = writeThreadExit;
-	//protocolParam->handle = hComm;
-	//protocolParam->logfile = logfile;
-	//protocolThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ProtocolThread, protocolParam, 0, &protocolThrdID);
+	olWrite = { 0 };
+	protocolParam->uploadQueue = &uploadQ;
+	protocolParam->downloadQueue = &downloadQ;
+	protocolParam->printQueue = &dataToPrintQ;
+	protocolParam->olWrite = olWrite;
+	protocolParam->dwThreadExit = writeThreadExit;
+	protocolParam->hComm = &hComm;
+	protocolParam->logfile = logfile;
+	protocolParam->dlReady = &dlReady;
+	protocolParam->RVIflag = &RVIflag;
+	protocolThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ProtocolEngine::ProtocolThread, protocolParam, 0, &protocolThrdID);
 }
 
+/*----------------------------------------------------------------------
+-- FUNCTION: ClearQueue
+--
+-- DATE: December 4, 2017
+--
+-- DESIGNER: Luke Lee
+--
+-- PROGRAMMER: Luke Lee
+--
+-- INTERFACE: void ClearQueue(std::queue<char*> &q)
+--
+-- RETURNS: void
+--
+-- NOTES:
+-- This function is responsible for clearing all the items in a queue
+-- given as a parameter in the function.
+----------------------------------------------------------------------*/
 void protocoletariat::ClearQueue(std::queue<char*> &q)
 {
 	while (!q.empty())
@@ -525,8 +560,30 @@ void protocoletariat::ClearQueue(std::queue<char*> &q)
 	}
 }
 
+/*----------------------------------------------------------------------
+-- FUNCTION: CleanUp
+--
+-- DATE: December 4, 2017
+--
+-- DESIGNER: Luke Lee
+--
+-- PROGRAMMER: Luke Lee
+--
+-- INTERFACE: void CleanUp()
+--
+-- RETURNS: void
+--
+-- NOTES:
+-- This function is responsible for closing all the handles and threads,
+-- (serial port handle, upload, download, print-data, and main protocol
+-- threads), clearing all the queues (upload, download, print-data
+-- queues), and deleting all the allocated memory structure (logfile,
+-- upload file parameter, download file parameter, print-data parameter).
+-- After all the cleanups are finished, the program is terminated.
+----------------------------------------------------------------------*/
 void protocoletariat::CleanUp()
 {
+	bCommOn = false;
 	CloseHandle(hComm);
 
 	ClearQueue(uploadQ);
@@ -540,6 +597,9 @@ void protocoletariat::CleanUp()
 
 	delete logfile;
 	delete fileUploadParam;
+	delete fileDownloadParam;
+	delete printDataParam;
+	delete protocolParam;
 
 	PostQuitMessage(0);
 }

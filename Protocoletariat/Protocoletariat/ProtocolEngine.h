@@ -12,10 +12,12 @@
 
 #define ASCII_SYN 0x22
 
-#define TIMEOUT 2000
+#define TIMEOUT 200
+#define INNER_TIMEOUT 30
 
 #include <windows.h>
 #include <Winbase.h>
+#include "global.h"
 #include <queue>
 #include <stdio.h>
 
@@ -27,15 +29,17 @@ namespace protocoletariat
 		std::queue<char*>* downloadQueue;
 		std::queue<char*>* printQueue;
 		
-		struct logfile;
+		LogFile* logfile;
+
+		bool* dlReady;
+		bool* RVIflag;
 		
 		HANDLE* hComm;
-		OVERLAPPED& olWrite = *(new OVERLAPPED());;
+		OVERLAPPED& olWrite = *(new OVERLAPPED());
 		DWORD& dwThreadExit = *(new DWORD());
 	};
 
 	extern bool globalRVI;
-	extern bool protocolActive;
 	
 	static class ProtocolEngine
 	{
@@ -59,34 +63,44 @@ namespace protocoletariat
 		static void AcknowledgeBid();
 		static void ReceiveData();
 		static bool ErrorDetection();
-		
-		bool sendData;
-		bool receiveData;
-		static bool linkReceivedENQ;
 
 	private:
 		static std::queue<char*>* mUploadQueue;
 		static std::queue<char*>* mDownloadQueue;
 		static std::queue<char*>* mPrintQueue;
 		
-		struct mLogfile;
+		static LogFile* mLogfile;
+
+		static bool* mDownloadReady;
+		static bool* mRVIflag;
+
+		static bool linkReceivedENQ;
+		static bool protocolActive;
 		
 		static HANDLE* mHandle;
 		static OVERLAPPED& olWrite;
 		static DWORD& dwThreadExit;
+
+		static DWORD dwEvent;
+		static DWORD dwError;
 		
-		static char ENQframe[];
-		static char ACKframe[];
-		static char EOTframe[];
+		static const char* ENQframe;
+		static const char* ACKframe;
+		static const char* EOTframe;
 		
 		static char DATAframe[];
 		
 		static char* incFrame;
 		static char* outFrame;
+
+		static paramProtocolEngine* ppe;
 		
 		DWORD dwRet;
 
-		static const char CHAR_SYN = 22; // Start of Text Char
+		static const size_t DATA_FRAME_SIZE = 518;
+		static const size_t CONTROL_FRAME_SIZE = 2;
+
+		static const char CHAR_SYN = 22; // Start of Frame Char
 
 		static const char CHAR_STX = 2; // Start of Text Char
 		// static const char CHAR_ETX = 3; // End of Text Char
@@ -94,7 +108,7 @@ namespace protocoletariat
 		static const char CHAR_ENQ = 5; // Enquiry Char
 		static const char CHAR_ACK = 6; // Acknowledge Char
 
-		const char CHAR_RVI = 7; // RVI originally windows bell
+		static const char CHAR_RVI = 7; // RVI originally windows bell
 	};
 }
 

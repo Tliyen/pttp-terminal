@@ -23,6 +23,7 @@ using namespace protocoletariat;
 //
 //	FileUploader::LoadTextFile(param);
 //
+<<<<<<< HEAD
 //	char* frameReceived = new char[518];
 //	char* payload = new char[512];
 //	char* strCrc = new char[4];
@@ -78,5 +79,18 @@ using namespace protocoletariat;
 //	//std::uint32_t crc = CRC::Calculate(framePayloadOnly, 9, table);
 //	//std::cout << std::hex << crc << std::endl;
 //
+=======
+//	while (!queue->empty())
+//	{
+//		char* queued = queue->front();
+//		queue->pop();
+//
+//		//for (unsigned i = 0; i < 518; ++i)
+//		//{
+//		//	std::cout << queued[i];
+//		//}
+//	}
+//	
+>>>>>>> dde3b8c14de5d269616f7ad2a7ee073fcb98a6a8
 //	return 0;
 //}
