@@ -16,6 +16,12 @@ namespace protocoletariat
 		std::string filePath;
 	};
 
+	union mix_t
+	{
+		std::uint32_t theDWord;
+		std::uint8_t theBytes[4];
+	};
+
 	static class FileUploader
 	{
 	public:
@@ -23,7 +29,7 @@ namespace protocoletariat
 		static DWORD WINAPI LoadTextFile(paramFileUploader* param);
 		static bool ConvertFileIntoFrames(const std::vector<char>& bufferRead);
 		static void QueueControlFrame(const char controlChar);
-		//static std::uint32_t GenerateCrc(char* subject);
+		static bool ValidateCrc(char* payload, char* strCrcReceived);
 
 	private:
 		static const size_t MAX_FRAME_SIZE = 518;
