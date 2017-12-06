@@ -367,10 +367,10 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 			}
 			break;
 		}
-		else if (wParam == RVI_KEY)
+		else if (wParam == 0x72)
 		{
+			MessageBox(hwnd, "RVI key is detected", "RVI Event", MB_OK);
 			ProtocolEngine::TransmitFrame(true, RVI_KEY);
-			//MessageBox(hwnd, "RVI key is detected", "RVI Event", MB_OK);
 			break;
 		}
 		break;
