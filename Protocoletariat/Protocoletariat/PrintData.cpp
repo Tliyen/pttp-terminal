@@ -1,5 +1,8 @@
 /*----------------------------------------------------------------------
--- SOURCE FILE: PrintData.cpp
+-- SOURCE FILE: PrintData.cpp -	An Application that will monitor and display
+--								LogFile containing packet transfer data and 
+--								print transfered text data.
+--									
 --
 -- PROGRAM:		Protocoletariat
 --
