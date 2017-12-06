@@ -1,9 +1,45 @@
+/*----------------------------------------------------------------------
+-- SOURCE FILE: FileDownloader.cpp		-
+--
+--
+-- PROGRAM:		Protocoletariat
+--
+-- FUNCTIONS:
+--				DWORD WINAPI ReadSerialPort(paramFileDownloader* param)
+--				bool combineCharsIntoFrame(std::vector<char>& bufferFrame, const char charRead)
+--
+--
+-- DATE:		December 5, 2017
+--
+-- DESIGNER:	Jeremy Lee
+--
+-- PROGRAMMER:	Jeremy Lee
+--
+-- NOTES:
+----------------------------------------------------------------------*/
 #include "FileDownloader.h"
 
 namespace protocoletariat
 {
 	static bool* rviReceived = nullptr;
 
+	/*------------------------------------------------------------------
+	-- FUNCTION:	ReadSerialPort
+	--
+	-- DATE:		December 5, 2017
+	--
+	-- DESIGNER:	Jeremy Lee
+	--
+	-- PROGRAMMER:	Jeremy Lee
+	--
+	-- INTERFACE:	DWORD WINAPI ReadSerialPort(paramFileDownloader* param)
+	--
+	-- ARGUMENT:	param			-
+	--
+	-- RETURNS:		DWORD			-
+	--
+	-- NOTES:
+	------------------------------------------------------------------*/
 	DWORD WINAPI FileDownloader::ReadSerialPort(paramFileDownloader* param)
 	{
 		std::queue<char*>* downloadQueue = param->downloadQueue;
@@ -95,6 +131,24 @@ namespace protocoletariat
 		return 0;
 	}
 
+	/*------------------------------------------------------------------
+	-- FUNCTION:	combineCharsIntoFrame
+	--
+	-- DATE:		December 5, 2017
+	--
+	-- DESIGNER:	Jeremy Lee
+	--
+	-- PROGRAMMER:	Jeremy Lee
+	--
+	-- INTERFACE:	bool combineCharsIntoFrame(std::vector<char>& bufferFrame, const char charRead)
+	--
+	-- ARGUMENT:	bufferFrame		-
+	--				charRead		-
+	--
+	-- RETURNS:		bool			-
+	--
+	-- NOTES:
+	------------------------------------------------------------------*/
 	bool FileDownloader::combineCharsIntoFrame(std::vector<char>& bufferFrame, const char charRead)
 	{	// RVI bell char
 		if (bufferFrame.size() == 0) // frame empty
