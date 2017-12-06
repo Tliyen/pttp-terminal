@@ -33,7 +33,7 @@ namespace protocoletariat
 		bool* downloadReady;
 		
 		HANDLE* hComm;
-		OVERLAPPED& olWrite = *(new OVERLAPPED());;
+		OVERLAPPED& olWrite = *(new OVERLAPPED());
 		DWORD& dwThreadExit = *(new DWORD());
 	};
 
@@ -88,6 +88,8 @@ namespace protocoletariat
 		
 		static char* incFrame;
 		static char* outFrame;
+
+		static paramProtocolEngine* ppe;
 		
 		DWORD dwRet;
 
@@ -102,7 +104,7 @@ namespace protocoletariat
 		static const char CHAR_ENQ = 5; // Enquiry Char
 		static const char CHAR_ACK = 6; // Acknowledge Char
 
-		const char CHAR_RVI = 7; // RVI originally windows bell
+		static const char CHAR_RVI = 7; // RVI originally windows bell
 	};
 }
 
