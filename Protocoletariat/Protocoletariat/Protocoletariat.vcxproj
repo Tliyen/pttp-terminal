@@ -126,10 +126,10 @@
     <ClInclude Include="CRC.h" />
     <ClInclude Include="FileDownloader.h" />
     <ClInclude Include="FileUploader.h" />
+    <ClInclude Include="Global.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="PrintData.h" />
-    <ClInclude Include="global.h" />
     <ClInclude Include="ProtocolEngine.h" />
   </ItemGroup>
   <ItemGroup>
