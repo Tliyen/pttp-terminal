@@ -60,41 +60,66 @@ namespace protocoletariat
 		/*
 		//TESTING VALUES
 		char* tester = new char[512];
-		tester = "ok this is a testsadfohdsakfjdsakjfsldkjflasdjfaljsdfjklsadlfajlasdjlfjlsdkajfljdslfjlsdjlafjlsdjlfajasldjafljsadlfjlsadjlfjlsadjlfjlsdajfljsldajfljdslafjljsdalfjlasdjfljsldajflsd";
+		tester = "ok this is a testsadfohdsakfjdsakjfsldkjflasdjfaljsdfjklsadlfajlasdjlfjlsdkajfljdslfjlsdjlafjlsdjlfajasldjafljsadlfjlsadjlfjlsadjlfjlsdajfljsldajfljdslafjljsdalfjlasdjfljsldajflsdja";
 
-		std::ostringstream ost;
+		size_t total = strlen(tester);
 
-		ost.str("");
-		ost.clear();
+		//std::ostringstream ost;
 
-		ost << tester;
-		std::string tester_s = ost.str();
+		//ost.str("");
+		//ost.clear();
 
-		PrintPayload(hwnd, (TCHAR*)tester_s.c_str(), mCurrentRow, pX, pY);
+		//ost << tester;
+		//std::string tester_s = ost.str();
+		for (int i = 0; i < total; i++)
+		{
+			char* print = &tester[i];
+			
+				PrintPayload(hwnd, (char*)print, mCurrentRow, pX, pY);
+			
+		}
+		//PrintPayload(hwnd, (TCHAR*)tester_s.c_str(), mCurrentRow, pX, pY);
 
 		char* tester2 = new char[512];
 		tester2 = "Ping";
 
-		ost.str("");
-		ost.clear();
+		int total2 = strlen(tester2);
 
-		ost << tester2;
+		for (int i = 0; i < total2; i++)
+		{
+			char* print = &tester2[i];
+		
+				PrintPayload(hwnd, (char*)print, mCurrentRow, pX, pY);
+		}
 
-		tester_s = ost.str();
+		//ost.str("");
+		//ost.clear();
 
-		PrintPayload(hwnd, (TCHAR*)tester_s.c_str(), mCurrentRow, pX, pY);
+		//ost << tester2;
+
+		//tester_s = ost.str();
+
+		//PrintPayload(hwnd, (TCHAR*)tester_s.c_str(), mCurrentRow, pX, pY);
 
 		char* tester3 = new char[512];
 		tester3 = "Ping Ping Ping!";
 
-		ost.str("");
-		ost.clear();
+		int total3 = strlen(tester3);
 
-		ost << tester3;
+		//ost.str("");
+		//ost.clear();
 
-		tester_s = ost.str();
+		//ost << tester3;
 
-		PrintPayload(hwnd, (TCHAR*)tester_s.c_str(), mCurrentRow, pX, pY);
+		//tester_s = ost.str();
+
+		//PrintPayload(hwnd, (TCHAR*)tester_s.c_str(), mCurrentRow, pX, pY);
+
+		for (int i = 0; i < total3; i++)
+		{
+			char* print = &tester3[i];
+			PrintPayload(hwnd, (char*)print, mCurrentRow, pX, pY);
+		}
 
 		logfile->sent_packet++;
 
@@ -123,13 +148,15 @@ namespace protocoletariat
 
 				payload = printQ->front();
 
-				// Build Payload String
-				std::ostringstream ost;
-				ost << payload;
-				std::string payload_s = ost.str();
-
 				// Print Payload
-				PrintPayload(hwnd, (TCHAR*)payload_s.c_str(), mCurrentRow, pX, pY);
+
+				int payloadLength = strlen(payload);
+
+				for (int i = 0; i < payloadLength; i++)
+				{
+					char* print = &payload[i];
+					PrintPayload(hwnd, (char*)print, mCurrentRow, pX, pY);
+				}
 
 				// Remove Data from queue.
 				printQ->pop();
@@ -201,7 +228,7 @@ namespace protocoletariat
 	-- string from. Continues to print data on a new line specified by the
 	-- row input, and then draws the input character string.
 	----------------------------------------------------------------------*/
-	void PrintData::PrintPayload(HWND* hwnd, const TCHAR* chars, unsigned int row, int* X, int* Y)
+	void PrintData::PrintPayload(HWND* hwnd, char* chars, unsigned int row, int* X, int* Y)
 	{
 		HDC hdc;
 		TEXTMETRIC tm;
@@ -210,21 +237,25 @@ namespace protocoletariat
 
 		//const int offsetRightSide = 25;
 
-		*X = 0; // move to the beginning of line
-		*Y = 0; // move to this row
+		//*X = 0; // move to the beginning of line
+		//*Y = 0; // move to this row
 
 		hdc = GetDC(*hwnd); // Acquire DC
 		GetTextMetrics(hdc, &tm); // get text metrics
-		GetTextExtentPoint32(hdc, chars, _tcslen(chars), &size); // compute length of a string 
+		GetTextExtentPoint32(hdc, chars, 1, &size); // compute length of a string 
 
 		//move to this row
-		while (row > 0)
-		{
-			*Y += tm.tmHeight + tm.tmExternalLeading; // next line
-			row--;
+		if (mCurrentRow == 4) {
+			while (row > 0)
+			{
+				*Y += tm.tmHeight + tm.tmExternalLeading; // next line
+				row--;
+			}
 		}
 
-		int charLength = size.cx;
+		TextOut(hdc, *X, *Y, chars, 1);  // Display string
+		*X += size.cx; // advance to end of previous string
+		ReleaseDC(*hwnd, hdc); // release device context
 
 		if (GetWindowRect(*hwnd, &rect))
 		{
@@ -236,12 +267,9 @@ namespace protocoletariat
 			}
 		}
 
-		TextOut(hdc, *X, *Y, chars, _tcslen(chars));  // Display string
-		*X += size.cx; // advance to end of previous string
 
+		mCurrentRow += *Y; // Set Current row to last row printed
 
-		//row = *Y; // Set Current row to last row printed
-		ReleaseDC(*hwnd, hdc); // release device context
 	}
 
 	/*----------------------------------------------------------------------

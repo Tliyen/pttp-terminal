@@ -1,6 +1,7 @@
 #pragma once
 
 #include <windows.h>
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <tchar.h>
@@ -27,7 +28,7 @@ namespace protocoletariat
 	{
 	public:
 		static DWORD WINAPI PrintData::PrintReceivedData(paramPrintData* param);
-		static void PrintData::PrintPayload(HWND* hwnd, const TCHAR* chars, unsigned int row, int* X, int*Y);
+		static void PrintData::PrintPayload(HWND* hwnd, char* chars, unsigned int row, int* X, int*Y);
 		static void PrintData::PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row, int* X, int*Y);
 
 		//static bool printDataActive;
