@@ -13,7 +13,7 @@
 --
 -- DATE:		December 5, 2017
 --
--- DESIGNER:	Jeremy Lee
+-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 --
 -- PROGRAMMER:	Jeremy Lee
 --
@@ -31,7 +31,7 @@ namespace protocoletariat
 	--
 	-- DATE:		December 5, 2017
 	--
-	-- DESIGNER:	Jeremy Lee
+	-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 	--
 	-- PROGRAMMER:	Jeremy Lee
 	--
@@ -42,6 +42,7 @@ namespace protocoletariat
 	-- RETURNS:		DWORD			-
 	--
 	-- NOTES:
+	-- 
 	------------------------------------------------------------------*/
 	DWORD WINAPI FileUploader::LoadTextFile(paramFileUploader* param)
 	{
@@ -87,7 +88,7 @@ namespace protocoletariat
 	--
 	-- DATE:		December 5, 2017
 	--
-	-- DESIGNER:	Jeremy Lee
+	-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 	--
 	-- PROGRAMMER:	Jeremy Lee
 	--
@@ -188,7 +189,7 @@ namespace protocoletariat
 	--
 	-- DATE:		December 5, 2017
 	--
-	-- DESIGNER:	Jeremy Lee
+	-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 	--
 	-- PROGRAMMER:	Jeremy Lee
 	--
@@ -214,7 +215,7 @@ namespace protocoletariat
 	--
 	-- DATE:		December 5, 2017
 	--
-	-- DESIGNER:	Jeremy Lee
+	-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 	--
 	-- PROGRAMMER:	Jeremy Lee
 	--
