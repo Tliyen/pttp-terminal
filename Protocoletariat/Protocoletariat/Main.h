@@ -52,7 +52,6 @@ namespace protocoletariat
 	bool InitializeCommHandle(LPTSTR CommPort);
 	bool SwitchCommPort(int commPort);
 	bool ConfigureCommSettings(HWND hwnd);
-
 	void ClearQueue(std::queue<char*>* q);
 	void StartEngine();
 	void CleanUp();

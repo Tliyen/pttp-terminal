@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------
 -- SOURCE FILE: PrintData.cpp
 --
--- PROGRAM: Protocoleriat
+-- PROGRAM: Protocoletariat
 --
 -- FUNCTIONS:
 --		void PrintReceivedData();
@@ -196,7 +196,7 @@ namespace protocoletariat
 				oss.str("");
 				oss.clear();
 
-				Sleep(500);
+				Sleep(250);
 			}
 		}
 
