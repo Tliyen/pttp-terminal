@@ -181,9 +181,9 @@ namespace protocoletariat
 		dNoOFBytestoWrite = sizeof(lpBuffer);  // Calculating the no of bytes to write into the port
 
 		status = WriteFile(mHandle,             // Handle to the Serialport
-			lpBuffer,            // Data to be written to the port 
-			dNoOFBytestoWrite,   // No of bytes to write into the port
-			&dNoOfBytesWritten,  // No of bytes written to the port
+			lpBuffer,							// Data to be written to the port 
+			dNoOFBytestoWrite,					// No of bytes to write into the port
+			&dNoOfBytesWritten,					// No of bytes written to the port
 			NULL);
 
 		delete lpBuffer;
@@ -260,12 +260,6 @@ namespace protocoletariat
 			}
 		}
 	}
-
-	/*
-	BidForLine
-	
-	
-	*/
 	
 	/*----------------------------------------------------------------------
 	-- FUNCTION: BidForLine
