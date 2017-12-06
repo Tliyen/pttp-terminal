@@ -24,7 +24,7 @@
 namespace protocoletariat
 {
 	//static HWND* hwnd = nullptr;
-	int mCurrentRow = 50;
+	int mCurrentRow = 4;
 	bool printDataActive = true;
 
 	/*----------------------------------------------------------------------
@@ -208,15 +208,25 @@ namespace protocoletariat
 		SIZE size;
 		RECT rect;
 
-		const int offsetRightSide = 25;
+		//const int offsetRightSide = 25;
 
 		*X = 0; // move to the beginning of line
-		*Y = row; // move to this row
+		//*Y = row; // move to this row
 
 		hdc = GetDC(*hwnd); // Acquire DC
 		GetTextMetrics(hdc, &tm); // get text metrics
 		GetTextExtentPoint32(hdc, chars, _tcslen(chars), &size); // compute length of a string 
-		*X += size.cx; // advance to end of previous string
+
+		//*X += size.cx; // advance to end of previous string
+
+		// move to this row
+		while (row > 0)
+		{
+			*Y += tm.tmHeight + tm.tmExternalLeading; // next line
+			row--;
+		}
+
+
 		if (GetWindowRect(*hwnd, &rect))
 		{
 			int width = rect.right - rect.left; // get Window width
@@ -228,7 +238,7 @@ namespace protocoletariat
 		}
 		TextOut(hdc, *X, *Y, chars, _tcslen(chars));  // Display string
 
-		row = *Y; // Set Current row to last row printed
+		//row = *Y; // Set Current row to last row printed
 		ReleaseDC(*hwnd, hdc); // release device context
 	}
 
