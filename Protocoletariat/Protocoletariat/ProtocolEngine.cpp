@@ -182,7 +182,7 @@ namespace protocoletariat
 			dNoOFBytestoWrite = 518;  // Calculating the no of bytes to write into the port
 		}
 
-		dNoOFBytestoWrite = sizeof(lpBuffer);  // Calculating the no of bytes to write into the port
+		//dNoOFBytestoWrite = sizeof(lpBuffer);  // Calculating the no of bytes to write into the port
 
 		status = WriteFile(*mHandle,            // Handle to the Serialport
 			lpBuffer,							// Data to be written to the port 
