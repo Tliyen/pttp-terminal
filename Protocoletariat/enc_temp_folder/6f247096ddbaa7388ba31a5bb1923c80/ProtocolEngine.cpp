@@ -93,6 +93,8 @@ namespace protocoletariat
 
 		linkReceivedENQ = false;
 
+		protocolActive = true;
+
 		Idle();
 
 		return 0;
