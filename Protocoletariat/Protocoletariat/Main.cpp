@@ -350,6 +350,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 			if (IDOK == MessageBox(hwnd, "OK to close window?", "Exit", MB_ICONQUESTION | MB_OKCANCEL))
 			{
 				CleanUp();
+				Sleep(500);
 				TerminateProgram();
 			}
 			break;
