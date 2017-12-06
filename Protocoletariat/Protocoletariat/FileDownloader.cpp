@@ -2,12 +2,16 @@
 
 namespace protocoletariat
 {
+	static bool* rviReceived = nullptr;
+
 	DWORD WINAPI FileDownloader::ReadSerialPort(paramFileDownloader* param)
 	{
 		std::queue<char*>* downloadQueue = param->downloadQueue;
 		HANDLE* handle = param->handle;
 		OVERLAPPED& olRead = param->olRead;
 		DWORD& dwThreadExit = param->dwThreadExit;
+		bool* downloadReady = param->dlReady;
+		rviReceived = param->RVIflag; // member variable
 		DWORD dwRead, dwLrc, dwEndTime;
 		char bufferChar[1];
 		std::vector<char> bufferFrame(MAX_FRAME_SIZE);
@@ -49,7 +53,7 @@ namespace protocoletariat
 							}
 
 							downloadQueue->push(frame); // queue the downloaded frame
-														// TODO: call event for protocol engine
+							*downloadReady = true; // set flag for protocol engine
 
 							bufferFrame.clear(); // clean the frame buffer
 						}
@@ -76,7 +80,7 @@ namespace protocoletariat
 						}
 
 						downloadQueue->push(frame); // queue the downloaded frame
-						// TODO: call event for protocol engine
+						*downloadReady = true; // set flag for protocol engine
 
 						bufferFrame.clear(); // clean the frame buffer
 					}
@@ -107,10 +111,16 @@ namespace protocoletariat
 				bufferFrame.push_back(charRead);
 			}
 			else if (charRead == ENQ || charRead == EOT
-				|| charRead == ACK || charRead == RVI) // control frame
+				|| charRead == ACK) // control frame excluding RVI
 			{
 				bufferFrame.push_back(charRead);
 				return true; // frame complete
+			}
+			else if (charRead == RVI) // RVI received
+			{
+				*rviReceived = true; // set flag for protocol engine
+				bufferFrame.clear(); // abandon RVI control frame
+				return false; // continue without queuing the frame
 			}
 			else // invalid char order
 			{

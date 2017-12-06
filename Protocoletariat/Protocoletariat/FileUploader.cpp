@@ -55,55 +55,56 @@ namespace protocoletariat
 		{
 			frame = new char[MAX_FRAME_SIZE];
 			unsigned int j = 0;
-			frame[j++] = SYN;
-			frame[j++] = STX;
+			frame[j++] = SYN; // first char SYN
+			frame[j++] = STX; // second char STX
 
-			while (i < bufferRead.size() && j < MAX_FRAME_SIZE - 4)
+			// until buffer read is empty OR the frame gets filled up
+			while (i < bufferRead.size() && j < MAX_FRAME_SIZE - 4) // 514/518
 			{
+				// frame: from 2 / buffer: from 0
 				frame[j++] = bufferRead[i++];
 			}
 
 			// CRC_32
-			char* framePayloadOnly = new char[MAX_FRAME_SIZE - 5];
+			char* framePayloadOnly = new char[MAX_FRAME_SIZE - 6]; // 512/518
 			for (unsigned int k = 0; k < MAX_FRAME_SIZE - 6; ++k)
 			{
+				// payload: from 0 / frame: from 2
 				framePayloadOnly[k] = frame[k + 2];
 			}
-			framePayloadOnly[MAX_FRAME_SIZE - 6] = '\0';
-			std::uint32_t crc = CRC::Calculate(framePayloadOnly, sizeof(framePayloadOnly), CRC::CRC_32());
+
+			// generate CRC only with the payload
+			CRC::Table<std::uint32_t, 32> table(CRC::CRC_32());
+			std::uint32_t crc = CRC::Calculate(framePayloadOnly, 512, table);
 
 			// debug ---------------------------------------------------
-			std::cout << "payload only: " << std::endl;
-			for (unsigned int z = 0; z < MAX_FRAME_SIZE - 6; ++z)
-			{
-				std::cout << framePayloadOnly[z];
-			}
-			std::cout << std::endl;
-
-			std::cout << "crc generated: " << std::hex << crc << std::endl;
+			//std::cout << "payload only: " << std::endl;
+			//unsigned int count = 0;
+			//std::cout << "[";
+			//while (count < MAX_FRAME_SIZE - 6)
+			//{
+			//	std::cout << framePayloadOnly[count++];
+			//}
+			//std::cout << "]";
+			//std::cout << std::endl;
+			//std::cout << "char count: " << count << std::endl;
+			//std::cout << "crc generated: " << crc << std::endl;
 			// debug ---------------------------------------------------
 
 			delete framePayloadOnly;
 
-			unsigned char* crcStr = new unsigned char[4];
+			char* crcStr = new char[4];
 
 			// second approach
-			//crcStr[0] = (crc >> 24) & 0xFF;
-			//crcStr[1] = (crc >> 16) & 0xFF;
-			//crcStr[2] = (crc >> 8) & 0xFF;
-			//crcStr[3] = crc & 0xFF;
+			crcStr[0] = (crc >> 24) & 0xFF;
+			crcStr[1] = (crc >> 16) & 0xFF;
+			crcStr[2] = (crc >> 8) & 0xFF;
+			crcStr[3] = crc & 0xFF;
 
-			// third approach
-			memcpy(crcStr, &crc, sizeof(crc));
-
-			//std::cout << "CRC first method: " << std::endl;
 			for (unsigned int k = 514; k < MAX_FRAME_SIZE; ++k)
 			{
 				frame[k] = crcStr[k - 514];
-				// debug
-				//std::cout << crcStr[k - 514] << "(" << (int)crcStr[k - 514] << ")";
 			}
-			//std::cout << std::endl;
 			delete crcStr;
 
 			mUploadQueue->push(frame);
@@ -116,6 +117,7 @@ namespace protocoletariat
 
 		// failure debug -----------------------------------------------
 		unsigned int k = 0;
+		std::cerr << "Abnormal file read: ";
 		while (k < bufferRead.size())
 		{
 			std::cerr << bufferRead[k];
@@ -135,4 +137,26 @@ namespace protocoletariat
 		mUploadQueue->push(frameCtr);
 	}
 
+	bool FileUploader::ValidateCrc(char* payload, char* strCrcReceived)
+	{
+		char* strCrcGenerated = new char[4];
+
+		CRC::Table<std::uint32_t, 32> table(CRC::CRC_32());
+		std::uint32_t crcGenerated = CRC::Calculate(payload, 512, table);
+
+		strCrcGenerated[0] = (crcGenerated >> 24) & 0xFF;
+		strCrcGenerated[1] = (crcGenerated >> 16) & 0xFF;
+		strCrcGenerated[2] = (crcGenerated >> 8) & 0xFF;
+		strCrcGenerated[3] = crcGenerated & 0xFF;
+
+		for (unsigned int i = 0; i < 4; ++i)
+		{
+			if (strCrcReceived[i] != strCrcGenerated[i])
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
 }
