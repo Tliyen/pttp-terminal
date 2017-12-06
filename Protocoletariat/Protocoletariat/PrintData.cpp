@@ -12,20 +12,18 @@
 --
 -- DESIGNER: Jeremy Lee & Luke Lee
 --
--- PROGRAMMER: Li-Yan Tong and Morgan Ariss
+-- PROGRAMMER: Li-Yan Tong
 --
 -- NOTES:
--- The program is responsible for displaying transfered data and
+-- This part of the program is responsible for displaying Packet 
+-- transfer information and sucessfully transfered text data.
 ----------------------------------------------------------------------*/
 
 #include "PrintData.h"
-//#include "Main.h"
 
 namespace protocoletariat
 {
-	//static HWND* hwnd = nullptr;
 	int mCurrentRow = 4;
-	//bool protocolActive;
 
 	/*----------------------------------------------------------------------
 	-- FUNCTION: PrintReceivedData()
@@ -36,9 +34,11 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Li-Yan Tong
 	--
-	-- INTERFACE: void DrawLetter(HWND hwnd, char* letter)
+	-- INTERFACE: void DrawLetter(paramPrintData* param)
+	--				param - This struct holds pointers to the
+	--						required 
 	--
-	-- RETURNS: void
+	-- RETURNS: DWORD WINAPI - 
 	--
 	-- NOTES:
 	-- This function takes a string and displays it (one character) on a
@@ -57,90 +57,44 @@ namespace protocoletariat
 		int* pX = param->X;
 		int* pY = param->Y;
 
-		/*
-		//TESTING VALUES
-		char* tester = new char[512];
-		tester = "ok this is a testsadfohdsakfjdsakjfsldkjflasdjfaljsdfjklsadlfajlasdjlfjlsdkajfljdslfjlsdjlafjlsdjlfajasldjafljsadlfjlsadjlfjlsadjlfjlsdajfljsldajfljdslafjljsdalfjlasdjfljsldajflsdja";
-
-		size_t total = strlen(tester);
-
-		//std::ostringstream ost;
-
-		//ost.str("");
-		//ost.clear();
-
-		//ost << tester;
-		//std::string tester_s = ost.str();
-		for (int i = 0; i < total; i++)
-		{
-			char* print = &tester[i];
-			
-				PrintPayload(hwnd, (char*)print, mCurrentRow, pX, pY);
-			
-		}
-		//PrintPayload(hwnd, (TCHAR*)tester_s.c_str(), mCurrentRow, pX, pY);
-
-		char* tester2 = new char[512];
-		tester2 = "Ping";
-
-		int total2 = strlen(tester2);
-
-		for (int i = 0; i < total2; i++)
-		{
-			char* print = &tester2[i];
-		
-				PrintPayload(hwnd, (char*)print, mCurrentRow, pX, pY);
-		}
-
-		//ost.str("");
-		//ost.clear();
-
-		//ost << tester2;
-
-		//tester_s = ost.str();
-
-		//PrintPayload(hwnd, (TCHAR*)tester_s.c_str(), mCurrentRow, pX, pY);
-
-		char* tester3 = new char[512];
-		tester3 = "Ping Ping Ping!";
-
-		int total3 = strlen(tester3);
-
-		//ost.str("");
-		//ost.clear();
-
-		//ost << tester3;
-
-		//tester_s = ost.str();
-
-		//PrintPayload(hwnd, (TCHAR*)tester_s.c_str(), mCurrentRow, pX, pY);
-
-		for (int i = 0; i < total3; i++)
-		{
-			char* print = &tester3[i];
-			PrintPayload(hwnd, (char*)print, mCurrentRow, pX, pY);
-		}
-
-		logfile->sent_packet++;
-
-		std::ostringstream oss;
-		oss << "Test this: " << logfile->sent_packet;
-		std::string logtest = oss.str();
-		//logtest.append("Test this: ");
-		//logtest.append(std::to_string(logfile->sent_packet) + "");
-		PrintLog(hwnd, (TCHAR*)logtest.c_str(), 2, pX, pY);
-
-		oss.str("");
-		oss.clear();
-
-		oss << "Test this: adfsasdf" << logfile->sent_packet;
-		std::string logtest2 = oss.str();
-		PrintLog(hwnd, (TCHAR*)logtest2.c_str(), 2, pX, pY);
-		*/
-
 		// Switch out with master switch boolean later
 		while (protocolActive)
 		{
+			// Build Log
+			std::ostringstream oss;
+
+			// Print Sent Packets
+			oss << "Sent Packets: " << logfile->sent_packet;
+			std::string logSent = oss.str();
+			PrintLog(hwnd, (const TCHAR*)logSent.c_str(), 0, pX, pY);
+
+			oss.str("");
+			oss.clear();
+
+			// Print Lost Packets
+			oss << "Lost Packets: " << logfile->lost_packet;
+			std::string logLost = oss.str();
+			PrintLog(hwnd, (const TCHAR*)logLost.c_str(), 1, pX, pY);
+
+			oss.str("");
+			oss.clear();
+
+			// Print Recieved Packets
+			oss << "Recieved Packets: " << logfile->received_packet;
+			std::string logReceive = oss.str();
+			PrintLog(hwnd, (const TCHAR*)logReceive.c_str(), 2, pX, pY);
+
+			oss.str("");
+			oss.clear();
+
+			// Print Corrupt Packets
+			oss << "Corrupt Packets: : " << logfile->received_corrupted_packet;
+			std::string logCorrupt = oss.str();
+			PrintLog(hwnd, (const TCHAR*)logCorrupt.c_str(), 3, pX, pY);
+
+			oss.str("");
+			oss.clear();
+
 			if (!printQ->empty())
 			{
 				// Load up payload
@@ -159,47 +113,12 @@ namespace protocoletariat
 				}
 
 				// Remove Data from queue.
+				delete payload;					
 				printQ->pop();
-
-				// Build Log
-				std::ostringstream oss;
-
-				// Print Sent Packets
-				oss << "Sent Packets: " << logfile->sent_packet;
-				std::string logSent = oss.str();
-				PrintLog(hwnd, (const TCHAR*)logSent.c_str(), 0, pX, pY);
-
-				oss.str("");
-				oss.clear();
-
-				// Print Lost Packets
-				oss << "Lost Packets: " << logfile->lost_packet;
-				std::string logLost = oss.str();
-				PrintLog(hwnd, (const TCHAR*)logLost.c_str(), 1, pX, pY);
-
-				oss.str("");
-				oss.clear();
-
-				// Print Recieved Packets
-				oss << "Recieved Packets: " << logfile->received_packet;
-				std::string logReceive = oss.str();
-				PrintLog(hwnd, (const TCHAR*)logReceive.c_str(), 2, pX, pY);
-
-				oss.str("");
-				oss.clear();
-
-				// Print Corrupt Packets
-				oss << "Corrupt Packets: : " << logfile->received_corrupted_packet;
-				std::string logCorrupt = oss.str();
-				PrintLog(hwnd, (const TCHAR*)logCorrupt.c_str(), 3, pX, pY);
-
-				oss.str("");
-				oss.clear();
 
 				Sleep(2000);
 			}
 		}
-
 		return 0;
 	}
 
