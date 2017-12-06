@@ -55,12 +55,13 @@ namespace protocoletariat
 	{
 		std::queue<char*>* downloadQueue = param->downloadQueue;
 		HANDLE* handle = param->handle;
-		OVERLAPPED& olRead = param->olRead;
-		DWORD& dwThreadExit = param->dwThreadExit;
+		OVERLAPPED* olRead = param->olRead;
+		DWORD* dwThreadExit = param->dwThreadExit;
 		bool* downloadReady = param->dlReady;
 		rviReceived = param->RVIflag; // member variable
+		HANDLE* hEvent = param->hEvent;
 		DWORD dwRead, dwLrc, dwEndTime;
-		char bufferChar[1];
+		char bufferChar[2] = "";
 		std::vector<char> bufferFrame(MAX_FRAME_SIZE);
 		char* frame;
 
@@ -68,18 +69,20 @@ namespace protocoletariat
 		bool bReading = true;
 
 		// create a manual reset event
-		olRead.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+		*hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+		olRead->hEvent = *hEvent;
+		ResetEvent(olRead->hEvent); // manually reset event
 
 		while (bReading)
 		{
 			bufferChar[0] = '\0';
-			if (!ReadFile(handle, bufferChar, 1, &dwRead, &olRead))
+			if (!ReadFile(*handle, bufferChar, 1, &dwRead, olRead))
 			{
 				dwRead = 0;
 				if ((dwLrc = GetLastError()) == ERROR_IO_PENDING)
 				{
 					dwEndTime = GetTickCount() + 1000;
-					while (!GetOverlappedResult(handle, &olRead, &dwRead, FALSE))
+					while (!GetOverlappedResult(handle, olRead, &dwRead, FALSE))
 					{
 						if (GetTickCount() > dwEndTime)
 						{
@@ -133,11 +136,11 @@ namespace protocoletariat
 					}
 				}
 			}
-			ResetEvent(olRead.hEvent); // manually reset event
+			ResetEvent(olRead->hEvent); // manually reset event
 		}
 
 		PurgeComm(handle, PURGE_RXCLEAR); // clean out pending bytes
-		ExitThread(dwThreadExit); // exit thread
+		ExitThread(*dwThreadExit); // exit thread
 
 		return 0;
 	}
