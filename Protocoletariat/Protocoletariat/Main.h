@@ -18,15 +18,14 @@ namespace protocoletariat
 
 	// bCommOn to be used as global flag
 	bool		bCommOn;
-	//bool		bReading;
 
 	int indexReadChar = 0;
 	int X = 0, Y = 0; // current str coordinates
 
 	// Global variables - for Protocol Comm
-	std::queue<char*> uploadQ;
-	std::queue<char*> downloadQ;
-	std::queue<char*> dataToPrintQ;
+	std::queue<char*>* uploadQ;
+	std::queue<char*>* downloadQ;
+	std::queue<char*>* dataToPrintQ;
 	LogFile* logfile;
 	bool dlReady; // flag for download ready
 	bool RVIflag; // flag becomes true when RVI event detected
@@ -53,7 +52,7 @@ namespace protocoletariat
 	bool SwitchCommPort(int commPort);
 	bool ConfigureCommSettings(HWND hwnd);
 
-	void ClearQueue(std::queue<char*> &q);
+	void ClearQueue(std::queue<char*>* q);
 	void CleanUp();
 	void StartEngine();
 }
