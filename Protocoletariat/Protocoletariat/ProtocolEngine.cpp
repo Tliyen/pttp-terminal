@@ -249,6 +249,10 @@ namespace protocoletariat
 				linkReceivedENQ = false;
 				AcknowledgeBid();
 			}
+			else
+			{
+				*mDownloadReady = true;
+			}
 
 			// A signal has been received
 			//if (WaitCommEvent(*mHandle, &dwEvent, NULL))
