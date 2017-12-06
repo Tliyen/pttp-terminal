@@ -347,6 +347,7 @@ namespace protocoletariat
 						if (incFrame[1] == CHAR_ACK)
 						{
 							// Remove the ACK
+							*mDownloadReady = false;
 
 							delete incFrame;
 							incFrame = nullptr;
