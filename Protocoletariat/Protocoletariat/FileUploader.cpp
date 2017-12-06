@@ -44,9 +44,11 @@ namespace protocoletariat
 	--
 	-- INTERFACE:	DWORD WINAPI LoadTextFile(paramFileUploader* param)
 	--
-	-- ARGUMENT:	param			-
+	-- ARGUMENT:	param		- a pointer to the paramFileUploader
+	--							  structure containing all the variables
+	--							  the uploader functions need.
 	--
-	-- RETURNS:		DWORD			-
+	-- RETURNS:		DWORD		- 0 if the intended functions run successfully
 	--
 	-- NOTES:
 	-- This function is responsible for initiating the reading of the 
@@ -108,9 +110,12 @@ namespace protocoletariat
 	--
 	-- INTERFACE:	bool ConvertFileIntoFrames(const std::vector<char>& bufferRead)
 	--
-	-- ARGUMENT:	bufferRead		-
+	-- ARGUMENT:	bufferRead		- a reference to a vector containing
+	--								  the characters read from the serial port
 	--
-	-- RETURNS:		bool			-
+	-- RETURNS:		bool			- true if all the characters in text file
+	--								  converts to frames successfully; false
+	--								  otherwise.
 	--
 	-- NOTES:
 	-- This function is called by the LoadTextFile function when there 
@@ -215,7 +220,8 @@ namespace protocoletariat
 	--
 	-- INTERFACE:	void QueueControlFrame(const char controlChar)
 	--
-	-- ARGUMENT:	controlChar		-
+	-- ARGUMENT:	controlChar		- control character to be put in
+	--								  the control frame.
 	--
 	-- RETURNS:		void
 	--
@@ -245,15 +251,16 @@ namespace protocoletariat
 	--
 	-- INTERFACE:	bool ValidateCrc(char* payload, char* strCrcReceived)
 	--
-	-- ARGUMENT:	payload			-
-	--				strCrcReceived	-
+	-- ARGUMENT:	payload			- char array of data received
+	--				strCrcReceived	- CRC received
 	--
-	-- RETURNS:		bool			-
+	-- RETURNS:		bool			- true if the CRC received matches with
+	--								  the CRC generated; false otherwise.
 	--
 	-- NOTES:
 	-- This function is called by the protocol engine to Validate the 
 	-- frame that has been received through the serial port. It will return 
-	-- true if the frame is validated, other with it will return false.
+	-- true if the frame is validated, otherwise it will return false.
 	------------------------------------------------------------------*/
 	bool FileUploader::ValidateCrc(char* payload, char* strCrcReceived)
 	{

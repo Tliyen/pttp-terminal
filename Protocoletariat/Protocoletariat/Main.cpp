@@ -71,7 +71,20 @@ using namespace protocoletariat;
 --								 , HINSTANCE hprevInstance,
 --								 , LPSTR lspszCmdParam, int nCmdShow)
 --
--- RETURNS: int
+-- ARGUMENT: hInst				- A handle to the current instance of the
+--								  application.
+--			 hprevInstance		- A handle to the previous instance of
+--								  the application.
+--			 lspszCmdParam		- The command parameter for the
+--								  application.
+--			 nCmdShow			- A value to determine how the Window is
+--								  is to be shown.
+--
+-- RETURNS:	 int				- 0 if this function terminates before
+--								  entering the Message loop. If this
+--								  function terminates by receiving a
+--								  WM_QUIT Message, the exit value in that
+--								  Message's wParam parameter.
 --
 -- NOTES:
 -- Main function of this program. Its main role is creating Window and
@@ -110,6 +123,11 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 
 	StartEngine();
 
+	uploadQ->push("1");
+	uploadQ->push("2");
+	uploadQ->push("34");
+	uploadQ->push("5");
+
 	 //initial transfer
 	/*fileUploadParam->filePath = "c:\\test.txt";
 	fileUploadParam->uploadQueue = uploadQ;
@@ -135,7 +153,13 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 --
 -- INTERFACE: bool InitializeWindows(HINSTANCE hInst, int nCmdShow)
 --
--- RETURNS: bool
+-- ARGUMENT: hInst				- A handle to the current instance of the
+--								  application.
+--			 nCmdShow			- A value to determine how the Window is
+--								  is to be shown.
+--
+-- RETURNS: bool				- true if the main Windows is created
+--								  successfully; false otherwise.
 --
 -- NOTES:
 -- This function initializes required parameters for the wireless
@@ -190,9 +214,17 @@ bool protocoletariat::InitializeWindows(HINSTANCE hInst, int nCmdShow)
 --
 -- PROGRAMMER: Luke Lee
 --
--- INTERFACE: LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM)
+-- INTERFACE: LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 --
--- RETURNS: LRESULT
+-- ARGUMENT: hwnd			- A handle to the Window.
+--			 Message		- A Message to process.
+--			 wParam			- Additional Message information
+--			 lParam			- Additional Message information
+--
+-- RETURNS:	 LRESULT		- 0 if defined behavior is successful.
+--							  If the behavior for the received Message
+--							  is not defined, the return value of
+--							  DefWindowProc.
 --
 -- NOTES:
 -- This function receives Messages from WinMain and determines behavior
@@ -203,7 +235,6 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 	WPARAM wParam, LPARAM lParam)
 {
 	char bufferWrite[2] = "";
-	//DWORD dwWritten;
 	HDC hdc;
 	PAINTSTRUCT paintstruct;
 	TEXTMETRIC tm;
@@ -252,7 +283,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 		case IDM_CONFIG: // Settings > Configure
 			if (IDOK == MessageBox(hwnd
 				, TEXT("Changing configuration while transmission will reset the connection. Continue?")
-				, TEXT("Warning"), MB_ICONHAND | MB_OKCANCEL))
+				, TEXT("Warning"), MB_ICONWARNING | MB_OKCANCEL))
 			{
 				CleanUp();
 				ConfigureCommSettings(hwnd);
@@ -262,7 +293,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 		case IDM_COM1:
 			if (IDOK == MessageBox(hwnd
 				, TEXT("Switching COM port during transmission will reset the connection. Continue?")
-				, TEXT("Warning"), MB_ICONHAND | MB_OKCANCEL))
+				, TEXT("Warning"), MB_ICONWARNING | MB_OKCANCEL))
 			{
 				CleanUp();
 				SwitchCommPort(1);
@@ -272,7 +303,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 		case IDM_COM2:
 			if (IDOK == MessageBox(hwnd
 				, TEXT("Switching COM port during transmission will reset the connection. Continue?")
-				, TEXT("Warning"), MB_ICONHAND | MB_OKCANCEL))
+				, TEXT("Warning"), MB_ICONWARNING | MB_OKCANCEL))
 			{
 				CleanUp();
 				SwitchCommPort(2);
@@ -282,7 +313,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 		case IDM_COM3:
 			if (IDOK == MessageBox(hwnd
 				, TEXT("Switching COM port during transmission will reset the connection. Continue?")
-				, TEXT("Warning"), MB_ICONHAND | MB_OKCANCEL))
+				, TEXT("Warning"), MB_ICONWARNING | MB_OKCANCEL))
 			{
 				CleanUp();
 				SwitchCommPort(3);
@@ -292,7 +323,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 		case IDM_COM4:
 			if (IDOK == MessageBox(hwnd
 				, TEXT("Switching COM port during transmission will reset the connection. Continue?")
-				, TEXT("Warning"), MB_ICONHAND | MB_OKCANCEL))
+				, TEXT("Warning"), MB_ICONWARNING | MB_OKCANCEL))
 			{
 				CleanUp();
 				SwitchCommPort(4);
@@ -311,7 +342,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 			{
 				MessageBox(NULL,
 					TEXT("UserManual.pdf not found."), TEXT("Error"),
-					MB_OK);
+					MB_ICONHAND | MB_OK);
 			}
 			break;
 
@@ -374,11 +405,16 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 --
 -- INTERFACE: bool InitializeCommHandle(LPTSTR CommPort)
 --
--- RETURNS: bool
+-- ARGUMENT: CommPort		- a pointer to the string representing name
+--							  of the COM port.
+--
+-- RETURNS: bool			- true if a COM connection is established
+--							  successfully.
 --
 -- NOTES:
 -- This function creates communication Handle and applies the
--- configuration settings to it.
+-- configuration settings to it. If a communication connection is
+-- established succefully, it sets the global flag protocolActive to true.
 ----------------------------------------------------------------------*/
 bool protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 {
@@ -421,7 +457,10 @@ bool protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 --
 -- INTERFACE: bool SwitchCommPort(int commPort)
 --
--- RETURNS: bool
+-- ARGUMENT: commPort		- an int representation of the port number
+--
+-- RETURNS: bool			- true if switching a COM port is successful;
+--							  false otherwise.
 --
 -- NOTES:
 -- This function is called by user Menu click in WndProc, and sets the
@@ -468,13 +507,18 @@ bool protocoletariat::SwitchCommPort(int commPort)
 --
 -- INTERFACE: bool ConfigureCommSettings(HWND hwnd)
 --
--- RETURNS: bool
+-- ARGUMENT: hwnd		- A handle to the Window.
+--
+-- RETURNS: bool		- true if comm setting is configured successfully;
+--						  false otherwise.
 --
 -- NOTES:
 -- This function is called by user Menu click that is processed in
 -- WndProc. Once called, it displays a separate Window containing
 -- communication settings. On that Window, user can configure values for
--- communication properties, and apply it for the next connection.
+-- communication properties, and apply it for the next connection. If
+-- a connection is established successfully, the global flag protocolActive
+-- is set to true.
 ----------------------------------------------------------------------*/
 bool protocoletariat::ConfigureCommSettings(HWND hwnd)
 {
@@ -590,6 +634,8 @@ void protocoletariat::StartEngine()
 -- PROGRAMMER: Luke Lee
 --
 -- INTERFACE: void ClearQueue(std::queue<char*> &q)
+--
+-- ARGUMENT: q		- a reference to a queue
 --
 -- RETURNS: void
 --

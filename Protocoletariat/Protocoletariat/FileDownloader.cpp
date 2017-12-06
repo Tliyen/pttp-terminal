@@ -40,9 +40,11 @@ namespace protocoletariat
 	--
 	-- INTERFACE:	DWORD WINAPI ReadSerialPort(paramFileDownloader* param)
 	--
-	-- ARGUMENT:	param			-
+	-- ARGUMENT:	param		- represents a pointer to the paramFileDownload
+	--							  structure including all the variables required
+	--							  for reading data
 	--
-	-- RETURNS:		DWORD			-
+	-- RETURNS:		DWORD		- 0 if no error is encountered
 	--
 	-- NOTES:
 	-- This code is responsible to initializing the read buffer and then
@@ -168,10 +170,12 @@ namespace protocoletariat
 	--
 	-- INTERFACE:	bool combineCharsIntoFrame(std::vector<char>& bufferFrame, const char charRead)
 	--
-	-- ARGUMENT:	bufferFrame		-
-	--				charRead		-
+	-- ARGUMENT:	bufferFrame		- reference to a vector to stored read
+	--								  characters
+	--				charRead		- character read from the serial port
 	--
-	-- RETURNS:		bool			- (success condition)
+	-- RETURNS:		bool			- true if frame is successfully assembled;
+	--								  false otherwise
 	--
 	-- NOTES:
 	-- This function is called to combine all the chars read from the port

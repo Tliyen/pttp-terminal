@@ -116,7 +116,8 @@ namespace protocoletariat
 	--
 	-- INTERFACE: TransmitFrame()
 	--
-	-- RETURNS: bool (success condition)
+	-- RETURNS: bool	- true if frame is successfully transmitted to the
+	--					  serial port; false otherwise.
 	--
 	-- NOTES:
 	-- This function is called upon by the other ProtocolEngine functions to
@@ -281,7 +282,7 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: BidForLine()
+	-- INTERFACE: void BidForLine()
 	--
 	-- RETURNS: void
 	--
@@ -351,7 +352,7 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: SendData()
+	-- INTERFACE: void SendData()
 	--
 	-- RETURNS: void
 	--
@@ -483,9 +484,11 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: ConfirmTransmission()
+	-- INTERFACE: bool ConfirmTransmission()
 	--
-	-- RETURNS: bool (success condition)
+	-- RETURNS: bool	- true if an ACK gets back, indicating that the
+	--					  receiver receives the frame successfully; false
+	--					  if retransmission fails 3 times.
 	--
 	-- NOTES:
 	-- This function will be called when a Data Frame has been TRANSMITTED.
@@ -568,9 +571,10 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: Retransmit()
+	-- INTERFACE: bool Retransmit()
 	--
-	-- RETURNS: bool (success condition)
+	-- RETURNS: bool	- true if the retransmission is successful; false
+	--					  if it fails 3 times.
 	--
 	-- NOTES:
 	-- This function will be called when a Data Frame has been TRANSMITTED
@@ -650,7 +654,7 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: LinkReset()
+	-- INTERFACE: void LinkReset()
 	--
 	-- RETURNS: void
 	--
@@ -717,7 +721,7 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: AcknowledgeBid()
+	-- INTERFACE: void AcknowledgeBid()
 	--
 	-- RETURNS: void
 	--
@@ -753,7 +757,7 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: ReceiveData()
+	-- INTERFACE: void ReceiveData()
 	--
 	-- RETURNS: void
 	--
@@ -863,9 +867,10 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss & Jeremy Lee
 	--
-	-- INTERFACE: ErrorDetection()
+	-- INTERFACE: bool ErrorDetection()
 	--
-	-- RETURNS: bool (success condition)
+	-- RETURNS: bool	- true if no error is detected; false if an error is
+	--					  detected or reaches timeout.
 	--
 	-- NOTES:
 	-- This function will be called when a Data Frame has been RECEIVED and
