@@ -1,7 +1,7 @@
 #pragma once
 
 #include <queue>
-#include <Windows.h>
+#include <windows.h>
 
 namespace protocoletariat
 {
@@ -9,8 +9,9 @@ namespace protocoletariat
 	{
 		std::queue<char*>* downloadQueue;
 		HANDLE* handle;
-		OVERLAPPED& olRead = *(new OVERLAPPED());
-		DWORD& dwThreadExit = *(new DWORD());
+		OVERLAPPED* olRead;
+		DWORD* dwThreadExit;
+		HANDLE* hEvent;
 		bool* dlReady;
 		bool* RVIflag;
 	};

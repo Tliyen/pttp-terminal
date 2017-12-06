@@ -505,15 +505,43 @@ bool protocoletariat::ConfigureCommSettings(HWND hwnd)
 ----------------------------------------------------------------------*/
 void protocoletariat::StartEngine()
 {
-
 	// initialize download (read) thread
-	olRead = { 0 };
+	//olRead = { 0 };
 	fileDownloadParam->downloadQueue = downloadQ;
-	fileDownloadParam->olRead = olRead;
-	fileDownloadParam->dwThreadExit = readThreadExit;
+	fileDownloadParam->olRead = &olRead;
+	fileDownloadParam->dwThreadExit = &readThreadExit;
 	fileDownloadParam->handle = &hComm;
 	fileDownloadParam->dlReady = &dlReady;
 	fileDownloadParam->RVIflag = &RVIflag;
+	fileDownloadParam->hEvent = &hEvent;
+
+	PurgeComm(hComm, PURGE_RXCLEAR); // clean out pending bytes
+	PurgeComm(hComm, PURGE_TXCLEAR); // clean out pending bytes
+
+	COMMTIMEOUTS cto; // timeout
+
+	// set timeouts
+	cto.ReadIntervalTimeout = 1;
+	cto.ReadTotalTimeoutMultiplier = 1;
+	cto.ReadTotalTimeoutConstant = 1;
+	cto.WriteTotalTimeoutMultiplier = 1;
+	cto.WriteTotalTimeoutConstant = 1;
+
+	if (!SetCommTimeouts(hComm, &cto))
+	{
+		MessageBox(NULL, "Error setting port time-outs", TEXT("Error"), MB_OK);
+	}
+
+	if (!EscapeCommFunction(hComm, CLRDTR))
+	{
+		MessageBox(NULL, "Error clearing DTR", TEXT("Error"), MB_OK);
+	}
+	Sleep(200);
+	if (!EscapeCommFunction(hComm, SETDTR))
+	{
+		MessageBox(NULL, "Error setting DTR", TEXT("Error"), MB_OK);
+	}
+
 	downloadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
 	
 	// initialize print data thread

@@ -13,8 +13,10 @@ namespace protocoletariat
 
 	HWND		hwnd;
 	LPTSTR		lpszCommPort;
-	HANDLE		hComm;
 	COMMCONFIG	ccfg;
+	OVERLAPPED olRead, olWrite;
+	HANDLE hThrd, hComm, hEvent;
+	DWORD dwThreadID, dwThreadExit;
 
 	// bCommOn to be used as global flag
 	bool		bCommOn;
@@ -37,10 +39,10 @@ namespace protocoletariat
 	// Parameter to pass to ThreadProc
 	struct paramFileUploader* fileUploadParam;
 	struct paramFileDownloader* fileDownloadParam;
-	OVERLAPPED olRead;
+	//OVERLAPPED olRead;
 	DWORD readThreadExit;
 	struct paramProtocolEngine* protocolParam;
-	OVERLAPPED olWrite;
+	//OVERLAPPED olWrite;
 	DWORD writeThreadExit;
 	struct paramPrintData* printDataParam;
 
@@ -51,6 +53,8 @@ namespace protocoletariat
 	bool InitializeCommHandle(LPTSTR CommPort);
 	bool SwitchCommPort(int commPort);
 	bool ConfigureCommSettings(HWND hwnd);
+	boolean StartCommunication(HWND hwnd);
+	DWORD WINAPI DoRead(LPVOID lpvThreadParm);
 
 	void ClearQueue(std::queue<char*>* q);
 	void StartEngine();

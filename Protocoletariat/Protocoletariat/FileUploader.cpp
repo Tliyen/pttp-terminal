@@ -18,6 +18,13 @@
 -- PROGRAMMER:	Jeremy Lee
 --
 -- NOTES:
+-- This thread is responsible for handling the uploading of the text file 
+-- to be send through the serial port. It gets all characters from the 
+-- intended file and crams them into a frame, then places the frame into 
+-- the UploadQueue where it can be grabbed by the protocol engine at the
+-- appropriate time.
+-- This file also inserts an EOT frame at the end of the file so that the
+-- protocol is aware that the entire file has been read.
 ----------------------------------------------------------------------*/
 #include "FileUploader.h"
 
@@ -42,7 +49,11 @@ namespace protocoletariat
 	-- RETURNS:		DWORD			-
 	--
 	-- NOTES:
-	-- 
+	-- This function is responsible for initiating the reading of the 
+	-- file. It is then responsible for calling the necessary functions
+	-- to form the text into frames, with the appropriate control 
+	-- characters so that they can be successfully handled by the protocol
+	-- engine.
 	------------------------------------------------------------------*/
 	DWORD WINAPI FileUploader::LoadTextFile(paramFileUploader* param)
 	{
@@ -66,6 +77,7 @@ namespace protocoletariat
 			{
 				QueueControlFrame(EOT);
 				// trigger ENQ request event for the protocol engine
+				unsigned int size = mUploadQueue->size();
 			}
 			else
 			{
@@ -99,6 +111,12 @@ namespace protocoletariat
 	-- RETURNS:		bool			-
 	--
 	-- NOTES:
+	-- This function is called by the LoadTextFile function when there 
+	-- is a text file that needs to be read.
+	-- It will use the characters taken from the frame in the serial port
+	-- and place it into a frame after removing the SYN character. This 
+	-- readied frame will then be pushed into the uploadQueue, ready for 
+	-- access by the Protocol Engine.
 	------------------------------------------------------------------*/
 	bool FileUploader::ConvertFileIntoFrames(const std::vector<char>& bufferRead)
 	{
@@ -200,6 +218,10 @@ namespace protocoletariat
 	-- RETURNS:		void
 	--
 	-- NOTES:
+	-- This function is called when the text file has been completely 
+	-- read. It pushes an EOT control frame into the uploadQueue, which
+	-- allows the protocol engine to signify its completion to the pair
+	-- device.
 	------------------------------------------------------------------*/
 	void FileUploader::QueueControlFrame(const char controlChar)
 	{
@@ -227,6 +249,9 @@ namespace protocoletariat
 	-- RETURNS:		bool			-
 	--
 	-- NOTES:
+	-- This function is called by the protocol engine to Validate the 
+	-- frame that has been received through the serial port. It will return 
+	-- true if the frame is validated, other with it will return false.
 	------------------------------------------------------------------*/
 	bool FileUploader::ValidateCrc(char* payload, char* strCrcReceived)
 	{

@@ -1,11 +1,11 @@
 #pragma once
 
+#include <iostream>
+#include <windows.h>
+#include <queue>
 #include <cstdint>  // Includes ::std::uint32_t
 #include <fstream>
 #include <iomanip>  // Includes ::std::hex
-#include <iostream>
-#include <queue>
-#include <windows.h>
 #include "CRC.h"
 
 namespace protocoletariat
