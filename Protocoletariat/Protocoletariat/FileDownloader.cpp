@@ -16,6 +16,11 @@
 -- PROGRAMMER:	Jeremy Lee
 --
 -- NOTES:
+-- This file is responsible for handling the downloading of frames from 
+-- the serial port. These frames will be taken, run through basic 
+-- validation to ensure that the SYN char is in place. The SYN char will
+-- be stripped from the frame, and it will be placed in the download queue
+-- ready for processing by the Protocol Engine.
 ----------------------------------------------------------------------*/
 #include "FileDownloader.h"
 
@@ -159,9 +164,13 @@ namespace protocoletariat
 	-- ARGUMENT:	bufferFrame		-
 	--				charRead		-
 	--
-	-- RETURNS:		bool			-
+	-- RETURNS:		bool			- (success condition)
 	--
 	-- NOTES:
+	-- This function is called to combine all the chars read from the port
+	-- into a frame that can be placed in the upload queue. The frame is 
+	-- loaded into the already created char pointer, which is then called 
+	-- used by the calling function if the function returns true.
 	------------------------------------------------------------------*/
 	bool FileDownloader::combineCharsIntoFrame(std::vector<char>& bufferFrame, const char charRead)
 	{	// RVI bell char
