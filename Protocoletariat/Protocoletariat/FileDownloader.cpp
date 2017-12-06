@@ -39,8 +39,17 @@ namespace protocoletariat
 	-- RETURNS:		DWORD			-
 	--
 	-- NOTES:
-	-- A connection to the Serial Port was established.
-	-- This code is responsible to initializing the read buffer and then reading bytes from the serial port. First step is to check the first byte and ensure that it is a SYN char. If it is not the SYN char, the loop continues from the beginning, which means the rest of the loop is ignored. If it is a SYN char, the next 1 byte in the stream is read and checked if it is a STX character after added to the read buffer. If it is a STX character, the next 516 bytes in the stream is read and added to the read buffer. Then, the read buffer is added to the global download queue so the protocol engine can take it, and a comm event is triggered to notify the protocol engine.
+	-- This code is responsible to initializing the read buffer and then
+	-- reading bytes from the serial port. First step is to check the 
+	-- first byte and ensure that it is a SYN char. If it is not the SYN 
+	-- char, the loop continues from the beginning, which means the rest 
+	-- of the loop is ignored. If it is a SYN char, the next 1 byte in the 
+	-- stream is read and checked if it is a STX character after added to 
+	-- the read buffer. If it is a STX character, the next 516 bytes in 
+	-- the stream is read and added to the read buffer. Then, the read 
+	-- buffer is added to the global download queue so the protocol engine 
+	-- can take it, and a comm event is triggered to notify the protocol 
+	-- engine.
 	------------------------------------------------------------------*/
 	DWORD WINAPI FileDownloader::ReadSerialPort(paramFileDownloader* param)
 	{
