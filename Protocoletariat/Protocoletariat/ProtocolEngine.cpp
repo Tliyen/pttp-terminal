@@ -488,7 +488,10 @@ namespace protocoletariat
 					else if (outFrame[1] == CHAR_STX)
 					{
 						// Transmit the data frame through the serial port
-						TransmitFrame(false, NULL);
+						if (TransmitFrame(false, NULL))
+						{
+							mLogfile->sent_packet++;
+						}
 						// Move to ConfirmTransmission
 						if (!ConfirmTransmission())
 						{
@@ -649,7 +652,7 @@ namespace protocoletariat
 			{
 				std::cout << "Failed Sending DATA Frame" << std::endl;
 			}
-			
+
 			// Loop while timer has not expired
 			while (timer < TIMEOUT)
 			{

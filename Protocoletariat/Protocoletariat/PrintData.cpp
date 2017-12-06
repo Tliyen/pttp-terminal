@@ -40,7 +40,7 @@
 
 namespace protocoletariat
 {
-	unsigned int PrintData::rowLog = 0;
+	int mCurrentRow = 1;
 
 	/*----------------------------------------------------------------------
 	-- FUNCTION: PrintReceivedData
@@ -55,7 +55,7 @@ namespace protocoletariat
 	--
 	-- ARGUMENT: param			- a pointer to the paramPrintData structure
 	--							  containing all the variables (windows GUI and print
-  --                data) required in PrintData functions.
+	--                data) required in PrintData functions.
 	--
 	-- RETURNS: DWORD WINAPI	- 0 if the intended functions run successfully
 	--
@@ -73,10 +73,9 @@ namespace protocoletariat
 		std::queue<char*>* printQ = param->printQueue;
 		LogFile* logfile = param->logfile;
 		HWND* hwnd = param->hwnd;
+
 		int* pX = param->X;
 		int* pY = param->Y;
-
-		unsigned int currentRow = rowLog + 1;
 
 		// Active switch while engine is running
 		while (protocolActive)
@@ -88,34 +87,7 @@ namespace protocoletariat
 			oss << "Sent: " << logfile->sent_packet << " | Lost: " << logfile->lost_packet
 				<< " | Recieved: " << logfile->received_packet << " | Corrupted: " << logfile->received_corrupted_packet;
 			std::string logSent = oss.str();
-			PrintLog(hwnd, (const TCHAR*)logSent.c_str(), rowLog);
-
-			//oss.str("");
-			//oss.clear();
-
-			//// Print Lost Packets
-			//oss << "Lost: " << logfile->lost_packet;
-			//std::string logLost = oss.str();
-			//PrintLog(hwnd, (const TCHAR*)logLost.c_str(), 1, pX, pY);
-
-			//oss.str("");
-			//oss.clear();
-
-			//// Print Recieved Packets
-			//oss << "Recieved: " << logfile->received_packet;
-			//std::string logReceive = oss.str();
-			//PrintLog(hwnd, (const TCHAR*)logReceive.c_str(), 2, pX, pY);
-
-			//oss.str("");
-			//oss.clear();
-
-			// Print Corrupt Packets
-			//oss << "Corrupted: " << logfile->received_corrupted_packet;
-			//std::string logCorrupt = oss.str();
-			//PrintLog(hwnd, (const TCHAR*)logCorrupt.c_str(), 3, pX, pY);
-
-			//oss.str("");
-			//oss.clear();
+			PrintLog(hwnd, (const TCHAR*)logSent.c_str(), 0);
 
 			if (!printQ->empty())
 			{
@@ -130,7 +102,7 @@ namespace protocoletariat
 				// Print Payload
 				for (int i = 0; i < payloadLength; i++)
 				{
-					PrintChar(hwnd, &payload[i], &currentRow, pX, pY);
+					PrintChar(hwnd, &payload[i], mCurrentRow, pX, pY);
 				}
 
 				// Remove Data from queue.
@@ -144,7 +116,6 @@ namespace protocoletariat
 		}
 		return 0;
 	}
-
 
 	/*----------------------------------------------------------------------
 	-- FUNCTION:	PrintLog
@@ -184,11 +155,15 @@ namespace protocoletariat
 		hdc = GetDC(*hwnd); // Acquire DC
 		GetTextMetrics(hdc, &tm); // get text metrics
 
-		int X = 0; // move to the beginning of line
-		int Y = row; // move to the first line
+		unsigned int X = 0; // move to the beginning of line
+		unsigned int Y = 0; // move to the first line
 
-		// move to the specified row
-		Y = Y * tm.tmHeight + tm.tmExternalLeading; // next line
+							// move to the specified row
+		while (row > 0)
+		{
+			Y += tm.tmHeight + tm.tmExternalLeading; // next line
+			row--;
+		}
 
 		TCHAR eraser[128];
 		memset(eraser, ' ', 128);
@@ -229,7 +204,7 @@ namespace protocoletariat
 	-- calculates the position of the last character written on screen, and
 	-- determines if it is off the Window by calculating the Window's width.
 	----------------------------------------------------------------------*/
-	void PrintData::PrintChar(HWND* hwnd, char* letter, unsigned int* currnetRow, int* X, int* Y)
+	void PrintData::PrintChar(HWND* hwnd, char* letter, unsigned int row, int* X, int* Y)
 	{
 		HDC hdc;
 		TEXTMETRIC tm;
@@ -241,11 +216,12 @@ namespace protocoletariat
 		GetTextExtentPoint32(hdc, letter, 1, &size); // compute length of a string 
 
 		//move to this row
-		int row = *currnetRow;
-		while (row > 0)
-		{
-			*Y += tm.tmHeight + tm.tmExternalLeading; // next line
-			row--;
+		if (mCurrentRow == 1) {
+			while (row > 0)
+			{
+				*Y += tm.tmHeight + tm.tmExternalLeading; // next line
+				row--;
+			}
 		}
 
 		TextOut(hdc, *X, *Y, letter, 1);  // Display string
@@ -261,6 +237,6 @@ namespace protocoletariat
 				*Y = *Y + tm.tmHeight + tm.tmExternalLeading; // next line
 			}
 		}
-		*currnetRow += *Y; // Set Current row to last row printed
+		mCurrentRow += *Y; // Set Current row to last row printed
 	}
 }
