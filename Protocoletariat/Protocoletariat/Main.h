@@ -37,10 +37,8 @@ namespace protocoletariat
 	// Parameter to pass to ThreadProc
 	struct paramFileUploader* fileUploadParam;
 	struct paramFileDownloader* fileDownloadParam;
-	//OVERLAPPED olRead;
 	DWORD readThreadExit;
 	struct paramProtocolEngine* protocolParam;
-	//OVERLAPPED olWrite;
 	DWORD writeThreadExit;
 	struct paramPrintData* printDataParam;
 
