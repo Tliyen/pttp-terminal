@@ -9,17 +9,16 @@ namespace protocoletariat
 {
 	// Main variables - for creating WinMain
 	const TCHAR tchrProgramName[] = TEXT("PTTP Protocol");
-	const LPTSTR lpszDefaultCommPort = TEXT("COM1"); // default port fafa
+	const LPTSTR lpszDefaultCommPort = TEXT("COM4"); // default port
 
-	HWND		hwnd;
-	LPTSTR		lpszCommPort;
-	COMMCONFIG	ccfg;
+	HWND hwnd;
+	LPTSTR lpszCommPort;
+	COMMCONFIG ccfg;
 	OVERLAPPED olRead, olWrite;
 	HANDLE hComm, hEvent;
 
 	int indexReadChar = 0;
 	int X = 0, Y = 0; // current str coordinates
-
 	bool protocolActive;
 	bool globalRVI;
 
@@ -37,11 +36,10 @@ namespace protocoletariat
 	// Parameter to pass to ThreadProc
 	struct paramFileUploader* fileUploadParam;
 	struct paramFileDownloader* fileDownloadParam;
-	DWORD readThreadExit;
 	struct paramProtocolEngine* protocolParam;
-	DWORD writeThreadExit;
 	struct paramPrintData* printDataParam;
-
+	DWORD readThreadExit;
+	DWORD writeThreadExit;
 
 	// Functions
 	LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

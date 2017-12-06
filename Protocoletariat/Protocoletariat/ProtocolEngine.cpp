@@ -648,7 +648,7 @@ namespace protocoletariat
 			{
 				std::cout << "Failed Sending DATA Frame" << std::endl;
 			}
-			
+
 			// Loop while timer has not expired
 			while (timer < TIMEOUT)
 			{
