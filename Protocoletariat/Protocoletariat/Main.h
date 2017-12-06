@@ -20,7 +20,7 @@ namespace protocoletariat
 	int indexReadChar = 0;
 	int X = 0, Y = 0; // current str coordinates
 
-	bool bCommOn;
+	bool protocolActive;
 	bool globalRVI;
 
 	// variables to pass - for Protocol Comm
