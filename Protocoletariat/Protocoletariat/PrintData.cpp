@@ -120,7 +120,7 @@ namespace protocoletariat
 				// Load up payload
 				char* payload = new char[512];
 				payload = printQ->front();
-				int payloadLength = strlen(payload);
+				size_t payloadLength = strlen(payload);
 
 				// Print Payload
 				for (int i = 0; i < payloadLength; i++)
