@@ -27,7 +27,8 @@ namespace protocoletariat
 	{
 	public:
 		static DWORD WINAPI PrintData::PrintReceivedData(paramPrintData* param);
-		static void PrintData::PrintPayload(HWND* hwnd, char* letter, unsigned int row, int* X, int*Y);
-		static void PrintData::PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row, int* X, int*Y);		
+		static void PrintData::PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row);
+		static void PrintData::PrintChar(HWND* hwnd, char* letter, unsigned int* currnetRow, int* X, int*Y);
+		static unsigned int rowLog;
 	};
 }

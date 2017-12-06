@@ -988,7 +988,7 @@ namespace protocoletariat
 			else
 			{
 				// Send data to print
-				//mPrintQueue->push(frame);
+				mPrintQueue->push(frame);
 				// Increment the logfile successful frames counter
 				mLogfile->sent_packet++;
 				// Transmit ACK control frame
