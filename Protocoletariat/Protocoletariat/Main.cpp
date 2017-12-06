@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------
--- SOURCE FILE:
+-- SOURCE FILE:	Main.cpp
 --
--- PROGRAM:
+-- PROGRAM:		Protocoletariat
 --
 -- FUNCTIONS:
 --				int WINAPI WinMain(HINSTANCE hInst
@@ -11,6 +11,10 @@
 --				boolean InitializeCommHandle(LPTSTR CommPort)
 --				boolean SwitchCommPort(int commPort)
 --				boolean ConfigureCommSettings(HWND hwnd)
+--				void ClearQueue(std::queue<char*>* q);
+--				void StartEngine();
+--				void CleanUp();
+--				void TerminateProgram();
 --
 --
 --
@@ -59,7 +63,7 @@ using namespace protocoletariat;
 --
 -- DATE: November 29, 2017
 --
--- DESIGNER: Luke Lee
+-- DESIGNER: Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 --
 -- PROGRAMMER: Luke Lee
 --
@@ -125,7 +129,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 --
 -- DATE: November 29, 2017
 --
--- DESIGNER: Luke Lee
+-- DESIGNER: Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 --
 -- PROGRAMMER: Luke Lee
 --
@@ -182,7 +186,7 @@ bool protocoletariat::InitializeWindows(HINSTANCE hInst, int nCmdShow)
 --
 -- DATE: November 29, 2017
 --
--- DESIGNER: Jeremy Lee
+-- DESIGNER: Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 --
 -- PROGRAMMER: Luke Lee
 --
@@ -495,7 +499,7 @@ bool protocoletariat::ConfigureCommSettings(HWND hwnd)
 --
 -- DATE: December 4, 2017
 --
--- DESIGNER: Luke Lee
+-- DESIGNER: Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 --
 -- PROGRAMMER: Luke Lee
 --
@@ -613,12 +617,9 @@ void protocoletariat::ClearQueue(std::queue<char*>* q)
 -- RETURNS: void
 --
 -- NOTES:
--- This function is responsible for closing all the handles and threads,
--- (serial port handle, upload, download, print-data, and main protocol
--- threads), clearing all the queues (upload, download, print-data
--- queues), and deleting all the allocated memory structure (logfile,
--- upload file parameter, download file parameter, print-data parameter).
--- After all the cleanups are finished, the program is terminated.
+-- This function is responsible for setting the global connection flag
+-- to false, and clearing all the queues (upload, download, print-data
+-- queues).
 ----------------------------------------------------------------------*/
 void protocoletariat::CleanUp()
 {
@@ -629,8 +630,32 @@ void protocoletariat::CleanUp()
 	ClearQueue(dataToPrintQ);	
 }
 
+/*----------------------------------------------------------------------
+-- FUNCTION: CleanUp
+--
+-- DATE: December 5, 2017
+--
+-- DESIGNER: Luke Lee
+--
+-- PROGRAMMER: Luke Lee
+--
+-- INTERFACE: void TerminateProgram()
+--
+-- RETURNS: void
+--
+-- NOTES:
+-- This function is responsible for closing all the handles and threads,
+-- (serial port handle, upload, download, print-data, and main protocol
+-- threads) and deleting all the allocated memory structure (logfile,
+-- upload file parameter, download file parameter, print-data parameter).
+-- After all the cleanups are finished, the program is terminated.
+----------------------------------------------------------------------*/
 void protocoletariat::TerminateProgram()
 {
+	PurgeComm(hComm, PURGE_RXCLEAR); // clean out pending bytes
+	PurgeComm(hComm, PURGE_TXCLEAR); // clean out pending bytes
+	CloseHandle(hComm);
+
 	CloseHandle(uploadThrd);
 	CloseHandle(downloadThrd);
 	CloseHandle(printThrd);
@@ -645,6 +670,5 @@ void protocoletariat::TerminateProgram()
 	delete downloadQ;
 	delete dataToPrintQ;
 
-	CloseHandle(hComm);
 	PostQuitMessage(0);
 }

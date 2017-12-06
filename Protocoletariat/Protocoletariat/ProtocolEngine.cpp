@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------
 -- SOURCE FILE: ProtocolEngine.cpp
 --
--- PROGRAM: Protocoleriat
+-- PROGRAM: Protocoletariat
 --
 -- FUNCTIONS:
 --		DWORD WINAPI ProtocolThread();

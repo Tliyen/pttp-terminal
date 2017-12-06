@@ -6,12 +6,12 @@
 -- won't get messed up.
 --
 ----------------------------------------------------------------------*/
-#include <iostream>
-#include <fstream>
-#include "FileUploader.h"
-#include "FileDownloader.h"
-
-using namespace protocoletariat;
+//#include <iostream>
+//#include <fstream>
+//#include "FileUploader.h"
+//#include "FileDownloader.h"
+//
+//using namespace protocoletariat;
 
 //int main()
 //{
