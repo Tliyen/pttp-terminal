@@ -250,7 +250,7 @@ namespace protocoletariat
 			}
 
 			// If this device wants to take the handle
-			if (*mUploadQueue->front() != NULL)
+			if (!(mUploadQueue->empty()))
 			{
 				// Transmit ENQ
 				TransmitFrame(true, ASCII_ENQ);
@@ -263,7 +263,7 @@ namespace protocoletariat
 
 	/*
 	BidForLine
-	An ENQ has been TRANSMITTED
+	
 	
 	*/
 	
@@ -281,7 +281,8 @@ namespace protocoletariat
 	-- RETURNS: void
 	--
 	-- NOTES:
-	-- The program must wait to RECEIVE an ACK from the pair device to ensure 
+	-- This function will be called when an ENQ has been TRANSMITTED.
+	-- The program must wait to RECEIVE an ACK from the paired device to ensure 
 	-- that it is ready to receive data. If it does, it can proceed down the 
 	-- TRANSMIT tree. If the timeout expires before that time, the device must 
 	-- move to the link reset delay state.
