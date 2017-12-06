@@ -684,6 +684,7 @@ namespace protocoletariat
 									mUploadQueue->pop();
 								// Increment logfile successful frames variable
 								mLogfile->sent_packet++;
+								mLogfile->lost_packet++;
 								// Move back to SendData
 								return true;
 							}
@@ -896,7 +897,7 @@ namespace protocoletariat
 								else
 								{
 									// Increment the failed frames counter
-									mLogfile->lost_packet++;
+									mLogfile->received_corrupted_packet++;
 									// Reset the timer
 									timer = 0;
 									continue;
