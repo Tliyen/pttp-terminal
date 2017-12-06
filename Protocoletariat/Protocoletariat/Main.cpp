@@ -93,11 +93,17 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 		return 0;
 	}
 
+	// successfully connected to serial port
+	bCommOn = true;
 	logfile = new LogFile();
 	fileUploadParam = new paramFileUploader();
 	fileDownloadParam = new paramFileDownloader();
 	printDataParam = new paramPrintData();
 	protocolParam = new paramProtocolEngine();
+
+	uploadQ = new std::queue<char*>();
+	downloadQ = new std::queue<char*>();
+	dataToPrintQ = new std::queue<char*>();
 
 	StartEngine();
   
@@ -224,7 +230,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 			if (GetOpenFileName(&ofn) == TRUE)
 			{
 				fileUploadParam->filePath = ofn.lpstrFile;
-				fileUploadParam->uploadQueue = &uploadQ;
+				fileUploadParam->uploadQueue = uploadQ;
 				uploadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) FileUploader::LoadTextFile, fileUploadParam, 0, &uploadThrdID);
 			}
 			else
@@ -505,7 +511,7 @@ void protocoletariat::StartEngine()
 
 	// initialize download (read) thread
 	olRead = { 0 };
-	fileDownloadParam->downloadQueue = &downloadQ;
+	fileDownloadParam->downloadQueue = downloadQ;
 	fileDownloadParam->olRead = olRead;
 	fileDownloadParam->dwThreadExit = readThreadExit;
 	fileDownloadParam->handle = &hComm;
@@ -514,7 +520,7 @@ void protocoletariat::StartEngine()
 	downloadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
 	
 	// initialize print data thread
-	printDataParam->printQueue = &dataToPrintQ;
+	printDataParam->printQueue = dataToPrintQ;
 	printDataParam->hwnd = &hwnd;
 	printDataParam->hComm = &hComm;
 	printDataParam->X = &X;
@@ -524,9 +530,9 @@ void protocoletariat::StartEngine()
 
 	// initialize main protocol engine thread
 	olWrite = { 0 };
-	protocolParam->uploadQueue = &uploadQ;
-	protocolParam->downloadQueue = &downloadQ;
-	protocolParam->printQueue = &dataToPrintQ;
+	protocolParam->uploadQueue = uploadQ;
+	protocolParam->downloadQueue = downloadQ;
+	protocolParam->printQueue = dataToPrintQ;
 	protocolParam->olWrite = olWrite;
 	protocolParam->dwThreadExit = writeThreadExit;
 	protocolParam->hComm = &hComm;
@@ -553,11 +559,11 @@ void protocoletariat::StartEngine()
 -- This function is responsible for clearing all the items in a queue
 -- given as a parameter in the function.
 ----------------------------------------------------------------------*/
-void protocoletariat::ClearQueue(std::queue<char*> &q)
+void protocoletariat::ClearQueue(std::queue<char*>* q)
 {
-	while (!q.empty())
+	while (!q->empty())
 	{
-		q.pop();
+		q->pop();
 	}
 }
 
