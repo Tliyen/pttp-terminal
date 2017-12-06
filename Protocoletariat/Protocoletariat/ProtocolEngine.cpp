@@ -165,6 +165,9 @@ namespace protocoletariat
 			case ASCII_EOT:
 				lpBuffer[1] = CHAR_EOT;
 				break;
+			case ASCII_RVI:
+				lpBuffer[1] = CHAR_RVI;
+				break;
 			default:
 				//should not get here
 				break;
