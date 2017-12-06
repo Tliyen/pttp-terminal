@@ -182,9 +182,9 @@ namespace protocoletariat
 			dNoOFBytestoWrite = 518;  // Calculating the no of bytes to write into the port
 		}
 
-		dNoOFBytestoWrite = sizeof(lpBuffer);  // Calculating the no of bytes to write into the port
+		//dNoOFBytestoWrite = sizeof(lpBuffer);  // Calculating the no of bytes to write into the port
 
-		status = WriteFile(*mHandle,             // Handle to the Serialport
+		status = WriteFile(*mHandle,            // Handle to the Serialport
 			lpBuffer,							// Data to be written to the port 
 			dNoOFBytestoWrite,					// No of bytes to write into the port
 			&dwRes,								// No of bytes written to the port
@@ -241,17 +241,19 @@ namespace protocoletariat
 			{
 				// read the front frame from the downloadQueue into frame
 				if (!mDownloadQueue->empty())
-					incFrame = mDownloadQueue->front();
-				// Check if the front of the queue an ENQ
-				if (incFrame[1] == CHAR_ENQ)
 				{
-					delete incFrame;
-					incFrame = nullptr;
-					if (!mDownloadQueue->empty())
-						mDownloadQueue->pop();
-					*mDownloadReady = false;
-					AcknowledgeBid();
-					break;
+					incFrame = mDownloadQueue->front();
+					// Check if the front of the queue an ENQ
+					if (incFrame[1] == CHAR_ENQ)
+					{
+						delete incFrame;
+						incFrame = nullptr;
+						if (!mDownloadQueue->empty())
+							mDownloadQueue->pop();
+						*mDownloadReady = false;
+						AcknowledgeBid();
+						break;
+					}
 				}
 			}
 			//}
@@ -260,9 +262,15 @@ namespace protocoletariat
 			if (!(mUploadQueue->empty()))
 			{
 				// Transmit ENQ
+				std::cout << "Sending ENQ" << std::endl;
 				if (TransmitFrame(true, ASCII_ENQ))
 				{
+					std::cout << "Sent ENQ" << std::endl;
 					mLogfile->sent_packet++;
+				}
+				else
+				{
+					std::cout << "Failed Sending ENQ" << std::endl;
 				}
 
 				// Move to BidForLine
@@ -310,21 +318,23 @@ namespace protocoletariat
 				{
 					// read the front frame from the downloadQueue into frame
 					if (!mDownloadQueue->empty())
+					{
 						incFrame = mDownloadQueue->front();
 
-					// Check if the front of the queue an ACK
-					if (incFrame[1] == CHAR_ACK)
-					{
-						// Remove the ACK
+						// Check if the front of the queue an ACK
+						if (incFrame[1] == CHAR_ACK)
+						{
+							// Remove the ACK
 
-						delete incFrame;
-						incFrame = nullptr;
-						if (!mDownloadQueue->empty())
-							mDownloadQueue->pop();
+							delete incFrame;
+							incFrame = nullptr;
+							if (!mDownloadQueue->empty())
+								mDownloadQueue->pop();
 
-						// Move to SendData()
-						SendData();
-						return;
+							// Move to SendData()
+							SendData();
+							return;
+						}
 					}
 				}
 				timer++;
@@ -378,87 +388,109 @@ namespace protocoletariat
 			{
 				// read the front of the upload queue into the outFrame
 				if (!mUploadQueue->empty())
+				{
 					outFrame = mUploadQueue->front();
 
-				// If CommEvent Triggered
-				//if (WaitCommEvent(mHandle, &dwEvent, NULL))
-				//{
-				int innerTimer = 0;
-				while (timer < TIMEOUT && innerTimer < INNER_TIMEOUT)
-				{
-					Sleep(10);
-					if (*mDownloadReady)
+					// If CommEvent Triggered
+					//if (WaitCommEvent(mHandle, &dwEvent, NULL))
+					//{
+					int innerTimer = 0;
+					while (timer < TIMEOUT && innerTimer < INNER_TIMEOUT)
 					{
-						// read the front frame from the downloadQueue into incFrame
-						if (!mDownloadQueue->empty())
-							incFrame = mDownloadQueue->front();
-
-						// If front of download queue is RVI
-						if (incFrame[1] == CHAR_RVI)
+						Sleep(10);
+						if (*mDownloadReady)
 						{
-							delete incFrame;
-							incFrame = nullptr;
-							// Set global RVI variable to false
-							globalRVI = true;
-							// Clear download buffer
-							while (!mDownloadQueue->empty())
+							// read the front frame from the downloadQueue into incFrame
+							if (!mDownloadQueue->empty())
 							{
-								mDownloadQueue->pop();
+								incFrame = mDownloadQueue->front();
+
+								// If front of download queue is RVI
+								if (incFrame[1] == CHAR_RVI)
+								{
+									delete incFrame;
+									incFrame = nullptr;
+									// Set global RVI variable to false
+									globalRVI = true;
+									// Clear download buffer
+									while (!mDownloadQueue->empty())
+									{
+										mDownloadQueue->pop();
+									}
+									// Transmit EOT control frame through serial port
+									std::cout << "Sending EOT" << std::endl;
+									if (TransmitFrame(true, ASCII_EOT))
+									{
+										std::cout << "Sent EOT" << std::endl;
+										mLogfile->sent_packet++;
+									}
+									else
+									{
+										std::cout << "Failed Sending EOT" << std::endl;
+									}
+									// Move to LinkReset
+									LinkReset();
+									return;
+								}
 							}
-							// Transmit EOT control frame through serial port
+						}
+						innerTimer++;
+						timer++;
+						//}
+						innerTimer = 0;
+					}
+					// If front of upload queue is EOT
+					if (outFrame[1] == CHAR_EOT)
+					{
+						// Transmit EOT control frame through Serial Port
+						std::cout << "Sending EOT" << std::endl;
+						if (TransmitFrame(true, ASCII_EOT))
+						{
+							std::cout << "Sent EOT" << std::endl;
+							mLogfile->sent_packet++;
+						}
+						else
+						{
+							std::cout << "Failed Sending EOT" << std::endl;
+						}
+						delete outFrame;
+						outFrame = nullptr;
+						if (!mUploadQueue->empty())
+							mUploadQueue->pop();
+						// Move to LinkReset
+						LinkReset();
+						return;
+					}
+					// If the frame at the front of the upload queue is a data frame
+					else if (outFrame[1] == CHAR_STX)
+					{
+						// Transmit the data frame through the serial port
+						if (TransmitFrame(false, NULL))
+						{
+							mLogfile->sent_packet++;
+						}
+						// Move to ConfirmTransmission
+						if (!ConfirmTransmission())
+						{
+							// Transmit EOT control frame through Serial Port
+							std::cout << "Sending EOT" << std::endl;
 							if (TransmitFrame(true, ASCII_EOT))
 							{
+								std::cout << "Sent EOT" << std::endl;
 								mLogfile->sent_packet++;
+							}
+							else
+							{
+								std::cout << "Failed Sending EOT" << std::endl;
 							}
 							// Move to LinkReset
 							LinkReset();
 							return;
 						}
+						timer = 0;
+						dfs++;
+						break;
 					}
-					innerTimer++;
-					timer++;
-					//}
-					innerTimer = 0;
-				}
-				// If front of upload queue is EOT
-				if (outFrame[1] == CHAR_EOT)
-				{
-					// Transmit EOT control frame through Serial Port
-					if (TransmitFrame(true, ASCII_EOT))
-					{
-						mLogfile->sent_packet++;
-					}
-					delete outFrame;
-					outFrame = nullptr;
-					if (!mUploadQueue->empty())
-						mUploadQueue->pop();
-					// Move to LinkReset
-					LinkReset();
-					return;
-				}
-				// If the frame at the front of the upload queue is a data frame
-				else if (outFrame[1] == CHAR_STX)
-				{
-					// Transmit the data frame through the serial port
-					if (TransmitFrame(false, NULL))
-					{
-						mLogfile->sent_packet++;
-					}
-					// Move to ConfirmTransmission
-					if (!ConfirmTransmission())
-					{
-						// Transmit EOT control frame through Serial Port
-						if (TransmitFrame(true, ASCII_EOT))
-						{
-							mLogfile->sent_packet++;
-						}
-						// Move to LinkReset
-						LinkReset();
-						return;
-					}
-					timer = 0;
-					dfs++;
-					break;
 				}
 				Sleep(10);
 				timer++;
@@ -511,25 +543,27 @@ namespace protocoletariat
 				{
 					// read the front frame from the downloadQueue into frame
 					if (!mDownloadQueue->empty())
+					{
 						incFrame = mDownloadQueue->front();
 
-					// If download queue front is ACK
-					if (incFrame[1] == CHAR_ACK)
-					{
-						// Pop front of download buffer
-						delete incFrame;
-						incFrame = nullptr;
-						if (!mDownloadQueue->empty())
-							mDownloadQueue->pop();
-						// Pop front of upload buffer
-						delete outFrame;
-						outFrame = nullptr;
-						if (!mUploadQueue->empty())
-							mUploadQueue->pop();
-						// Increment logfile successful frames variable
-						mLogfile->sent_packet++;
-						// Move back to SendData
-						return true;
+						// If download queue front is ACK
+						if (incFrame[1] == CHAR_ACK)
+						{
+							// Pop front of download buffer
+							delete incFrame;
+							incFrame = nullptr;
+							if (!mDownloadQueue->empty())
+								mDownloadQueue->pop();
+							// Pop front of upload buffer
+							delete outFrame;
+							outFrame = nullptr;
+							if (!mUploadQueue->empty())
+								mUploadQueue->pop();
+							// Increment logfile successful frames variable
+							mLogfile->sent_packet++;
+							// Move back to SendData
+							return true;
+						}
 					}
 				}
 				Sleep(10);
@@ -586,7 +620,16 @@ namespace protocoletariat
 		// Retransmit up to 3 times
 		do
 		{
-			TransmitFrame(false, NULL);
+			std::cout << "Sending DATA Frame" << std::endl;
+			if (TransmitFrame(false, NULL))
+			{
+				std::cout << "Sent DATA Frame" << std::endl;
+			}
+			else
+			{
+				std::cout << "Failed Sending DATA Frame" << std::endl;
+			}
+			
 			// Loop while timer has not expired
 			while (timer < TIMEOUT)
 			{
@@ -600,25 +643,27 @@ namespace protocoletariat
 					{
 						// read the front frame from the downloadQueue into frame
 						if (!mDownloadQueue->empty())
+						{
 							incFrame = mDownloadQueue->front();
 
-						// If download queue front is ACK
-						if (incFrame[1] == CHAR_ACK)
-						{
-							incFrame = nullptr;
-							delete incFrame;
-							// Pop front of download buffer
-							if (!mDownloadQueue->empty())
-								mDownloadQueue->pop();
-							// Pop front of upload buffer
-							outFrame = nullptr;
-							delete outFrame;
-							if (!mUploadQueue->empty())
-								mUploadQueue->pop();
-							// Increment logfile successful frames variable
-							mLogfile->sent_packet++;
-							// Move back to SendData
-							return true;
+							// If download queue front is ACK
+							if (incFrame[1] == CHAR_ACK)
+							{
+								incFrame = nullptr;
+								delete incFrame;
+								// Pop front of download buffer
+								if (!mDownloadQueue->empty())
+									mDownloadQueue->pop();
+								// Pop front of upload buffer
+								outFrame = nullptr;
+								delete outFrame;
+								if (!mUploadQueue->empty())
+									mUploadQueue->pop();
+								// Increment logfile successful frames variable
+								mLogfile->sent_packet++;
+								// Move back to SendData
+								return true;
+							}
 						}
 					}
 				}
@@ -672,23 +717,25 @@ namespace protocoletariat
 				{
 					// read the front frame from the downloadQueue into frame
 					if (!mDownloadQueue->empty())
+					{
 						incFrame = mDownloadQueue->front();
 
-					// Check if the front of the queue an ENQ
-					if (incFrame[1] == CHAR_ENQ)
-					{
-						linkReceivedENQ = true;
-						// Pop download queue front
-						if (!mDownloadQueue->empty())
-							mDownloadQueue->pop();
-						delete incFrame;
-						incFrame = nullptr;
-						// Return to Idle
-						return;
-					}
-					else
-					{
-						return;
+						// Check if the front of the queue an ENQ
+						if (incFrame[1] == CHAR_ENQ)
+						{
+							linkReceivedENQ = true;
+							// Pop download queue front
+							if (!mDownloadQueue->empty())
+								mDownloadQueue->pop();
+							delete incFrame;
+							incFrame = nullptr;
+							// Return to Idle
+							return;
+						}
+						else
+						{
+							return;
+						}
 					}
 				}
 			}
@@ -726,9 +773,15 @@ namespace protocoletariat
 		}
 
 		// Transmit ACK control frame
+		std::cout << "Sending ACK" << std::endl;
 		if (TransmitFrame(true, ASCII_ACK))
 		{
+			std::cout << "Sent ACK" << std::endl;
 			mLogfile->sent_packet++;
+		}
+		else
+		{
+			std::cout << "Failed Sending ACK" << std::endl;
 		}
 		// Move to ReceiveData
 		ReceiveData();
@@ -792,37 +845,39 @@ namespace protocoletariat
 					{
 						// read the front frame from the downloadQueue into frame
 						if (!mDownloadQueue->empty())
+						{
 							incFrame = mDownloadQueue->front();
 
-						// Check if the front of the queue an EOT frame
-						if (incFrame[1] == CHAR_EOT)
-						{
-							// Remove the EOT frame
+							// Check if the front of the queue an EOT frame
+							if (incFrame[1] == CHAR_EOT)
+							{
+								// Remove the EOT frame
 
-							delete incFrame;
-							incFrame = nullptr;
-							if (!mDownloadQueue->empty())
-								mDownloadQueue->pop();
-							// Return to idle
-							return;
-						}
-						// Else if download queue front is STX
-						if (incFrame[1] = CHAR_STX)
-						{
-							// Send the frame for error detection
-							if (ErrorDetection())
-							{
-								// Increment the frames received counter
-								RxCounter++;
-								continue;
+								delete incFrame;
+								incFrame = nullptr;
+								if (!mDownloadQueue->empty())
+									mDownloadQueue->pop();
+								// Return to idle
+								return;
 							}
-							else
+							// Else if download queue front is STX
+							if (incFrame[1] = CHAR_STX)
 							{
-								// Increment the failed frames counter
-								mLogfile->lost_packet++;
-								// Reset the timer
-								timer = 0;
-								continue;
+								// Send the frame for error detection
+								if (ErrorDetection())
+								{
+									// Increment the frames received counter
+									RxCounter++;
+									continue;
+								}
+								else
+								{
+									// Increment the failed frames counter
+									mLogfile->lost_packet++;
+									// Reset the timer
+									timer = 0;
+									continue;
+								}
 							}
 						}
 					}
@@ -912,13 +967,19 @@ namespace protocoletariat
 			else
 			{
 				// Send data to print
-				mPrintQueue->push(frame);
+				//mPrintQueue->push(frame);
 				// Increment the logfile successful frames counter
 				mLogfile->sent_packet++;
 				// Transmit ACK control frame
+				std::cout << "Sending ACK" << std::endl;
 				if (TransmitFrame(true, ASCII_ACK))
 				{
+					std::cout << "Sent ACK" << std::endl;
 					mLogfile->sent_packet++;
+				}
+				else
+				{
+					std::cout << "Failed Sending ACK" << std::endl;
 				}
 				// Move back to ReceiveData
 				return true;

@@ -10,7 +10,6 @@
 #include <queue>
 #include "Global.h"
 #include <sstream>
-//#include "Main.h"
 
 namespace protocoletariat
 {
@@ -30,8 +29,5 @@ namespace protocoletariat
 		static DWORD WINAPI PrintData::PrintReceivedData(paramPrintData* param);
 		static void PrintData::PrintPayload(HWND* hwnd, char* letter, unsigned int row, int* X, int*Y);
 		static void PrintData::PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row, int* X, int*Y);
-
-	private:
-
 	};
 }
