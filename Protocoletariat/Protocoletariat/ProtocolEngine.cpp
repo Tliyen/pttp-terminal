@@ -1,5 +1,6 @@
 /*----------------------------------------------------------------------
--- SOURCE FILE: ProtocolEngine.cpp
+-- SOURCE FILE: ProtocolEngine.cpp           - This file is responsible for
+--											   running the protocol engine.
 --
 -- PROGRAM: Protocoletariat
 --
@@ -14,18 +15,21 @@
 --		void LinkReset();
 --		void AcknowledgeBid();
 --		void ReceiveData();
---		void ErrorDetection();
+--		bool ErrorDetection();
 --
 --
 -- DATE: December 1, 2017
 --
--- DESIGNER: Morgan Ariss
+-- DESIGNER: Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 --
--- PROGRAMMER: Morgan Ariss and Li-Yan Tong
+-- PROGRAMMER: Morgan Ariss
 --
 -- NOTES:
--- The program is responsible for ensuring that communications stays
--- within the confines of the Protocol.  It simulates bi-directional
+-- This file is started by a new thread created in main when the program
+-- is first instantiated.
+--
+-- The file is responsible for ensuring that communications stays
+-- within the confines of the Protocol spec.  It simulates bi-directional
 -- communication between two linked devices and manages the data traffic
 -- through a wireless connection.
 --
@@ -111,7 +115,7 @@ namespace protocoletariat
 	--
 	-- DATE: December 4, 2017
 	--
-	-- DESIGNER: Morgan Ariss
+	-- DESIGNER: Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
