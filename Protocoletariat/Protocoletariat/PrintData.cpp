@@ -1,8 +1,9 @@
 /*----------------------------------------------------------------------
--- SOURCE FILE: PrintData.cpp -	An Application that will monitor and display
---								LogFile containing packet transfer data and 
---								print transfered text data.
---									
+-- SOURCE FILE: PrintData.cpp		-	An Application that will monitor
+--										and display logFile containing
+--										packet transfer data and print
+--										transfered text data.
+--
 --
 -- PROGRAM:		Protocoletariat
 --
@@ -12,16 +13,16 @@
 --									int* X, int* Y)
 --				void PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row)
 --
--- DATE: December 1, 2017
---		 Initialize variable and methods
---		 December 5, 2017
---		 Change to print by character & utilize pointers
---		 December 6, 2017
---		 Code Clean up
+-- DATE:		December 1, 2017
+--				Initialize variable and methods
+--				December 5, 2017
+--				Change to print by character & utilize pointers
+--				December 6, 2017
+--				Code Clean up
 --
--- DESIGNER: Jeremy Lee & Luke Lee
+-- DESIGNER:	Jeremy Lee & Luke Lee
 --
--- PROGRAMMER: Li-Yan Tong
+-- PROGRAMMER:	Li-Yan Tong
 --
 -- NOTES:
 -- This part of the program is responsible for displaying transfered data
@@ -45,9 +46,9 @@ namespace protocoletariat
 	int mCurrentRow = 1;
 
 	/*----------------------------------------------------------------------
-	-- FUNCTION: PrintReceivedData
+	-- FUNCTION:	PrintReceivedData
 	--
-	-- DATE: December 1, 2017
+	-- DATE:		December 1, 2017
 	--
 	-- DESIGNER:	Jeremy Lee, Luke Lee
 	--

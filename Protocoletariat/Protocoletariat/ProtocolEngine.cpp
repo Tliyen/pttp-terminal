@@ -1,46 +1,28 @@
 /*----------------------------------------------------------------------
-<<<<<<< HEAD
--- SOURCE FILE: ProtocolEngine.cpp				-
-=======
 -- SOURCE FILE: ProtocolEngine.cpp           - This file is responsible for
 --											   running the protocol engine.
->>>>>>> 56821104aca1c840eccbc25ead0ea1fdcacd0809
 --
--- PROGRAM: Protocoletariat
+-- PROGRAM:		Protocoletariat
 --
 -- FUNCTIONS:
-<<<<<<< HEAD
---			DWORD WINAPI ProtocolThread();
---			bool TransmitFrame();
---			void Idle();
---			void BidForLine();
---			void SendData();
---			bool ConfirmTransmission();
---			bool Retransmit();
---			void LinkReset();
---			void AcknowledgeBid();
---			void ReceiveData();
---			void ErrorDetection();
-=======
---		DWORD WINAPI ProtocolThread();
---		bool TransmitFrame();
---		void Idle();
---		void BidForLine();
---		void SendData();
---		bool ConfirmTransmission();
---		bool Retransmit();
---		void LinkReset();
---		void AcknowledgeBid();
---		void ReceiveData();
---		bool ErrorDetection();
->>>>>>> 56821104aca1c840eccbc25ead0ea1fdcacd0809
+--				DWORD WINAPI ProtocolThread();
+--				bool TransmitFrame();
+--				void Idle();
+--				void BidForLine();
+--				void SendData();
+--				bool ConfirmTransmission();
+--				bool Retransmit();
+--				void LinkReset();
+--				void AcknowledgeBid();
+--				void ReceiveData();
+--				bool ErrorDetection();
 --
 --
--- DATE: December 1, 2017
+-- DATE:		December 1, 2017
 --
--- DESIGNER: Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
+-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 --
--- PROGRAMMER: Morgan Ariss
+-- PROGRAMMER:	Morgan Ariss
 --
 -- NOTES:
 -- This file is started by a new thread created in main when the program
@@ -105,9 +87,6 @@ namespace protocoletariat
 
 		mHandle = param->hComm;
 
-		// olWrite = param->olWrite;
-		// dwThreadExit = param->dwThreadExit;
-
 		mDownloadReady = param->dlReady;
 		mRVIflag = param->RVIflag;
 
@@ -129,18 +108,19 @@ namespace protocoletariat
 	*/
 
 	/*----------------------------------------------------------------------
-	-- FUNCTION: TransmitFrame
+	-- FUNCTION:	TransmitFrame
 	--
-	-- DATE: December 4, 2017
+	-- DATE:		December 4, 2017
 	--
-	-- DESIGNER: Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
+	-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 	--
-	-- PROGRAMMER: Morgan Ariss
+	-- PROGRAMMER:	Morgan Ariss
 	--
-	-- INTERFACE: TransmitFrame()
+	-- INTERFACE:	TransmitFrame()
 	--
-	-- RETURNS: bool	- true if frame is successfully transmitted to the
-	--					  serial port; false otherwise.
+	-- RETURNS:		bool				- true if frame is successfully
+	--									  transmitted to the serial port;
+	--									  false otherwise.
 	--
 	-- NOTES:
 	-- This function is called upon by the other ProtocolEngine functions to
@@ -149,7 +129,6 @@ namespace protocoletariat
 	-- It will send either control frames to signal action from the partnered
 	-- device, or data frames when the other device is ready to receive them.
 	----------------------------------------------------------------------*/
-
 	bool ProtocolEngine::TransmitFrame(bool control, char type)
 	{
 		OVERLAPPED& olWrite = ppe->olWrite;
@@ -208,9 +187,7 @@ namespace protocoletariat
 			dNoOFBytestoWrite = 518;  // Calculating the no of bytes to write into the port
 		}
 
-		//dNoOFBytestoWrite = sizeof(lpBuffer);  // Calculating the no of bytes to write into the port
-
-		if (!WriteFile(*mHandle,            // Handle to the Serialport
+		if (!WriteFile(*mHandle,				// Handle to the Serialport
 			lpBuffer,							// Data to be written to the port 
 			dNoOFBytestoWrite,					// No of bytes to write into the port
 			&dwRes,								// No of bytes written to the port
@@ -243,17 +220,17 @@ namespace protocoletariat
 	}
 
 	/*----------------------------------------------------------------------
-	-- FUNCTION: Idle
+	-- FUNCTION:	Idle
 	--
-	-- DATE: December 2, 2017
+	-- DATE:		December 2, 2017
 	--
-	-- DESIGNER: Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
+	-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 	--
-	-- PROGRAMMER: Morgan Ariss
+	-- PROGRAMMER:	Morgan Ariss
 	--
-	-- INTERFACE: Idle()
+	-- INTERFACE:	Idle()
 	--
-	-- RETURNS: void
+	-- RETURNS:		void
 	--
 	-- NOTES:
 	-- This is the default state of the main protocol engine, it is the first
@@ -326,17 +303,19 @@ namespace protocoletariat
 	}
 
 	/*----------------------------------------------------------------------
-	-- FUNCTION: BidForLine
+	-- FUNCTION:	BidForLine
 	--
-	-- DATE: December 4, 2017
+	-- DATE:		December 4, 2017
 	--
-	-- DESIGNER: Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
+	-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 	--
-	-- PROGRAMMER: Morgan Ariss
+	-- PROGRAMMER:	Morgan Ariss
 	--
-	-- INTERFACE: void BidForLine()
+	-- INTERFACE:	void BidForLine(void)
 	--
-	-- RETURNS: void
+	-- ARGUMENT:
+	--
+	-- RETURNS:		void
 	--
 	-- NOTES:
 	-- This function will be called when an ENQ has been TRANSMITTED.

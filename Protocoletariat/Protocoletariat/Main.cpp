@@ -1,12 +1,8 @@
 /*----------------------------------------------------------------------
-<<<<<<< HEAD
--- SOURCE FILE:	Main.cpp						-
-=======
 -- SOURCE FILE:	Main.cpp		- A wireless protocol communication
 --								  terminal program that will send and
 --								  read data from a text file in half-
 --								  duplex communication.
->>>>>>> d6e5d546d86387b33d40d3a9425346266c095b1e
 --
 -- PROGRAM:		Protocoletariat
 --
@@ -18,9 +14,9 @@
 --				boolean SwitchCommPort(int commPort)
 --				boolean ConfigureCommSettings(HWND hwnd)
 --				void ClearQueue(std::queue<char*>* q)
---				void StartEngine()
---				void CleanUp()
---				void TerminateProgram()
+--				void StartEngine(void)
+--				void CleanUp(void)
+--				void TerminateProgram(void)
 --
 --
 --
@@ -553,7 +549,9 @@ bool protocoletariat::ConfigureCommSettings(HWND hwnd)
 --
 -- PROGRAMMER:	Luke Lee
 --
--- INTERFACE:	void StartEngine()
+-- INTERFACE:	void StartEngine(void)
+--
+-- ARGUMENT:	void
 --
 -- RETURNS:		void
 --
@@ -637,7 +635,7 @@ void protocoletariat::StartEngine()
 --
 -- INTERFACE:	void ClearQueue(std::queue<char*> &q)
 --
--- ARGUMENT:	q			- a reference to a queue
+-- ARGUMENT:	q				- a reference to a queue
 --
 -- RETURNS:		void
 --
@@ -662,7 +660,9 @@ void protocoletariat::ClearQueue(std::queue<char*>* q)
 --
 -- PROGRAMMER:	Luke Lee
 --
--- INTERFACE:	void CleanUp()
+-- INTERFACE:	void CleanUp(void)
+--
+-- ARGUMENT:	void
 --
 -- RETURNS:		void
 --
@@ -689,7 +689,9 @@ void protocoletariat::CleanUp()
 --
 -- PROGRAMMER:	Luke Lee
 --
--- INTERFACE:	void TerminateProgram()
+-- INTERFACE:	void TerminateProgram(void)
+--
+-- ARGUMENT:	void
 --
 -- RETURNS:		void
 --
