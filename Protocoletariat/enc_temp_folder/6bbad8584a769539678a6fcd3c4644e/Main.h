@@ -9,7 +9,11 @@ namespace protocoletariat
 {
 	// Main variables - for creating WinMain
 	const TCHAR tchrProgramName[] = TEXT("PTTP Protocol");
+<<<<<<< HEAD
 	const LPTSTR lpszDefaultCommPort = TEXT("COM1"); // default port fafa
+=======
+	const LPTSTR lpszDefaultCommPort = TEXT("COM4"); // default port
+>>>>>>> 2581aafd73820371d2b168de74ea2401b8bfa3af
 
 	HWND		hwnd;
 	LPTSTR		lpszCommPort;
