@@ -121,7 +121,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	downloadQ = new std::queue<char*>();
 	dataToPrintQ = new std::queue<char*>();
 	dlReady = false;
-	protocolActive = false;
+	protocolActive = true;
 	RVIflag = false;
 
 	StartEngine();

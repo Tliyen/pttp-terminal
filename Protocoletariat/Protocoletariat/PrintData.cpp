@@ -5,9 +5,9 @@
 --
 -- FUNCTIONS:
 --				DWORD WINAPI  PrintReceivedData(paramPrintData* param);
---				void PrintPayload(HWND* hwnd, char* letter, unsigned int row, 
+--				void PrintPayload(HWND* hwnd, char* letter, unsigned int row,
 --							int* X, int* Y)
---				void PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row, 
+--				void PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row,
 --							int* X, int* Y)
 --
 -- DATE: December 1, 2017
@@ -22,14 +22,14 @@
 -- PROGRAMMER: Li-Yan Tong
 --
 -- NOTES:
--- This part of the program is responsible for displaying transfered data 
+-- This part of the program is responsible for displaying transfered data
 -- and updating log file statistics on the terminal Windows screen.
 --
 -- It gathers packet transfer information from a LogFile
 -- struct containing a count of sent, recieved, lost and corrupted
 -- packets.  The log statistics are shown before and after a
 -- transmission.
--- 
+--
 -- It assigns a pointer to the print data queue and displays the
 -- transferred data character by character onto the screen and updates
 -- the current x and y coordinates on screen accordingly.  After printing
@@ -60,12 +60,12 @@ namespace protocoletariat
 	-- RETURNS: DWORD WINAPI	- 0 if the intended functions run successfully
 	--
 	-- NOTES:
-	-- This function thread takes a paraPrintData struct to gather device 
-	-- context and properly print characters in the terminal.  The struct 
-	-- also contains text data in printQueue and packet transfer information 
+	-- This function thread takes a paraPrintData struct to gather device
+	-- context and properly print characters in the terminal.  The struct
+	-- also contains text data in printQueue and packet transfer information
 	-- in a logfile that this function will print out.
 	--
-	-- This function continously loops and prints transfer information and 
+	-- This function continously loops and prints transfer information and
 	-- text data until this thread is terminated.
 	----------------------------------------------------------------------*/
 	DWORD WINAPI PrintData::PrintReceivedData(paramPrintData* param)
@@ -130,12 +130,12 @@ namespace protocoletariat
 				}
 
 				// Remove Data from queue.
-				delete payload;					
+				delete payload;
 				printQ->pop();
-
-				// Save it
-				Sleep(2000);
 			}
+
+			// Save it
+			Sleep(2000);
 		}
 		return 0;
 	}
@@ -149,7 +149,7 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER:	Li-Yan Tong
 	--
-	-- INTERFACE:	void PrintPayload(HWND* hwnd, char* letter, unsigned int row, 
+	-- INTERFACE:	void PrintPayload(HWND* hwnd, char* letter, unsigned int row,
 	--									int* X, int* Y)
 	--
 	-- ARGUMENT:	hwnd		- Windows handle access GUI information
