@@ -362,6 +362,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 			if (IDOK == MessageBox(hwnd, "OK to close window?", "Exit", MB_ICONQUESTION | MB_OKCANCEL))
 			{
 				CleanUp();
+				Sleep(500);
 				TerminateProgram();
 			}
 			break;
@@ -381,10 +382,13 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 
 		break;
 
-	case WM_DESTROY: // terminate program
-		protocolActive = false; // need to set it false here before Windows closes down
-		CleanUp();
-		TerminateProgram();
+	case WM_CLOSE: // terminate program
+		if (IDOK == MessageBox(hwnd, "OK to close window?", "Exit", MB_ICONQUESTION | MB_OKCANCEL))
+		{
+			CleanUp();
+			Sleep(500);
+			TerminateProgram();
+		}
 		break;
 
 	default:
@@ -672,7 +676,7 @@ void protocoletariat::ClearQueue(std::queue<char*>* q)
 void protocoletariat::CleanUp()
 {
 	protocolActive = false;
-
+	Sleep(500);
 	ClearQueue(uploadQ);
 	ClearQueue(downloadQ);
 	ClearQueue(dataToPrintQ);	
