@@ -165,6 +165,9 @@ namespace protocoletariat
 			case ASCII_EOT:
 				lpBuffer[1] = CHAR_EOT;
 				break;
+			case ASCII_RVI:
+				lpBuffer[1] = CHAR_RVI;
+				break;
 			default:
 				//should not get here
 				break;
@@ -241,12 +244,6 @@ namespace protocoletariat
 		// Loop
 		while (protocolActive)
 		{
-			if (*mRVIflag)
-			{
-				*mRVIflag = false;
-				BidForLine();
-			}
-
 			if (linkReceivedENQ)
 			{
 				linkReceivedENQ = false;
@@ -415,51 +412,52 @@ namespace protocoletariat
 					// If CommEvent Triggered
 					//if (WaitCommEvent(mHandle, &dwEvent, NULL))
 					//{
-					//int innerTimer = 0;
-					//while (timer < TIMEOUT && innerTimer < INNER_TIMEOUT)
-					//{
-					//	Sleep(10);
-					//	if (*mDownloadReady)
-					//	{
-					//		// read the front frame from the downloadQueue into incFrame
-					//		if (!mDownloadQueue->empty())
-					//		{
-					//			incFrame = mDownloadQueue->front();
+					int innerTimer = 0;
+					while (timer < TIMEOUT && innerTimer < INNER_TIMEOUT)
+					{
+						Sleep(10);
+						if (*mDownloadReady)
+						{
+							// read the front frame from the downloadQueue into incFrame
+							if (!mDownloadQueue->empty())
+							{
+								incFrame = mDownloadQueue->front();
 
-					//			// If front of download queue is RVI
-					//			if (incFrame[1] == CHAR_RVI)
-					//			{
-					//				delete incFrame;
-					//				incFrame = nullptr;
-					//				// Set global RVI variable to false
-					//				globalRVI = true;
-					//				// Clear download buffer
-					//				while (!mDownloadQueue->empty())
-					//				{
-					//					mDownloadQueue->pop();
-					//				}
-					//				// Transmit EOT control frame through serial port
-					//				std::cout << "Sending EOT" << std::endl;
-					//				if (TransmitFrame(true, ASCII_EOT))
-					//				{
-					//					std::cout << "Sent EOT" << std::endl;
-					//					mLogfile->sent_packet++;
-					//				}
-					//				else
-					//				{
-					//					std::cout << "Failed Sending EOT" << std::endl;
-					//				}
-					//				// Move to LinkReset
-					//				LinkReset();
-					//				return;
-					//			}
-					//		}
-					//	}
-					//	innerTimer++;
-					//	timer++;
-					//	//}
-					//	innerTimer = 0;
-					//}
+								// If front of download queue is RVI
+								if (*mRVIflag)
+								{
+									delete incFrame;
+									incFrame = nullptr;
+									// Set global RVI variable to false
+									*mRVIflag = false;
+									// Clear download buffer
+									while (!mDownloadQueue->empty())
+									{
+										mDownloadQueue->pop();
+									}
+									// Transmit EOT control frame through serial port
+									std::cout << "Sending EOT" << std::endl;
+									if (TransmitFrame(true, ASCII_EOT))
+									{
+										std::cout << "Sent EOT" << std::endl;
+										mLogfile->sent_packet++;
+									}
+									else
+									{
+										std::cout << "Failed Sending EOT" << std::endl;
+									}
+									// Move to LinkReset
+									LinkReset();
+									return;
+								}
+							}
+						}
+						innerTimer++;
+						timer++;
+						//}
+						innerTimer = 0;
+					}
+
 					// If front of upload queue is EOT
 					if (outFrame[1] == CHAR_EOT)
 					{
@@ -988,7 +986,7 @@ namespace protocoletariat
 			else
 			{
 				// Send data to print
-				//mPrintQueue->push(frame);
+				mPrintQueue->push(frame);
 				// Increment the logfile successful frames counter
 				mLogfile->sent_packet++;
 				// Transmit ACK control frame

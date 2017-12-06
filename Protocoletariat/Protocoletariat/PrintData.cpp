@@ -40,7 +40,7 @@
 
 namespace protocoletariat
 {
-	int mCurrentRow = 4;
+	unsigned int PrintData::rowLog = 0;
 
 	/*----------------------------------------------------------------------
 	-- FUNCTION: PrintReceivedData
@@ -73,9 +73,10 @@ namespace protocoletariat
 		std::queue<char*>* printQ = param->printQueue;
 		LogFile* logfile = param->logfile;
 		HWND* hwnd = param->hwnd;
-
 		int* pX = param->X;
 		int* pY = param->Y;
+
+		unsigned int currentRow = rowLog + 1;
 
 		// Active switch while engine is running
 		while (protocolActive)
@@ -84,53 +85,57 @@ namespace protocoletariat
 			std::ostringstream oss;
 
 			// Print Sent Packets
-			oss << "Sent Packets: " << logfile->sent_packet;
+			oss << "Sent: " << logfile->sent_packet << " | Lost: " << logfile->lost_packet
+				<< " | Recieved: " << logfile->received_packet << " | Corrupted: " << logfile->received_corrupted_packet;
 			std::string logSent = oss.str();
-			PrintLog(hwnd, (const TCHAR*)logSent.c_str(), 0, pX, pY);
+			PrintLog(hwnd, (const TCHAR*)logSent.c_str(), rowLog);
 
-			oss.str("");
-			oss.clear();
+			//oss.str("");
+			//oss.clear();
 
-			// Print Lost Packets
-			oss << "Lost Packets: " << logfile->lost_packet;
-			std::string logLost = oss.str();
-			PrintLog(hwnd, (const TCHAR*)logLost.c_str(), 1, pX, pY);
+			//// Print Lost Packets
+			//oss << "Lost: " << logfile->lost_packet;
+			//std::string logLost = oss.str();
+			//PrintLog(hwnd, (const TCHAR*)logLost.c_str(), 1, pX, pY);
 
-			oss.str("");
-			oss.clear();
+			//oss.str("");
+			//oss.clear();
 
-			// Print Recieved Packets
-			oss << "Recieved Packets: " << logfile->received_packet;
-			std::string logReceive = oss.str();
-			PrintLog(hwnd, (const TCHAR*)logReceive.c_str(), 2, pX, pY);
+			//// Print Recieved Packets
+			//oss << "Recieved: " << logfile->received_packet;
+			//std::string logReceive = oss.str();
+			//PrintLog(hwnd, (const TCHAR*)logReceive.c_str(), 2, pX, pY);
 
-			oss.str("");
-			oss.clear();
+			//oss.str("");
+			//oss.clear();
 
 			// Print Corrupt Packets
-			oss << "Corrupt Packets: : " << logfile->received_corrupted_packet;
-			std::string logCorrupt = oss.str();
-			PrintLog(hwnd, (const TCHAR*)logCorrupt.c_str(), 3, pX, pY);
+			//oss << "Corrupted: " << logfile->received_corrupted_packet;
+			//std::string logCorrupt = oss.str();
+			//PrintLog(hwnd, (const TCHAR*)logCorrupt.c_str(), 3, pX, pY);
 
-			oss.str("");
-			oss.clear();
+			//oss.str("");
+			//oss.clear();
 
 			if (!printQ->empty())
 			{
 				// Load up payload
 				char* payload = new char[512];
-				payload = printQ->front();
-				int payloadLength = strlen(payload);
+				int payloadLength = 512;
+				for (unsigned int i = 0; i < payloadLength; ++i)
+				{
+					payload[i] = printQ->front()[i];
+				}
 
 				// Print Payload
 				for (int i = 0; i < payloadLength; i++)
 				{
-					char* print = &payload[i];
-					PrintPayload(hwnd, (char*)print, mCurrentRow, pX, pY);
+					PrintChar(hwnd, &payload[i], &currentRow, pX, pY);
 				}
 
 				// Remove Data from queue.
 				delete payload;
+				payload = nullptr;
 				printQ->pop();
 			}
 
@@ -140,70 +145,6 @@ namespace protocoletariat
 		return 0;
 	}
 
-	/*----------------------------------------------------------------------
-	-- FUNCTION:	PrintPayload
-	--
-	-- DATE:		December 2, 2017
-	--
-	-- DESIGNER:	Jeremy Lee, Luke Lee
-	--
-	-- PROGRAMMER:	Li-Yan Tong
-	--
-	-- INTERFACE:	void PrintPayload(HWND* hwnd, char* letter, unsigned int row,
-	--									int* X, int* Y)
-	--
-	-- ARGUMENT:	hwnd		- Windows handle access GUI information
-	--				letter		- char Pointer a character to draw on the Window.
-	--				row			- Line number to draw a character string on.
-	--							  Starts from 0.
-	--				X			- int Pointer to x-coordinate of a caret to print
-	--							  characters
-	--				Y			- int Pointer to y-coordinate of a caret to print
-	--							  characters
-	--
-	-- RETURNS: void
-	--
-	-- NOTES:
-	-- This function takes a string and displays it (one character) on a
-	-- device context. One major benefit of this function is that it
-	-- calculates the position of the last character written on screen, and
-	-- determines if it is off the Window by calculating the Window's width.
-	----------------------------------------------------------------------*/
-	void PrintData::PrintPayload(HWND* hwnd, char* letter, unsigned int row, int* X, int* Y)
-	{
-		HDC hdc;
-		TEXTMETRIC tm;
-		SIZE size;
-		RECT rect;
-
-		hdc = GetDC(*hwnd); // Acquire DC
-		GetTextMetrics(hdc, &tm); // get text metrics
-		GetTextExtentPoint32(hdc, letter, 1, &size); // compute length of a string 
-
-		//move to this row
-		if (mCurrentRow == 4) {
-			while (row > 0)
-			{
-				*Y += tm.tmHeight + tm.tmExternalLeading; // next line
-				row--;
-			}
-		}
-
-		TextOut(hdc, *X, *Y, letter, 1);  // Display string
-		*X += size.cx; // advance to end of previous string
-		ReleaseDC(*hwnd, hdc); // release device context
-
-		if (GetWindowRect(*hwnd, &rect))
-		{
-			int width = rect.right - rect.left; // get Window width
-			if (*X >= width)
-			{
-				*X = 0;
-				*Y = *Y + tm.tmHeight + tm.tmExternalLeading; // next line
-			}
-		}
-		mCurrentRow += *Y; // Set Current row to last row printed
-	}
 
 	/*----------------------------------------------------------------------
 	-- FUNCTION:	PrintLog
@@ -235,7 +176,7 @@ namespace protocoletariat
 	-- specified by the row input, and then draws the input character string
 	-- on the same line.
 	----------------------------------------------------------------------*/
-	void PrintData::PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row, int* X, int* Y)
+	void PrintData::PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row)
 	{
 		HDC hdc;
 		TEXTMETRIC tm;
@@ -243,23 +184,83 @@ namespace protocoletariat
 		hdc = GetDC(*hwnd); // Acquire DC
 		GetTextMetrics(hdc, &tm); // get text metrics
 
-		*X = 0; // move to the beginning of line
-		*Y = 0; // move to the first line
+		int X = 0; // move to the beginning of line
+		int Y = row; // move to the first line
 
 		// move to the specified row
+		Y = Y * tm.tmHeight + tm.tmExternalLeading; // next line
+
+		TCHAR eraser[128];
+		memset(eraser, ' ', 128);
+		eraser[127] = '\0';
+		// removes previous printing
+		TextOut(hdc, X, Y, eraser, _tcslen(eraser));
+		// draws the specified input string
+		TextOut(hdc, X, Y, chars, _tcslen(chars));
+		ReleaseDC(*hwnd, hdc); // release device context
+	}
+
+	/*----------------------------------------------------------------------
+	-- FUNCTION:	PrintPayload
+	--
+	-- DATE:		December 2, 2017
+	--
+	-- DESIGNER:	Jeremy Lee, Luke Lee
+	--
+	-- PROGRAMMER:	Li-Yan Tong
+	--
+	-- INTERFACE:	void PrintPayload(HWND* hwnd, char* letter, unsigned int row,
+	--									int* X, int* Y)
+	--
+	-- ARGUMENT:	hwnd		- Windows handle access GUI information
+	--				letter		- char Pointer a character to draw on the Window.
+	--				row			- Line number to draw a character string on.
+	--							  Starts from 0.
+	--				X			- int Pointer to x-coordinate of a caret to print
+	--							  characters
+	--				Y			- int Pointer to y-coordinate of a caret to print
+	--							  characters
+	--
+	-- RETURNS: void
+	--
+	-- NOTES:
+	-- This function takes a string and displays it (one character) on a
+	-- device context. One major benefit of this function is that it
+	-- calculates the position of the last character written on screen, and
+	-- determines if it is off the Window by calculating the Window's width.
+	----------------------------------------------------------------------*/
+	void PrintData::PrintChar(HWND* hwnd, char* letter, unsigned int* currnetRow, int* X, int* Y)
+	{
+		HDC hdc;
+		TEXTMETRIC tm;
+		SIZE size;
+		RECT rect;
+
+		hdc = GetDC(*hwnd); // Acquire DC
+		GetTextMetrics(hdc, &tm); // get text metrics
+		GetTextExtentPoint32(hdc, letter, 1, &size); // compute length of a string 
+
+		//move to this row
+		int row = *currnetRow;
 		while (row > 0)
 		{
 			*Y += tm.tmHeight + tm.tmExternalLeading; // next line
 			row--;
 		}
 
-		TCHAR eraser[128];
-		memset(eraser, ' ', 128);
-		eraser[127] = '\0';
-		// removes previous printing
-		TextOut(hdc, *X, *Y, eraser, _tcslen(eraser));
-		// draws the specified input string
-		TextOut(hdc, *X, *Y, chars, _tcslen(chars));
+		TextOut(hdc, *X, *Y, letter, 1);  // Display string
+		*X += size.cx; // advance to end of previous string
 		ReleaseDC(*hwnd, hdc); // release device context
+
+		if (GetWindowRect(*hwnd, &rect))
+		{
+			int width = rect.right - rect.left; // get Window width
+			if (*X >= width)
+			{
+				*X = 0;
+				*Y = *Y + tm.tmHeight + tm.tmExternalLeading; // next line
+			}
+		}
+		*currnetRow += *Y; // Set Current row to last row printed
 	}
 }
