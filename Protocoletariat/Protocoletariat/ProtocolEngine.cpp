@@ -5,7 +5,7 @@
 --
 -- FUNCTIONS:
 --		DWORD WINAPI ProtocolThread();
---		bool TransmitFrame();
+--		bool TransmitFrame(bool control, char type);
 --		void Idle();
 --		void BidForLine();
 --		void SendData();
@@ -114,10 +114,14 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: TransmitFrame()
+	-- INTERFACE: bool TransmitFrame(bool control, char type)
 	--
-	-- RETURNS: bool	- true if frame is successfully transmitted to the
-	--					  serial port; false otherwise.
+	-- ARGUMENT: control	- a boolean flag indicating if the frame being
+	--						  transmitted is a control frame or not
+	--			 type		- a char variable specifying the control character
+	--
+	-- RETURNS: bool		- true if frame is successfully transmitted to the
+	--						  serial port; false otherwise.
 	--
 	-- NOTES:
 	-- This function is called upon by the other ProtocolEngine functions to
