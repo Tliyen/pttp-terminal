@@ -2,7 +2,7 @@
 
 namespace protocoletariat
 {
-	static bool* rviReceived = nullptr;
+	bool* FileDownloader::rviReceived = nullptr;
 
 	DWORD WINAPI FileDownloader::ReadSerialPort(paramFileDownloader* param)
 	{
