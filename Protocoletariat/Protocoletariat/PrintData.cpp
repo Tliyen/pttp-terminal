@@ -4,7 +4,7 @@
 -- PROGRAM:		Protocoletariat
 --
 -- FUNCTIONS:
---				DWORD WINAPI  PrintReceivedData(paramPrintData* param);
+--				DWORD WINAPI PrintReceivedData(paramPrintData* param)
 --				void PrintChar(HWND* hwnd, char* letter, unsigned int row,
 --									int* X, int* Y)
 --				void PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row)
@@ -46,17 +46,17 @@ namespace protocoletariat
 	--
 	-- DATE: December 1, 2017
 	--
-	-- DESIGNER: Jeremy Lee, Luke Lee
+	-- DESIGNER:	Jeremy Lee, Luke Lee
 	--
-	-- PROGRAMMER: Li-Yan Tong
+	-- PROGRAMMER:	Li-Yan Tong
 	--
-	-- INTERFACE: DWORD WINAPI PrintReceivedData(paramPrintData* param)
+	-- INTERFACE:	DWORD WINAPI PrintReceivedData(paramPrintData* param)
 	--
-	-- ARGUMENT: param			- a pointer to the paramPrintData structure
-	--							  containing all the variables (windows GUI and print
-	--							  data) required in PrintData functions.
+	-- ARGUMENT:	param			- a pointer to the paramPrintData structure
+	--								  containing all the variables (windows GUI and print
+	--							      data) required in PrintData functions.
 	--
-	-- RETURNS: DWORD WINAPI	- 0 if the intended functions run successfully
+	-- RETURNS:		DWORD WINAPI	- 0 if the intended functions run successfully
 	--
 	-- NOTES:
 	-- This function thread takes a paraPrintData struct to gather device
@@ -137,7 +137,7 @@ namespace protocoletariat
 	--				row			- Line number to draw a character string on.
 	--							  Starts from 0.
 	--
-	-- RETURNS: void
+	-- RETURNS:		void
 	--
 	-- NOTES:
 	-- A function to draw a character string to the Window.
@@ -195,7 +195,7 @@ namespace protocoletariat
 	--				Y			- int Pointer to y-coordinate of a caret to print
 	--							  characters
 	--
-	-- RETURNS: void
+	-- RETURNS:		void
 	--
 	-- NOTES:
 	-- This function takes a string and displays it (one character) on a

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
--- SOURCE FILE:	Main.cpp
+-- SOURCE FILE:	Main.cpp						- 
 --
 -- PROGRAM:		Protocoletariat
 --
