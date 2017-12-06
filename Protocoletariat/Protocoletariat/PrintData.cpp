@@ -5,10 +5,9 @@
 --
 -- FUNCTIONS:
 --				DWORD WINAPI  PrintReceivedData(paramPrintData* param);
---				void PrintPayload(HWND* hwnd, char* letter, unsigned int row,
---							int* X, int* Y)
---				void PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row,
---							int* X, int* Y)
+--				void PrintChar(HWND* hwnd, char* letter, unsigned int row,
+--									int* X, int* Y)
+--				void PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row)
 --
 -- DATE: December 1, 2017
 --		 Initialize variable and methods
@@ -55,7 +54,7 @@ namespace protocoletariat
 	--
 	-- ARGUMENT: param			- a pointer to the paramPrintData structure
 	--							  containing all the variables (windows GUI and print
-	--                data) required in PrintData functions.
+	--							  data) required in PrintData functions.
 	--
 	-- RETURNS: DWORD WINAPI	- 0 if the intended functions run successfully
 	--
@@ -93,16 +92,17 @@ namespace protocoletariat
 			{
 				// Load up payload
 				char* payload = new char[512];
-				int payloadLength = 512;
+				unsigned int payloadLength = 512;
 				for (unsigned int i = 0; i < payloadLength; ++i)
 				{
 					payload[i] = printQ->front()[i];
 				}
 
+
 				if (payload[0] != '\0')
 				{
 					// Print Payload
-					for (int i = 0; i < payloadLength; i++)
+					for (unsigned int i = 0; i < payloadLength; i++)
 					{
 						PrintChar(hwnd, &payload[i], mCurrentRow, pX, pY);
 					}
@@ -129,17 +129,13 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER:	Li-Yan Tong
 	--
-	-- INTERFACE:	void PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row, int* X, int* Y)
+	-- INTERFACE:	void PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row)
 	--
 	-- ARGUMENT:	hwnd		- a pointer to the main Windows HWND handle.
 	--				chars		- pointer to the beginning of a character
 	--							  string to draw on the Window.
 	--				row			- Line number to draw a character string on.
 	--							  Starts from 0.
-	--				X			- a pointer to an int representing the horizontal
-	--							  coordinate on the terminal screen.
-	--				Y			- a pointer to an int representing the vertical
-	--							  coordinate on the terminal screen.
 	--
 	-- RETURNS: void
 	--
@@ -179,7 +175,7 @@ namespace protocoletariat
 	}
 
 	/*----------------------------------------------------------------------
-	-- FUNCTION:	PrintPayload
+	-- FUNCTION:	PrintChar
 	--
 	-- DATE:		December 2, 2017
 	--
@@ -187,7 +183,7 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER:	Li-Yan Tong
 	--
-	-- INTERFACE:	void PrintPayload(HWND* hwnd, char* letter, unsigned int row,
+	-- INTERFACE:	void PrintChar(HWND* hwnd, char* letter, unsigned int row,
 	--									int* X, int* Y)
 	--
 	-- ARGUMENT:	hwnd		- Windows handle access GUI information
