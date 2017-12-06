@@ -88,10 +88,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	lpszCommPort = lpszDefaultCommPort;
 
 	// initialize comm handle; if no serial port found, terminates the program
-	//if (!InitializeCommHandle(lpszCommPort))
-	//{
-	//	return 0;
-	//}
+	if (!InitializeCommHandle(lpszCommPort))
+	{
+		return 0;
+	}
 
 	logfile = new LogFile();
 	fileUploadParam = new paramFileUploader();
