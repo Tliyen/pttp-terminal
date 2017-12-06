@@ -181,7 +181,7 @@ namespace protocoletariat
 				oss.clear();
 
 				// Print Recieved Packets
-				oss << "Lost Packets: " << logfile->lost_packet;
+				oss << "Recieved Packets: " << logfile->received_packet;
 				std::string logReceive = oss.str();
 				PrintLog(hwnd, (const TCHAR*)logReceive.c_str(), 2, pX, pY);
 
