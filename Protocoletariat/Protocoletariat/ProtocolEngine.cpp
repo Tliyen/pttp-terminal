@@ -188,11 +188,33 @@ namespace protocoletariat
 
 		// dNoOFBytestoWrite = sizeof(lpBuffer);  // Calculating the no of bytes to write into the port
 
-		status = WriteFile(*mHandle,            // Handle to the Serialport
+		if (!WriteFile(*mHandle,            // Handle to the Serialport
 			lpBuffer,							// Data to be written to the port 
 			dNoOFBytestoWrite,					// No of bytes to write into the port
 			&dwRes,								// No of bytes written to the port
-			&osWrite);
+			&osWrite))
+		{
+			if (GetLastError() != ERROR_IO_PENDING)
+			{
+				status = false;
+			}
+			else {
+				//Write is pending
+				dwRes = WaitForSingleObject(osWrite.hEvent, 2000);
+				switch (dwRes)
+				{
+				case WAIT_OBJECT_0:
+					if (!GetOverlappedResult(*mHandle, &osWrite, &dwWritten, FALSE))
+						status = false;
+					else
+						status = true;
+					break;
+				default:
+					status = false;
+					break;
+				}
+			}
+		}
 
 		delete lpBuffer;
 		return status;
