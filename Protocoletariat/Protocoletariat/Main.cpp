@@ -94,7 +94,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	}
 
 	// successfully connected to serial port
-	bCommOn = true;
 	logfile = new LogFile();
 	fileUploadParam = new paramFileUploader();
 	fileDownloadParam = new paramFileDownloader();
@@ -242,57 +241,52 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 			break;
 
 		case IDM_CONFIG: // Settings > Configure
-			if (!bCommOn)
-				ConfigureCommSettings(hwnd);
-			else
+			if (IDOK == MessageBox(hwnd
+				, TEXT("Changing configuration while transmission will reset the connection. Continue?")
+				, TEXT("Warning"), MB_ICONHAND | MB_OKCANCEL))
 			{
-				MessageBox(hwnd
-					, TEXT("Configuration is disabled while connected")
-					, TEXT("Access Denied"), MB_ICONHAND | MB_OK);
+				CleanUp();
+				ConfigureCommSettings(hwnd);
 			}
 			break;
 
 		case IDM_COM1:
-			if (!bCommOn)
-				SwitchCommPort(1);
-			else
+			if (IDOK == MessageBox(hwnd
+				, TEXT("Switching COM port during transmission will reset the connection. Continue?")
+				, TEXT("Warning"), MB_ICONHAND | MB_OKCANCEL))
 			{
-				MessageBox(hwnd
-					, TEXT("Cannot switch port while connected")
-					, TEXT("Access Denied"), MB_ICONHAND | MB_OK);
+				CleanUp();
+				SwitchCommPort(1);
 			}
 			break;
 
 		case IDM_COM2:
-			if (!bCommOn)
-				SwitchCommPort(2);
-			else
+			if (IDOK == MessageBox(hwnd
+				, TEXT("Switching COM port during transmission will reset the connection. Continue?")
+				, TEXT("Warning"), MB_ICONHAND | MB_OKCANCEL))
 			{
-				MessageBox(hwnd
-					, TEXT("Cannot switch port while connected")
-					, TEXT("Access Denied"), MB_ICONHAND | MB_OK);
+				CleanUp();
+				SwitchCommPort(2);
 			}
 			break;
 
 		case IDM_COM3:
-			if (!bCommOn)
-				SwitchCommPort(3);
-			else
+			if (IDOK == MessageBox(hwnd
+				, TEXT("Switching COM port during transmission will reset the connection. Continue?")
+				, TEXT("Warning"), MB_ICONHAND | MB_OKCANCEL))
 			{
-				MessageBox(hwnd
-					, TEXT("Cannot switch port while connected")
-					, TEXT("Access Denied"), MB_ICONHAND | MB_OK);
+				CleanUp();
+				SwitchCommPort(3);
 			}
 			break;
 
 		case IDM_COM4:
-			if (!bCommOn)
-				SwitchCommPort(4);
-			else
+			if (IDOK == MessageBox(hwnd
+				, TEXT("Switching COM port during transmission will reset the connection. Continue?")
+				, TEXT("Warning"), MB_ICONHAND | MB_OKCANCEL))
 			{
-				MessageBox(hwnd
-					, TEXT("Cannot switch port while connected")
-					, TEXT("Access Denied"), MB_ICONHAND | MB_OK);
+				CleanUp();
+				SwitchCommPort(4);
 			}
 			break;
 
@@ -316,6 +310,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 			if (IDOK == MessageBox(hwnd, "OK to close window?", "Exit", MB_ICONQUESTION | MB_OKCANCEL))
 			{
 				CleanUp();
+				TerminateProgram();
 			}
 			break;
 		}
@@ -347,6 +342,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 
 	case WM_DESTROY: // terminate program
 		CleanUp();
+		TerminateProgram();
 		break;
 
 	default:
@@ -376,7 +372,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 bool protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 {
 	// create communcation handle
-	hComm = CreateFile(CommPort, GENERIC_READ | GENERIC_WRITE, 0,
+	hComm = CreateFile(lpszCommPort, GENERIC_READ | GENERIC_WRITE, 0,
 		NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
 	if (hComm == INVALID_HANDLE_VALUE) // failed to create handle
 	{
@@ -399,6 +395,7 @@ bool protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 		return false;
 	}
 
+	bCommOn = true;
 	return true;
 }
 
@@ -484,6 +481,7 @@ bool protocoletariat::ConfigureCommSettings(HWND hwnd)
 		return false;
 	}
 
+	bCommOn = true;
 	return true;
 }
 
@@ -620,12 +618,14 @@ void protocoletariat::ClearQueue(std::queue<char*>* q)
 void protocoletariat::CleanUp()
 {
 	bCommOn = false;
-	CloseHandle(hComm);
 
 	ClearQueue(uploadQ);
 	ClearQueue(downloadQ);
-	ClearQueue(dataToPrintQ);
+	ClearQueue(dataToPrintQ);	
+}
 
+void protocoletariat::TerminateProgram()
+{
 	CloseHandle(uploadThrd);
 	CloseHandle(downloadThrd);
 	CloseHandle(printThrd);
@@ -636,6 +636,10 @@ void protocoletariat::CleanUp()
 	delete fileDownloadParam;
 	delete printDataParam;
 	delete protocolParam;
+	delete uploadQ;
+	delete downloadQ;
+	delete dataToPrintQ;
 
+	CloseHandle(hComm);
 	PostQuitMessage(0);
 }

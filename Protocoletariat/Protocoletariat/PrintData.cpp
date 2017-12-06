@@ -181,7 +181,7 @@ namespace protocoletariat
 				oss.clear();
 
 				// Print Recieved Packets
-				oss << "Lost Packets: " << logfile->lost_packet;
+				oss << "Recieved Packets: " << logfile->received_packet;
 				std::string logReceive = oss.str();
 				PrintLog(hwnd, (const TCHAR*)logReceive.c_str(), 2, pX, pY);
 
@@ -189,7 +189,7 @@ namespace protocoletariat
 				oss.clear();
 
 				// Print Corrupt Packets
-				oss << "Corrupt Packets: : " << logfile->lost_packet;
+				oss << "Corrupt Packets: : " << logfile->received_corrupted_packet;
 				std::string logCorrupt = oss.str();
 				PrintLog(hwnd, (const TCHAR*)logCorrupt.c_str(), 3, pX, pY);
 
