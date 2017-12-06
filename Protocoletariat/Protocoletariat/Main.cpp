@@ -123,6 +123,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	dlReady = false;
 	protocolActive = true;
 	RVIflag = false;
+	globalRVI = false;
 
 	StartEngine();
 
@@ -366,9 +367,10 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 			}
 			break;
 		}
-		else if (wParam == RVI_KEY)
+		else if (wParam == 0x72)
 		{
 			MessageBox(hwnd, "RVI key is detected", "RVI Event", MB_OK);
+			ProtocolEngine::TransmitFrame(true, RVI_KEY);
 			break;
 		}
 		break;
@@ -678,7 +680,7 @@ void protocoletariat::CleanUp()
 	Sleep(500);
 	ClearQueue(uploadQ);
 	ClearQueue(downloadQ);
-	ClearQueue(dataToPrintQ);	
+	ClearQueue(dataToPrintQ);
 }
 
 /*----------------------------------------------------------------------

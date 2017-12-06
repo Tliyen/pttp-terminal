@@ -165,6 +165,9 @@ namespace protocoletariat
 			case ASCII_EOT:
 				lpBuffer[1] = CHAR_EOT;
 				break;
+			case ASCII_RVI:
+				lpBuffer[1] = CHAR_RVI;
+				break;
 			default:
 				//should not get here
 				break;
@@ -241,12 +244,6 @@ namespace protocoletariat
 		// Loop
 		while (protocolActive)
 		{
-			if (*mRVIflag)
-			{
-				*mRVIflag = false;
-				BidForLine();
-			}
-
 			if (linkReceivedENQ)
 			{
 				linkReceivedENQ = false;
@@ -427,12 +424,12 @@ namespace protocoletariat
 								incFrame = mDownloadQueue->front();
 
 								// If front of download queue is RVI
-								if (incFrame[1] == CHAR_RVI)
+								if (*mRVIflag)
 								{
 									delete incFrame;
 									incFrame = nullptr;
 									// Set global RVI variable to false
-									globalRVI = true;
+									*mRVIflag = false;
 									// Clear download buffer
 									while (!mDownloadQueue->empty())
 									{
