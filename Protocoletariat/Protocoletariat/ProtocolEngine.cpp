@@ -116,7 +116,8 @@ namespace protocoletariat
 	--
 	-- INTERFACE: TransmitFrame()
 	--
-	-- RETURNS: bool (success condition)
+	-- RETURNS: bool	- true if frame is successfully transmitted to the
+	--					  serial port; false otherwise.
 	--
 	-- NOTES:
 	-- This function is called upon by the other ProtocolEngine functions to
@@ -174,7 +175,10 @@ namespace protocoletariat
 		else
 		{
 			lpBuffer = new char[DATA_FRAME_SIZE];
-			lpBuffer = outFrame;
+			for (size_t i = 0; i < 518; i++)
+			{
+				lpBuffer[i] = outFrame[i];
+			}
 			dNoOFBytestoWrite = 518;  // Calculating the no of bytes to write into the port
 		}
 
@@ -186,7 +190,7 @@ namespace protocoletariat
 			&dwRes,								// No of bytes written to the port
 			&osWrite);
 
-		// delete lpBuffer;
+		delete lpBuffer;
 		return status;
 	}
 
@@ -236,23 +240,21 @@ namespace protocoletariat
 			if (*mDownloadReady)
 			{
 				// read the front frame from the downloadQueue into frame
-				incFrame = mDownloadQueue->front();
-				char* str = new char[512];
-				str = incFrame;
+				if (!mDownloadQueue->empty())
+					incFrame = mDownloadQueue->front();
 				// Check if the front of the queue an ENQ
 				if (incFrame[1] == CHAR_ENQ)
 				{
-					mDownloadQueue->pop();
 					delete incFrame;
 					incFrame = nullptr;
+					if (!mDownloadQueue->empty())
+						mDownloadQueue->pop();
 					*mDownloadReady = false;
 					AcknowledgeBid();
 					break;
 				}
 			}
 			//}
-
-			unsigned int size = mUploadQueue->size();
 
 			// If this device wants to take the handle
 			if (!(mUploadQueue->empty()))
@@ -278,7 +280,7 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: BidForLine()
+	-- INTERFACE: void BidForLine()
 	--
 	-- RETURNS: void
 	--
@@ -307,15 +309,18 @@ namespace protocoletariat
 				if (*mDownloadReady)
 				{
 					// read the front frame from the downloadQueue into frame
-					incFrame = mDownloadQueue->front();
+					if (!mDownloadQueue->empty())
+						incFrame = mDownloadQueue->front();
 
 					// Check if the front of the queue an ACK
 					if (incFrame[1] == CHAR_ACK)
 					{
 						// Remove the ACK
-						mDownloadQueue->pop();
+
 						delete incFrame;
 						incFrame = nullptr;
+						if (!mDownloadQueue->empty())
+							mDownloadQueue->pop();
 
 						// Move to SendData()
 						SendData();
@@ -343,7 +348,7 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: SendData()
+	-- INTERFACE: void SendData()
 	--
 	-- RETURNS: void
 	--
@@ -372,7 +377,8 @@ namespace protocoletariat
 			while (timer < TIMEOUT)
 			{
 				// read the front of the upload queue into the outFrame
-				outFrame = mUploadQueue->front();
+				if (!mUploadQueue->empty())
+					outFrame = mUploadQueue->front();
 
 				// If CommEvent Triggered
 				//if (WaitCommEvent(mHandle, &dwEvent, NULL))
@@ -384,16 +390,21 @@ namespace protocoletariat
 					if (*mDownloadReady)
 					{
 						// read the front frame from the downloadQueue into incFrame
-						incFrame = mDownloadQueue->front();
+						if (!mDownloadQueue->empty())
+							incFrame = mDownloadQueue->front();
 
 						// If front of download queue is RVI
 						if (incFrame[1] == CHAR_RVI)
 						{
+							delete incFrame;
 							incFrame = nullptr;
 							// Set global RVI variable to false
 							globalRVI = true;
 							// Clear download buffer
-							mDownloadQueue->empty();
+							while (!mDownloadQueue->empty())
+							{
+								mDownloadQueue->pop();
+							}
 							// Transmit EOT control frame through serial port
 							if (TransmitFrame(true, ASCII_EOT))
 							{
@@ -417,9 +428,10 @@ namespace protocoletariat
 					{
 						mLogfile->sent_packet++;
 					}
-					mUploadQueue->pop();
 					delete outFrame;
 					outFrame = nullptr;
+					if (!mUploadQueue->empty())
+						mUploadQueue->pop();
 					// Move to LinkReset
 					LinkReset();
 					return;
@@ -428,7 +440,10 @@ namespace protocoletariat
 				else if (outFrame[1] == CHAR_STX)
 				{
 					// Transmit the data frame through the serial port
-					TransmitFrame(false, NULL);
+					if (TransmitFrame(false, NULL))
+					{
+						mLogfile->sent_packet++;
+					}
 					// Move to ConfirmTransmission
 					if (!ConfirmTransmission())
 					{
@@ -461,9 +476,11 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: ConfirmTransmission()
+	-- INTERFACE: bool ConfirmTransmission()
 	--
-	-- RETURNS: bool (success condition)
+	-- RETURNS: bool	- true if an ACK gets back, indicating that the
+	--					  receiver receives the frame successfully; false
+	--					  if retransmission fails 3 times.
 	--
 	-- NOTES:
 	-- This function will be called when a Data Frame has been TRANSMITTED.
@@ -493,16 +510,22 @@ namespace protocoletariat
 				if (*mDownloadReady)
 				{
 					// read the front frame from the downloadQueue into frame
-					incFrame = mDownloadQueue->front();
+					if (!mDownloadQueue->empty())
+						incFrame = mDownloadQueue->front();
 
 					// If download queue front is ACK
 					if (incFrame[1] == CHAR_ACK)
 					{
 						// Pop front of download buffer
-						mDownloadQueue->pop();
 						delete incFrame;
+						incFrame = nullptr;
+						if (!mDownloadQueue->empty())
+							mDownloadQueue->pop();
 						// Pop front of upload buffer
-						mUploadQueue->pop();
+						delete outFrame;
+						outFrame = nullptr;
+						if (!mUploadQueue->empty())
+							mUploadQueue->pop();
 						// Increment logfile successful frames variable
 						mLogfile->sent_packet++;
 						// Move back to SendData
@@ -538,9 +561,10 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: Retransmit()
+	-- INTERFACE: bool Retransmit()
 	--
-	-- RETURNS: bool (success condition)
+	-- RETURNS: bool	- true if the retransmission is successful; false
+	--					  if it fails 3 times.
 	--
 	-- NOTES:
 	-- This function will be called when a Data Frame has been TRANSMITTED
@@ -575,16 +599,22 @@ namespace protocoletariat
 					if (*mDownloadReady)
 					{
 						// read the front frame from the downloadQueue into frame
-						incFrame = mDownloadQueue->front();
+						if (!mDownloadQueue->empty())
+							incFrame = mDownloadQueue->front();
 
 						// If download queue front is ACK
 						if (incFrame[1] == CHAR_ACK)
 						{
 							incFrame = nullptr;
+							delete incFrame;
 							// Pop front of download buffer
-							mDownloadQueue->pop();
+							if (!mDownloadQueue->empty())
+								mDownloadQueue->pop();
 							// Pop front of upload buffer
-							mUploadQueue->pop();
+							outFrame = nullptr;
+							delete outFrame;
+							if (!mUploadQueue->empty())
+								mUploadQueue->pop();
 							// Increment logfile successful frames variable
 							mLogfile->sent_packet++;
 							// Move back to SendData
@@ -612,7 +642,7 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: LinkReset()
+	-- INTERFACE: void LinkReset()
 	--
 	-- RETURNS: void
 	--
@@ -641,14 +671,16 @@ namespace protocoletariat
 				if (*mDownloadReady)
 				{
 					// read the front frame from the downloadQueue into frame
-					incFrame = mDownloadQueue->front();
+					if (!mDownloadQueue->empty())
+						incFrame = mDownloadQueue->front();
 
 					// Check if the front of the queue an ENQ
 					if (incFrame[1] == CHAR_ENQ)
 					{
 						linkReceivedENQ = true;
 						// Pop download queue front
-						mDownloadQueue->pop();
+						if (!mDownloadQueue->empty())
+							mDownloadQueue->pop();
 						delete incFrame;
 						incFrame = nullptr;
 						// Return to Idle
@@ -675,7 +707,7 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: AcknowledgeBid()
+	-- INTERFACE: void AcknowledgeBid()
 	--
 	-- RETURNS: void
 	--
@@ -711,7 +743,7 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: ReceiveData()
+	-- INTERFACE: void ReceiveData()
 	--
 	-- RETURNS: void
 	--
@@ -759,22 +791,24 @@ namespace protocoletariat
 					if (*mDownloadReady)
 					{
 						// read the front frame from the downloadQueue into frame
-						incFrame = mDownloadQueue->front();
+						if (!mDownloadQueue->empty())
+							incFrame = mDownloadQueue->front();
 
 						// Check if the front of the queue an EOT frame
 						if (incFrame[1] == CHAR_EOT)
 						{
 							// Remove the EOT frame
-							mDownloadQueue->pop();
+
+							delete incFrame;
+							incFrame = nullptr;
+							if (!mDownloadQueue->empty())
+								mDownloadQueue->pop();
 							// Return to idle
 							return;
 						}
 						// Else if download queue front is STX
 						if (incFrame[1] = CHAR_STX)
 						{
-							// Remove STX char
-							// mDownloadQueue->pop();
-
 							// Send the frame for error detection
 							if (ErrorDetection())
 							{
@@ -817,9 +851,10 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss & Jeremy Lee
 	--
-	-- INTERFACE: ErrorDetection()
+	-- INTERFACE: bool ErrorDetection()
 	--
-	-- RETURNS: bool (success condition)
+	-- RETURNS: bool	- true if no error is detected; false if an error is
+	--					  detected or reaches timeout.
 	--
 	-- NOTES:
 	-- This function will be called when a Data Frame has been RECEIVED and
@@ -838,27 +873,30 @@ namespace protocoletariat
 		int timer = 0;
 
 		// Initialize frame and CRC holder
-		char frame[512];
-		char CRC[4];
+		char* frame = new char[512];
+		char* CRC = new char[4];
 
 		bool errorDetected = false;
 
 		while (timer < TIMEOUT)
 		{
 			// Get the 512 data characters from the download queue
-			for (int i = 1; i <= 513; i++)
+			for (int i = 2; i <= 514; i++)
 			{
 				// Read all chars from the front of the queue and remove it
-				frame[i - 1] = incFrame[i];
+				frame[i - 2] = incFrame[i];
 			}
 
-			for (int i = 514; (i - 514) < 4; i++)
+			for (int i = 515; (i - 515) < 4; i++)
 			{
 				// Read the remaining chars from the front of the queue as CRC
-				CRC[i - 514] = incFrame[i];
+				CRC[i - 515] = incFrame[i];
 			}
+
 			delete incFrame;
-			mDownloadQueue->pop();
+			incFrame = nullptr;
+			if (!mDownloadQueue->empty())
+				mDownloadQueue->pop();
 
 			// Implement CRC error detection -- use available source code
 			errorDetected = FileUploader::ValidateCrc(frame, CRC);

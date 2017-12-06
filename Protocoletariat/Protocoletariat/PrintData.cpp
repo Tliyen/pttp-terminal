@@ -22,16 +22,18 @@
 -- PROGRAMMER: Li-Yan Tong
 --
 -- NOTES:
--- This part of the program is part of a print thread responsible for 
--- displaying Packet transfer information and sucessfully transfered 
--- text data.  
+-- This part of the program is responsible for displaying transfered data 
+-- and updating log file statistics on the terminal Windows screen.
 --
 -- It gathers packet transfer information from a LogFile
 -- struct containing a count of sent, recieved, lost and corrupted
--- packets.
---
--- It gathers, prints and removes the latest print information from a
--- print data queue to display text files, character by character.
+-- packets.  The log statistics are shown before and after a
+-- transmission.
+-- 
+-- It assigns a pointer to the print data queue and displays the
+-- transferred data character by character onto the screen and updates
+-- the current x and y coordinates on screen accordingly.  After printing
+-- it removes the latest print information from a data queue.
 ----------------------------------------------------------------------*/
 
 #include "PrintData.h"
@@ -49,12 +51,13 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Li-Yan Tong
 	--
-	-- INTERFACE: void DrawLetter(paramPrintData* param)
-	--				param - This struct holds pointers to the windows GUI
-	--						fields required to print data in a terminal as
-	--						well as printable data
+	-- INTERFACE: DWORD WINAPI PrintReceivedData(paramPrintData* param)
 	--
-	-- RETURNS: DWORD WINAPI - 
+	-- ARGUMENT: param			- a pointer to the paramPrintData structure
+	--							  containing all the variables (windows GUI and print
+  --                data) required in PrintData functions.
+	--
+	-- RETURNS: DWORD WINAPI	- 0 if the intended functions run successfully
 	--
 	-- NOTES:
 	-- This function thread takes a paraPrintData struct to gather device 
@@ -203,26 +206,25 @@ namespace protocoletariat
 	}
 
 	/*----------------------------------------------------------------------
-	-- FUNCTION:	UpdateLog
+	-- FUNCTION:	PrintLog
 	--
-	-- DATE:		December 3, 2017
+	-- DATE:		December 5, 2017
 	--
 	-- DESIGNER:	Jeremy Lee, Luke Lee
 	--
 	-- PROGRAMMER:	Li-Yan Tong
 	--
-	-- INTERFACE:	void DrawCharsByRow(const TCHAR* chars,
-	--									unsigned int row)
+	-- INTERFACE:	void PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row, int* X, int* Y)
 	--
-	-- ARGUMENT:	hwnd		- Windows handle access GUI information
-	--				chars		- Pointer to the beginning of a character
+	-- ARGUMENT:	hwnd		- a pointer to the main Windows HWND handle.
+	--				chars		- pointer to the beginning of a character
 	--							  string to draw on the Window.
 	--				row			- Line number to draw a character string on.
 	--							  Starts from 0.
-	--				X			- int Pointer to x-coordinate of a caret to print
-	--							  characters
-	--				Y			- int Pointer to y-coordinate of a caret to print
-	--							  characters
+	--				X			- a pointer to an int representing the horizontal
+	--							  coordinate on the terminal screen.
+	--				Y			- a pointer to an int representing the vertical
+	--							  coordinate on the terminal screen.
 	--
 	-- RETURNS: void
 	--
