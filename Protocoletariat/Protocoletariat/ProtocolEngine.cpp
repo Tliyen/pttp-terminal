@@ -799,7 +799,7 @@ namespace protocoletariat
 	--
 	-- DESIGNER: Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
 	--
-	-- PROGRAMMER: Morgan Ariss
+	-- PROGRAMMER: Morgan Ariss & Jeremy Lee
 	--
 	-- INTERFACE: ErrorDetection()
 	--

@@ -16,6 +16,12 @@
 -- PROGRAMMER:	Jeremy Lee
 --
 -- NOTES:
+-- This thread is responsible for handling the uploading of the text file 
+-- to be send through the serial port. It gets all characters from the 
+-- intended file and crams them into a frame, then places the frame into 
+-- the UploadQueue where it can be grabbed by the protocol engine at the
+-- appropriate time. This functionality is achived through two functions
+-- working in tandum.
 ----------------------------------------------------------------------*/
 #include "FileDownloader.h"
 
@@ -156,9 +162,13 @@ namespace protocoletariat
 	-- ARGUMENT:	bufferFrame		-
 	--				charRead		-
 	--
-	-- RETURNS:		bool			-
+	-- RETURNS:		bool			- (success condition)
 	--
 	-- NOTES:
+	-- This function is called to combine all the chars read from the file
+	-- into a frame that can be placed in the upload queue. The frame is 
+	-- loaded into the already created char pointer, which is then called 
+	-- used by the calling function if the function returns true.
 	------------------------------------------------------------------*/
 	bool FileDownloader::combineCharsIntoFrame(std::vector<char>& bufferFrame, const char charRead)
 	{	// RVI bell char
