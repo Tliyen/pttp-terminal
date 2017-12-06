@@ -120,13 +120,11 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	uploadQ = new std::queue<char*>();
 	downloadQ = new std::queue<char*>();
 	dataToPrintQ = new std::queue<char*>();
+	dlReady = false;
+	protocolActive = false;
+	RVIflag = false;
 
 	StartEngine();
-
-	uploadQ->push("1");
-	uploadQ->push("2");
-	uploadQ->push("34");
-	uploadQ->push("5");
 
 	 //initial transfer
 	/*fileUploadParam->filePath = "c:\\test.txt";
