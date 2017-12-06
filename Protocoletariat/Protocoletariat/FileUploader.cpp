@@ -1,6 +1,7 @@
 /*----------------------------------------------------------------------
--- SOURCE FILE: FileUploader.cpp		-
---
+-- SOURCE FILE: FileUploader.cpp		- This file deals with the uploading
+--										  file event and assembles the text
+--										  characters into fixed-sized frames.
 --
 -- PROGRAM:		Protocoletariat
 --

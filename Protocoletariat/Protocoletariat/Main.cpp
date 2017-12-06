@@ -1,5 +1,8 @@
 /*----------------------------------------------------------------------
--- SOURCE FILE:	Main.cpp
+-- SOURCE FILE:	Main.cpp		- A wireless protocol communication
+--								  terminal program that will send and
+--								  read data from a text file in half-
+--								  duplex communication.
 --
 -- PROGRAM:		Protocoletariat
 --
