@@ -88,10 +88,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	lpszCommPort = lpszDefaultCommPort;
 
 	// initialize comm handle; if no serial port found, terminates the program
-	//if (!InitializeCommHandle(lpszCommPort))
-	//{
-	//	return 0;
-	//}
+	if (!InitializeCommHandle(lpszCommPort))
+	{
+		return 0;
+	}
 
 	logfile = new LogFile();
 	fileUploadParam = new paramFileUploader();
@@ -381,7 +381,8 @@ bool protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 
 	ccfg.dwSize = sizeof(COMMCONFIG);
 	ccfg.wVersion = 0x100;
-	if (!GetCommConfig(hComm, &ccfg, &ccfg.dwSize))
+	GetCommConfig(hComm, &ccfg, &ccfg.dwSize);
+	if (!CommConfigDialog(lpszCommPort, hwnd, &ccfg))
 	{
 		MessageBox(NULL, "Error getting the COM port configuration dialog", TEXT("Error"), MB_OK);
 		return false;
@@ -465,12 +466,12 @@ bool protocoletariat::ConfigureCommSettings(HWND hwnd)
 {
 	ccfg.dwSize = sizeof(COMMCONFIG);
 	ccfg.wVersion = 0x100;
-	if (!GetCommConfig(hComm, &ccfg, &ccfg.dwSize))
+	GetCommConfig(hComm, &ccfg, &ccfg.dwSize);
+	if (!CommConfigDialog(lpszCommPort, hwnd, &ccfg))
 	{
 		MessageBox(NULL, "Error getting the COM port configuration dialog", TEXT("Error"), MB_OK);
 		return false;
 	}
-	CommConfigDialog(lpszCommPort, hwnd, &ccfg);
 	if (!SetCommState(hComm, &ccfg.dcb))
 	{
 		MessageBox(NULL, "Error setting the COM port configuration", TEXT("Error"), MB_OK);
