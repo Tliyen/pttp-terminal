@@ -60,7 +60,7 @@ namespace protocoletariat
 		/*
 		//TESTING VALUES
 		char* tester = new char[512];
-		tester = "ok this is a test";
+		tester = "ok this is a testsadfohdsakfjdsakjfsldkjflasdjfaljsdfjklsadlfajlasdjlfjlsdkajfljdslfjlsdjlafjlsdjlfajasldjafljsadlfjlsadjlfjlsadjlfjlsdajfljsldajfljdslafjljsdalfjlasdjfljsldajflsd";
 
 		std::ostringstream ost;
 
@@ -114,62 +114,62 @@ namespace protocoletariat
 		*/
 
 		// Switch out with master switch boolean later
-		while (printDataActive) 
+		while (printDataActive)
 		{
 			if (!printQ->empty())
 			{
-			// Load up payload
-			char* payload = new char[512];
+				// Load up payload
+				char* payload = new char[512];
 
-			payload = printQ->front();
+				payload = printQ->front();
 
-			// Build Payload String
-			std::ostringstream ost;
-			ost << payload;
-			std::string payload_s = ost.str();
+				// Build Payload String
+				std::ostringstream ost;
+				ost << payload;
+				std::string payload_s = ost.str();
 
-			// Print Payload
-			PrintPayload(hwnd, (TCHAR*)payload_s.c_str(), mCurrentRow, pX, pY);
+				// Print Payload
+				PrintPayload(hwnd, (TCHAR*)payload_s.c_str(), mCurrentRow, pX, pY);
 
-			// Remove Data from queue.
-			printQ->pop();
+				// Remove Data from queue.
+				printQ->pop();
 
-			// Build Log
-			std::ostringstream oss;
+				// Build Log
+				std::ostringstream oss;
 
-			// Print Sent Packets
-			oss << "Sent Packets: " << logfile->sent_packet;
-			std::string logSent = oss.str();
-			PrintLog(hwnd,(const TCHAR*)logSent.c_str(), 0, pX, pY);
+				// Print Sent Packets
+				oss << "Sent Packets: " << logfile->sent_packet;
+				std::string logSent = oss.str();
+				PrintLog(hwnd, (const TCHAR*)logSent.c_str(), 0, pX, pY);
 
-			oss.str("");
-			oss.clear();
+				oss.str("");
+				oss.clear();
 
-			// Print Lost Packets
-			oss << "Lost Packets: " << logfile->lost_packet;
-			std::string logLost = oss.str();
-			PrintLog(hwnd,(const TCHAR*)logLost.c_str(), 1, pX, pY);
+				// Print Lost Packets
+				oss << "Lost Packets: " << logfile->lost_packet;
+				std::string logLost = oss.str();
+				PrintLog(hwnd, (const TCHAR*)logLost.c_str(), 1, pX, pY);
 
-			oss.str("");
-			oss.clear();
+				oss.str("");
+				oss.clear();
 
-			// Print Recieved Packets
-			oss << "Lost Packets: " << logfile->lost_packet;
-			std::string logReceive = oss.str();
-			PrintLog(hwnd,(const TCHAR*)logReceive.c_str(), 2, pX, pY);
+				// Print Recieved Packets
+				oss << "Lost Packets: " << logfile->lost_packet;
+				std::string logReceive = oss.str();
+				PrintLog(hwnd, (const TCHAR*)logReceive.c_str(), 2, pX, pY);
 
-			oss.str("");
-			oss.clear();
+				oss.str("");
+				oss.clear();
 
-			// Print Corrupt Packets
-			oss << "Corrupt Packets: : " << logfile->lost_packet;
-			std::string logCorrupt = oss.str();
-			PrintLog(hwnd,(const TCHAR*)logCorrupt.c_str(), 3, pX, pY);
+				// Print Corrupt Packets
+				oss << "Corrupt Packets: : " << logfile->lost_packet;
+				std::string logCorrupt = oss.str();
+				PrintLog(hwnd, (const TCHAR*)logCorrupt.c_str(), 3, pX, pY);
 
-			oss.str("");
-			oss.clear();
+				oss.str("");
+				oss.clear();
 
-			Sleep(2000);
+				Sleep(2000);
 			}
 		}
 
@@ -211,32 +211,34 @@ namespace protocoletariat
 		//const int offsetRightSide = 25;
 
 		*X = 0; // move to the beginning of line
-		//*Y = row; // move to this row
+		*Y = 0; // move to this row
 
 		hdc = GetDC(*hwnd); // Acquire DC
 		GetTextMetrics(hdc, &tm); // get text metrics
 		GetTextExtentPoint32(hdc, chars, _tcslen(chars), &size); // compute length of a string 
 
-		//*X += size.cx; // advance to end of previous string
-
-		// move to this row
+		//move to this row
 		while (row > 0)
 		{
 			*Y += tm.tmHeight + tm.tmExternalLeading; // next line
 			row--;
 		}
 
+		int charLength = size.cx;
 
 		if (GetWindowRect(*hwnd, &rect))
 		{
 			int width = rect.right - rect.left; // get Window width
-			if (*X >= width )//- offsetRightSide)
+			if (*X >= width)//- offsetRightSide)
 			{
 				*X = 0;
 				*Y = *Y + tm.tmHeight + tm.tmExternalLeading; // next line
 			}
 		}
+
 		TextOut(hdc, *X, *Y, chars, _tcslen(chars));  // Display string
+		*X += size.cx; // advance to end of previous string
+
 
 		//row = *Y; // Set Current row to last row printed
 		ReleaseDC(*hwnd, hdc); // release device context
