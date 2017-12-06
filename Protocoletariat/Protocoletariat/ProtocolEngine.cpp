@@ -484,10 +484,7 @@ namespace protocoletariat
 					else if (outFrame[1] == CHAR_STX)
 					{
 						// Transmit the data frame through the serial port
-						if (TransmitFrame(false, NULL))
-						{
-							mLogfile->sent_packet++;
-						}
+						TransmitFrame(false, NULL);
 						// Move to ConfirmTransmission
 						if (!ConfirmTransmission())
 						{
