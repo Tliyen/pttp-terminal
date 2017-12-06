@@ -136,8 +136,13 @@ namespace protocoletariat
 		OVERLAPPED& olWrite = ppe->olWrite;
 		DWORD& dwThreadExit = ppe->dwThreadExit;
 
+		OVERLAPPED osWrite = { 0 };
+
 		DWORD  dNoOfBytesWritten; // No of bytes written to the port
 		DWORD  dNoOFBytestoWrite; // No of bytes to write into the port
+
+		DWORD dwRes;
+		DWORD dwWritten;
 
 		char* lpBuffer;
 
@@ -149,7 +154,6 @@ namespace protocoletariat
 			// Event could not be created
 			return false;
 		}
-
 
 		if (control)
 		{
@@ -177,14 +181,13 @@ namespace protocoletariat
 			lpBuffer = outFrame;
 		}
 
-		dNoOfBytesWritten = 0;
 		dNoOFBytestoWrite = sizeof(lpBuffer);  // Calculating the no of bytes to write into the port
 
-		status = WriteFile(mHandle,             // Handle to the Serialport
+		status = WriteFile(*mHandle,             // Handle to the Serialport
 			lpBuffer,							// Data to be written to the port 
 			dNoOFBytestoWrite,					// No of bytes to write into the port
-			&dNoOfBytesWritten,					// No of bytes written to the port
-			NULL);
+			&dwRes,								// No of bytes written to the port
+			&osWrite);
 
 		delete lpBuffer;
 		return status;
@@ -253,7 +256,10 @@ namespace protocoletariat
 			if (!(mUploadQueue->empty()))
 			{
 				// Transmit ENQ
-				TransmitFrame(true, ASCII_ENQ);
+				if (TransmitFrame(true, ASCII_ENQ))
+				{
+					mLogfile->sent_packet++;
+				}
 
 				// Move to BidForLine
 				BidForLine();
@@ -386,7 +392,10 @@ namespace protocoletariat
 								// Clear download buffer
 								mDownloadQueue->empty();
 								// Transmit EOT control frame through serial port
-								TransmitFrame(true, ASCII_EOT);
+								if (TransmitFrame(true, ASCII_EOT))
+								{
+									mLogfile->sent_packet++;
+								}
 								// Move to LinkReset
 								LinkReset();
 								return;
@@ -395,8 +404,10 @@ namespace protocoletariat
 							else if (outFrame[1] == CHAR_EOT)
 							{
 								// Transmit EOT control frame through Serial Port
-								TransmitFrame(true, ASCII_EOT);
-
+								if (TransmitFrame(true, ASCII_EOT))
+								{
+									mLogfile->sent_packet++;
+								}
 								delete outFrame;
 								mUploadQueue->pop();
 								// Move to LinkReset
@@ -408,12 +419,14 @@ namespace protocoletariat
 							{
 								// Transmit the data frame through the serial port
 								TransmitFrame(false, NULL);
-
 								// Move to ConfirmTransmission
 								if (!ConfirmTransmission())
 								{
 									// Transmit EOT control frame through Serial Port
-									TransmitFrame(true, ASCII_EOT);
+									if (TransmitFrame(true, ASCII_EOT))
+									{
+										mLogfile->sent_packet++;
+									}
 									// Move to LinkReset
 									LinkReset();
 									return;
@@ -434,10 +447,6 @@ namespace protocoletariat
 		} while (dfs < 10); // 10 Frames confirmed
 		return;
 	}
-
-	/*
-	ConfirmTransmission
-	*/
 
 	/*----------------------------------------------------------------------
 	-- FUNCTION: ConfirmTransmission
@@ -653,11 +662,6 @@ namespace protocoletariat
 		}
 	}
 
-	/*
-	RECEIVE Data Side
-	This side of the protocol handles the receiving of data from the paired device.
-	*/
-
 	/*----------------------------------------------------------------------
 	-- FUNCTION: AcknowledgeBid
 	--
@@ -674,14 +678,17 @@ namespace protocoletariat
 	-- NOTES:
 	-- This function will be called when an ENQ has been RECEIVED in the 
 	-- Idle state.
-	-- This is the first state of the Protocol on the Receive side; This state 
+	-- This is the first state of the Protocol on the Receive side; this state 
 	-- is necessary to acknowledge the other device’s bid for the line. It's 
 	-- only responsibility is to send an ACK control frame to the paired device.
 	----------------------------------------------------------------------*/
 	void ProtocolEngine::AcknowledgeBid()
 	{
 		// Transmit ACK control frame
-		TransmitFrame(true, ASCII_ACK);
+		if (TransmitFrame(true, ASCII_ACK))
+		{
+			mLogfile->sent_packet++;
+		}
 		// Move to ReceiveData
 		ReceiveData();
 	}
@@ -834,7 +841,6 @@ namespace protocoletariat
 			{
 				// Read all chars from the front of the queue and remove it
 				frame[i - 1] = incFrame[i];
-
 			}
 
 			for (int i = 514; (i - 514) < 4; i++)
@@ -863,7 +869,10 @@ namespace protocoletariat
 				// Increment the logfile successful frames counter
 				mLogfile->sent_packet++;
 				// Transmit ACK control frame
-				TransmitFrame(true, ASCII_ACK);
+				if (TransmitFrame(true, ASCII_ACK))
+				{
+					mLogfile->sent_packet++;
+				}
 				// Move back to ReceiveData
 				return true;
 			}
