@@ -2,12 +2,14 @@
 
 #include <queue>
 #include <windows.h>
+#include "PrintData.h"
 
 namespace protocoletariat
 {
 	struct paramFileDownloader
 	{
 		std::queue<char*>* downloadQueue;
+		std::queue<char*>* printQueue;
 		HANDLE* handle;
 		OVERLAPPED* olRead;
 		DWORD* dwThreadExit;
@@ -33,5 +35,6 @@ namespace protocoletariat
 		static const char RVI = 7;
 
 		static bool* rviReceived;
+		static std::queue<char*>* pq;
 	};
 }

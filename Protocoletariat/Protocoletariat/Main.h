@@ -15,8 +15,7 @@ namespace protocoletariat
 	LPTSTR		lpszCommPort;
 	COMMCONFIG	ccfg;
 	OVERLAPPED olRead, olWrite;
-	HANDLE hThrd, hComm, hEvent;
-	DWORD dwThreadID, dwThreadExit;
+	HANDLE hComm, hEvent;
 
 	// bCommOn to be used as global flag
 	bool		bCommOn;
@@ -53,8 +52,6 @@ namespace protocoletariat
 	bool InitializeCommHandle(LPTSTR CommPort);
 	bool SwitchCommPort(int commPort);
 	bool ConfigureCommSettings(HWND hwnd);
-	boolean StartCommunication(HWND hwnd);
-	DWORD WINAPI DoRead(LPVOID lpvThreadParm);
 
 	void ClearQueue(std::queue<char*>* q);
 	void CleanUp();

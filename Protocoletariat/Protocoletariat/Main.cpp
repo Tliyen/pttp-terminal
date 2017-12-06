@@ -517,6 +517,7 @@ void protocoletariat::StartEngine()
 	fileDownloadParam->dlReady = &dlReady;
 	fileDownloadParam->RVIflag = &RVIflag;
 	fileDownloadParam->hEvent = &hEvent;
+	fileDownloadParam->printQueue = dataToPrintQ;
 
 	PurgeComm(hComm, PURGE_RXCLEAR); // clean out pending bytes
 	PurgeComm(hComm, PURGE_TXCLEAR); // clean out pending bytes

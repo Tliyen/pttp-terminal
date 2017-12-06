@@ -233,24 +233,24 @@ namespace protocoletariat
 			}
 
 			// A signal has been received
-			if (WaitCommEvent(mHandle, &dwEvent, NULL))
+			//if (WaitCommEvent(mHandle, &dwEvent, NULL))
+			//{
+			//Sleep(20);
+			if (*mDownloadReady)
 			{
-				Sleep(20);
-				if (*mDownloadReady)
-				{
-					// read the front frame from the downloadQueue into frame
-					incFrame = mDownloadQueue->front();
+				// read the front frame from the downloadQueue into frame
+				incFrame = mDownloadQueue->front();
 
-					// Check if the front of the queue an ENQ
-					if (incFrame[1] == CHAR_ENQ)
-					{
-						incFrame = nullptr;
-						AcknowledgeBid();
-						*mDownloadReady = false;
-						break;
-					}
+				// Check if the front of the queue an ENQ
+				if (incFrame[1] == CHAR_ENQ)
+				{
+					incFrame = nullptr;
+					AcknowledgeBid();
+					*mDownloadReady = false;
+					break;
 				}
 			}
+			//}
 
 			// If this device wants to take the handle
 			if (!(mUploadQueue->empty()))
@@ -266,7 +266,7 @@ namespace protocoletariat
 			}
 		}
 	}
-	
+
 	/*----------------------------------------------------------------------
 	-- FUNCTION: BidForLine
 	--
@@ -282,9 +282,9 @@ namespace protocoletariat
 	--
 	-- NOTES:
 	-- This function will be called when an ENQ has been TRANSMITTED.
-	-- The program must wait to RECEIVE an ACK from the paired device to ensure 
-	-- that it is ready to receive data. If it does, it can proceed down the 
-	-- TRANSMIT tree. If the timeout expires before that time, the device must 
+	-- The program must wait to RECEIVE an ACK from the paired device to ensure
+	-- that it is ready to receive data. If it does, it can proceed down the
+	-- TRANSMIT tree. If the timeout expires before that time, the device must
 	-- move to the link reset delay state.
 	----------------------------------------------------------------------*/
 	void ProtocolEngine::BidForLine()
@@ -345,16 +345,16 @@ namespace protocoletariat
 	-- RETURNS: void
 	--
 	-- NOTES:
-	-- This method will be called if ACK has been RECEIVED in the BidForLine 
-	-- state OR returning from ConfirmTransmission OR a Retransmit has been 
+	-- This method will be called if ACK has been RECEIVED in the BidForLine
+	-- state OR returning from ConfirmTransmission OR a Retransmit has been
 	-- acknowledged.
-	-- The program’s bid for the line has been acknowledged and the other 
-	-- system is moving into a RECEIVING state. The program will start a 
-	-- loop to wait for the CommEvent triggered by the upload buffer. 
-	-- The program will send the frame,created in the File Upload Thread, 
-	-- at the front of it’s queue. It will then move to the ConfirmTransmission 
-	-- state on a Data Frame transmission. If the EOT Control Frame is submitted 
-	-- or the system has sent 10 frames, it will instead proceed to the LinkReset 
+	-- The program’s bid for the line has been acknowledged and the other
+	-- system is moving into a RECEIVING state. The program will start a
+	-- loop to wait for the CommEvent triggered by the upload buffer.
+	-- The program will send the frame,created in the File Upload Thread,
+	-- at the front of it’s queue. It will then move to the ConfirmTransmission
+	-- state on a Data Frame transmission. If the EOT Control Frame is submitted
+	-- or the system has sent 10 frames, it will instead proceed to the LinkReset
 	-- State.
 	----------------------------------------------------------------------*/
 	void ProtocolEngine::SendData()
@@ -463,10 +463,10 @@ namespace protocoletariat
 	--
 	-- NOTES:
 	-- This function will be called when a Data Frame has been TRANSMITTED.
-	-- The program must wait for an ACK control frames from the paired device 
-	-- to continue with its transmission. If the program RECEIVES the ACK 
-	-- Control Frame it can pop the TRANSMITTED Data Frame from the queue 
-	-- and return to the SendData state. If the timeout expires, then the 
+	-- The program must wait for an ACK control frames from the paired device
+	-- to continue with its transmission. If the program RECEIVES the ACK
+	-- Control Frame it can pop the TRANSMITTED Data Frame from the queue
+	-- and return to the SendData state. If the timeout expires, then the
 	-- program will instead move to the Retransmit state.
 	----------------------------------------------------------------------*/
 	bool ProtocolEngine::ConfirmTransmission()
@@ -541,10 +541,10 @@ namespace protocoletariat
 	-- NOTES:
 	-- This function will be called when a Data Frame has been TRANSMITTED
 	-- but the system has timed out before an ACK has been recieved.
-	-- The program will attempt three retransmissions of the same frame, 
-	-- and wait to RECEIVE the ACK. If all three transmissions fail, then 
-	-- the program will move to the LinkDelay state. If however, one of the 
-	-- transmission is responded to by an ACK then the program will pop the 
+	-- The program will attempt three retransmissions of the same frame,
+	-- and wait to RECEIVE the ACK. If all three transmissions fail, then
+	-- the program will move to the LinkDelay state. If however, one of the
+	-- transmission is responded to by an ACK then the program will pop the
 	-- front frame from the output queue and return to the SendData state.
 	----------------------------------------------------------------------*/
 	bool ProtocolEngine::Retransmit()
@@ -613,11 +613,11 @@ namespace protocoletariat
 	-- RETURNS: void
 	--
 	-- NOTES:
-	-- This function will be called when any previous state on the TRANSMIT 
+	-- This function will be called when any previous state on the TRANSMIT
 	-- side has experienced a timeout expiry, or failed.
-	-- This state exists as a buffer for the post-TRANSMIT states, to stop one 
-	-- device from hogging the line. This state begins a TOR, and listens to 
-	-- RECEIVE an ENQ from the pair device. If the TOR expires before an ENQ 
+	-- This state exists as a buffer for the post-TRANSMIT states, to stop one
+	-- device from hogging the line. This state begins a TOR, and listens to
+	-- RECEIVE an ENQ from the pair device. If the TOR expires before an ENQ
 	-- is RECEIVED, the program move to the idle state.
 	----------------------------------------------------------------------*/
 	void ProtocolEngine::LinkReset()
@@ -676,10 +676,10 @@ namespace protocoletariat
 	-- RETURNS: void
 	--
 	-- NOTES:
-	-- This function will be called when an ENQ has been RECEIVED in the 
+	-- This function will be called when an ENQ has been RECEIVED in the
 	-- Idle state.
-	-- This is the first state of the Protocol on the Receive side; this state 
-	-- is necessary to acknowledge the other device’s bid for the line. It's 
+	-- This is the first state of the Protocol on the Receive side; this state
+	-- is necessary to acknowledge the other device’s bid for the line. It's
 	-- only responsibility is to send an ACK control frame to the paired device.
 	----------------------------------------------------------------------*/
 	void ProtocolEngine::AcknowledgeBid()
@@ -707,12 +707,12 @@ namespace protocoletariat
 	-- RETURNS: void
 	--
 	-- NOTES:
-	-- This function will be called when An ACK has been TRANSMITTED from the 
+	-- This function will be called when An ACK has been TRANSMITTED from the
 	-- AcknowledgeBid state in response to the RECEIVED ENQ.
-	-- This state will prepare the system to RECEIVE Data Frames from the serial 
-	-- port. This state will wait for a Data Frame from the serial port, until 
-	-- the timeout expires. This timeout is required to be 3 times longer than 
-	-- the corresponding wait on the TRANSMIT Data Side since it must account 
+	-- This state will prepare the system to RECEIVE Data Frames from the serial
+	-- port. This state will wait for a Data Frame from the serial port, until
+	-- the timeout expires. This timeout is required to be 3 times longer than
+	-- the corresponding wait on the TRANSMIT Data Side since it must account
 	-- for 3 failed transmissions.
 	----------------------------------------------------------------------*/
 	void ProtocolEngine::ReceiveData()
@@ -813,14 +813,14 @@ namespace protocoletariat
 	-- RETURNS: bool (success condition)
 	--
 	-- NOTES:
-	-- This function will be called when a Data Frame has been RECEIVED and 
+	-- This function will be called when a Data Frame has been RECEIVED and
 	-- needs to be checked for errors.
-	-- This state will handle the detection of errors using the CRC at the 
-	-- end of the of the Data Frame. All remaining bytes will be read from 
-	-- the download queue; the first 512 will be the data bytes, the next 4 
-	-- will be the CRC bytes. If no error is detected the system will TRANSMIT 
-	-- an ACK, send the received data to be printed, and return to the Receive 
-	-- state. Otherwise the system will timeout and return to the Receive state 
+	-- This state will handle the detection of errors using the CRC at the
+	-- end of the of the Data Frame. All remaining bytes will be read from
+	-- the download queue; the first 512 will be the data bytes, the next 4
+	-- will be the CRC bytes. If no error is detected the system will TRANSMIT
+	-- an ACK, send the received data to be printed, and return to the Receive
+	-- state. Otherwise the system will timeout and return to the Receive state
 	-- without TRANSMITTING an ACK. This timeout must be very short.
 	----------------------------------------------------------------------*/
 	bool ProtocolEngine::ErrorDetection()

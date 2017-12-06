@@ -27,6 +27,7 @@
 namespace protocoletariat
 {
 	bool* FileDownloader::rviReceived = nullptr;
+	std::queue<char*>* FileDownloader::pq = nullptr;
 
 	/*------------------------------------------------------------------
 	-- FUNCTION:	ReadSerialPort
@@ -66,6 +67,7 @@ namespace protocoletariat
 		rviReceived = param->RVIflag; // member variable
 		HANDLE* hEvent = param->hEvent;
 		DWORD dwRead, dwLrc, dwEndTime;
+		pq = param->printQueue;
 		char bufferChar[2] = "";
 		std::vector<char> bufferFrame(MAX_FRAME_SIZE);
 		char* frame;
@@ -174,6 +176,10 @@ namespace protocoletariat
 	------------------------------------------------------------------*/
 	bool FileDownloader::combineCharsIntoFrame(std::vector<char>& bufferFrame, const char charRead)
 	{	// RVI bell char
+		//char* a = new char[1];
+		//a[0] = charRead;
+		//pq->push(a);
+
 		if (bufferFrame.size() == 0) // frame empty
 		{
 			if (charRead != SYN) // first char to put in frame is not SYN
