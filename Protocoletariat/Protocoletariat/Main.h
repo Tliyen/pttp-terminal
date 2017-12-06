@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <strsafe.h>
 #include <queue>
-#include "global.h"
 
 namespace protocoletariat
 {
@@ -28,6 +27,7 @@ namespace protocoletariat
 	std::queue<char*> dataToPrintQ;
 	LogFile* logfile;
 	bool globalRVI;
+	bool dlReady;
 
 	// Thread handles
 	HANDLE uploadThrd, downloadThrd, printThrd, protocolThrd;

@@ -45,6 +45,7 @@
 #define STRICT
 
 #include "Menu.h"
+#include "global.h"
 #include "Main.h"
 #include "FileUploader.h"
 #include "FileDownloader.h"
@@ -339,10 +340,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 		break;
 
 	case WM_DESTROY: // terminate program
-		if (IDOK == MessageBox(hwnd, "OK to close window?", "Exit", MB_ICONQUESTION | MB_OKCANCEL))
-		{
-			CleanUp();
-		}
+		CleanUp();
 		break;
 
 	default:
@@ -510,6 +508,7 @@ void protocoletariat::StartEngine()
 	fileDownloadParam->olRead = olRead;
 	fileDownloadParam->dwThreadExit = readThreadExit;
 	fileDownloadParam->handle = &hComm;
+	fileDownloadParam->downloadReady = &dlReady;
 	downloadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
 	
 	// initialize print data thread
@@ -530,7 +529,8 @@ void protocoletariat::StartEngine()
 	protocolParam->dwThreadExit = writeThreadExit;
 	protocolParam->hComm = &hComm;
 	protocolParam->logfile = logfile;
-	protocolThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ProtocolThread, protocolParam, 0, &protocolThrdID);
+	protocolParam->downloadReady = &dlReady;
+	protocolThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ProtocolEngine::ProtocolThread, protocolParam, 0, &protocolThrdID);
 }
 
 /*----------------------------------------------------------------------
