@@ -196,7 +196,7 @@ namespace protocoletariat
 				oss.str("");
 				oss.clear();
 
-				Sleep(2000);
+				Sleep(500);
 			}
 		}
 

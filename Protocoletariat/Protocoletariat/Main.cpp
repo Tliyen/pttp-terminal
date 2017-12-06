@@ -626,6 +626,10 @@ void protocoletariat::CleanUp()
 
 void protocoletariat::TerminateProgram()
 {
+	PurgeComm(hComm, PURGE_RXCLEAR); // clean out pending bytes
+	PurgeComm(hComm, PURGE_TXCLEAR); // clean out pending bytes
+	CloseHandle(hComm);
+
 	CloseHandle(uploadThrd);
 	CloseHandle(downloadThrd);
 	CloseHandle(printThrd);
@@ -640,6 +644,5 @@ void protocoletariat::TerminateProgram()
 	delete downloadQ;
 	delete dataToPrintQ;
 
-	CloseHandle(hComm);
 	PostQuitMessage(0);
 }
