@@ -214,28 +214,33 @@ namespace protocoletariat
 		GetTextMetrics(hdc, &tm); // get text metrics
 		GetTextExtentPoint32(hdc, letter, 1, &size); // compute length of a string 
 
-		//move to this row
-		if (mCurrentRow == 1) {
-			while (row > 0)
-			{
-				*Y += tm.tmHeight + tm.tmExternalLeading; // next line
-				row--;
-			}
-		}
 
-		TextOut(hdc, *X, *Y, letter, 1);  // Display string
-		*X += size.cx; // advance to end of previous string
-		ReleaseDC(*hwnd, hdc); // release device context
 
-		if (GetWindowRect(*hwnd, &rect))
-		{
-			int width = rect.right - rect.left; // get Window width
-			if (*X >= width)
-			{
-				*X = 0;
-				*Y = *Y + tm.tmHeight + tm.tmExternalLeading; // next line
+		//if (*letter != -51)
+		//{
+			//move to this row
+			if (mCurrentRow == 1) {
+				while (row > 0)
+				{
+					*Y += tm.tmHeight + tm.tmExternalLeading; // next line
+					row--;
+				}
 			}
-		}
-		mCurrentRow += *Y; // Set Current row to last row printed
+
+			TextOut(hdc, *X, *Y, letter, 1);  // Display string
+			*X += size.cx; // advance to end of previous string
+			ReleaseDC(*hwnd, hdc); // release device context
+
+			if (GetWindowRect(*hwnd, &rect))
+			{
+				int width = rect.right - rect.left; // get Window width
+				if (*X >= width)
+				{
+					*X = 0;
+					*Y = *Y + tm.tmHeight + tm.tmExternalLeading; // next line
+				}
+			}
+			mCurrentRow += *Y; // Set Current row to last row printed
+		//}
 	}
 }
