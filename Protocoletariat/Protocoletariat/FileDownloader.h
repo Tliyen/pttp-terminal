@@ -11,6 +11,8 @@ namespace protocoletariat
 		HANDLE* handle;
 		OVERLAPPED& olRead = *(new OVERLAPPED());
 		DWORD& dwThreadExit = *(new DWORD());
+		bool* dlReady;
+		bool* RVIflag;
 	};
 
 	static class FileDownloader
@@ -28,5 +30,7 @@ namespace protocoletariat
 		static const char ENQ = 5;
 		static const char ACK = 6;
 		static const char RVI = 7;
+
+		static bool* rviReceived;
 	};
 }
