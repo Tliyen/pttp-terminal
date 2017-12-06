@@ -15,7 +15,15 @@
 -- PROGRAMMER: Li-Yan Tong and Morgan Ariss
 --
 -- NOTES:
--- The program is responsible for displaying transfered data and
+-- The program is responsible for displaying transfered data and updating
+-- log file statistics on the terminal Windows screen.
+-- 
+-- It assigns a pointer to the print data queue and displays the
+-- transferred data character by character onto the screen and updates
+-- the current x and y coordinates on screen accordingly.
+--
+-- This class also display the log statistics before and after a
+-- transmission.
 ----------------------------------------------------------------------*/
 
 #include "PrintData.h"
@@ -36,7 +44,11 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Li-Yan Tong
 	--
-	-- INTERFACE: void DrawLetter(HWND hwnd, char* letter)
+	-- INTERFACE: void PrintReceivedData(paramPrintData* param)
+	--
+	-- ARGUMENT: param		- a pointer to the paramPrintData structure
+	--						  containing all the variables required in
+	--						  PrintData functions.
 	--
 	-- RETURNS: void
 	--
@@ -273,21 +285,24 @@ namespace protocoletariat
 	}
 
 	/*----------------------------------------------------------------------
-	-- FUNCTION:	UpdateLog
+	-- FUNCTION:	PrintLog
 	--
-	-- DATE:		October 15, 2017
+	-- DATE:		December 5, 2017
 	--
 	-- DESIGNER:	Jeremy Lee, Luke Lee
 	--
 	-- PROGRAMMER:	Li-Yan Tong
 	--
-	-- INTERFACE:	void DrawCharsByRow(const TCHAR* chars,
-	--									unsigned int row)
+	-- INTERFACE:	void PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row, int* X, int* Y)
 	--
-	-- ARGUMENT:	chars		- Pointer to the beginning of a character
-	--							  string to draw on the Window.
+	-- ARGUMENT:	hwnd		- a pointer to the main Windows HWND handle.
+	--				chars		- character to be printed on the terminal
 	--				row			- Line number to draw a character string on.
 	--							  Starts from 0.
+	--				X			- a pointer to an int representing the horizontal
+	--							  coordinate on the terminal screen.
+	--				Y			- a pointer to an int representing the vertical
+	--							  coordinate on the terminal screen.
 	--
 	-- RETURNS: void
 	--
