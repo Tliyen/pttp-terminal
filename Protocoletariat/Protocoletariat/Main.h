@@ -7,7 +7,7 @@
 
 namespace protocoletariat
 {
-	// Global variables - for creating WinMain
+	// Main variables - for creating WinMain
 	const TCHAR tchrProgramName[] = TEXT("PTTP Protocol");
 	const LPTSTR lpszDefaultCommPort = TEXT("COM1"); // default port
 
@@ -17,20 +17,19 @@ namespace protocoletariat
 	OVERLAPPED olRead, olWrite;
 	HANDLE hComm, hEvent;
 
-	// bCommOn to be used as global flag
-	bool		bCommOn;
-
 	int indexReadChar = 0;
 	int X = 0, Y = 0; // current str coordinates
 
-	// Global variables - for Protocol Comm
+	bool bCommOn;
+	bool globalRVI;
+
+	// variables to pass - for Protocol Comm
 	std::queue<char*>* uploadQ;
 	std::queue<char*>* downloadQ;
 	std::queue<char*>* dataToPrintQ;
 	LogFile* logfile;
 	bool dlReady; // flag for download ready
 	bool RVIflag; // flag becomes true when RVI event detected
-	bool globalRVI;
 
 	// Thread handles
 	HANDLE uploadThrd, downloadThrd, printThrd, protocolThrd;

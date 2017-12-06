@@ -8,7 +8,7 @@
 #include "atlstr.h"
 #include <vector>
 #include <queue>
-#include "global.h"
+#include "Global.h"
 #include <sstream>
 //#include "Main.h"
 
