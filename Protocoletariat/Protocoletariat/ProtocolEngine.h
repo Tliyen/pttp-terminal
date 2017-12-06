@@ -20,6 +20,7 @@
 #include "global.h"
 #include <queue>
 #include <stdio.h>
+#include "FileUploader.h"
 
 namespace protocoletariat
 {

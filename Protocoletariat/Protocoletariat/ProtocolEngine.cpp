@@ -23,14 +23,14 @@
 -- PROGRAMMER: Morgan Ariss and Li-Yan Tong
 --
 -- NOTES:
--- The program is responsible for ensuring that communications stays 
--- within the confines of the Protocol.  It simulates bi-directional 
--- communication between two linked devices and manages the data traffic 
+-- The program is responsible for ensuring that communications stays
+-- within the confines of the Protocol.  It simulates bi-directional
+-- communication between two linked devices and manages the data traffic
 -- through a wireless connection.
 --
--- The program is triggered by events to actively check if there is data 
--- set to be uploaded or downloaded and will evenly prioritize data transfer 
--- by utilizing event triggers.  This program ensures that the system is only 
+-- The program is triggered by events to actively check if there is data
+-- set to be uploaded or downloaded and will evenly prioritize data transfer
+-- by utilizing event triggers.  This program ensures that the system is only
 -- sending or receiving when it is intended to be doing so.
 --
 -- When a file requires immediate transfer, the program will listen for
@@ -53,7 +53,7 @@ namespace protocoletariat
 	// const char* ProtocolEngine::ENQframe = CHAR_SYN + ASCII_ENQ;
 	// const char* ProtocolEngine::ACKframe = { ASCII_SYN, ASCII_ACK };
 	// const char* ProtocolEngine::EOTframe = { ASCII_SYN, ASCII_EOT };
-	
+
 	char* ProtocolEngine::incFrame;
 	char* ProtocolEngine::outFrame;
 
@@ -63,7 +63,7 @@ namespace protocoletariat
 	bool* ProtocolEngine::mRVIflag;
 
 	bool ProtocolEngine::protocolActive;
-	
+
 	HANDLE* ProtocolEngine::mHandle = nullptr;
 	// OVERLAPPED& ProtocolEngine::olWrite;
 	// DWORD& ProtocolEngine::dwThreadExit;
@@ -85,9 +85,9 @@ namespace protocoletariat
 		mPrintQueue = param->printQueue;
 
 		mLogfile = param->logfile;
-		
+
 		mHandle = param->hComm;
-		
+
 		// olWrite = param->olWrite;
 		// dwThreadExit = param->dwThreadExit;
 
@@ -99,7 +99,7 @@ namespace protocoletariat
 		linkReceivedENQ = false;
 
 		protocolActive = true;
-		
+
 		Idle();
 
 		return 0;
@@ -124,13 +124,13 @@ namespace protocoletariat
 	-- RETURNS: bool (success condition)
 	--
 	-- NOTES:
-	-- This function is called upon by the other ProtocolEngine functions to 
+	-- This function is called upon by the other ProtocolEngine functions to
 	-- transmit the necessary data through the serial port.
 	--
-	-- It will send either control frames to signal action from the partnered 
+	-- It will send either control frames to signal action from the partnered
 	-- device, or data frames when the other device is ready to receive them.
 	----------------------------------------------------------------------*/
-	
+
 	bool ProtocolEngine::TransmitFrame(bool control, char type)
 	{
 		OVERLAPPED& olWrite = ppe->olWrite;
@@ -138,37 +138,37 @@ namespace protocoletariat
 
 		DWORD  dNoOfBytesWritten; // No of bytes written to the port
 		DWORD  dNoOFBytestoWrite; // No of bytes to write into the port
-		
+
 		char* lpBuffer;
-		
+
 		bool status;
 
-		olWrite.hEvent= CreateEvent(NULL, true, false, NULL);
+		olWrite.hEvent = CreateEvent(NULL, true, false, NULL);
 		if (olWrite.hEvent == NULL)
 		{
 			// Event could not be created
 			return false;
 		}
-		
-		
-		if(control)
+
+
+		if (control)
 		{
 			lpBuffer = new char[CONTROL_FRAME_SIZE];
 			lpBuffer[0] = CHAR_SYN;
-			switch(type)
+			switch (type)
 			{
-				case ASCII_ENQ:
-					lpBuffer[1] = CHAR_ENQ;
-					break;
-				case ASCII_ACK:
-					lpBuffer[1] = CHAR_ACK;
-					break;
-				case ASCII_EOT:
-					lpBuffer[1] = CHAR_EOT;
-					break;
-				default:
-					//should not get here
-					break;
+			case ASCII_ENQ:
+				lpBuffer[1] = CHAR_ENQ;
+				break;
+			case ASCII_ACK:
+				lpBuffer[1] = CHAR_ACK;
+				break;
+			case ASCII_EOT:
+				lpBuffer[1] = CHAR_EOT;
+				break;
+			default:
+				//should not get here
+				break;
 			}
 		}
 		else
@@ -176,15 +176,15 @@ namespace protocoletariat
 			lpBuffer = new char[DATA_FRAME_SIZE];
 			lpBuffer = outFrame;
 		}
-		
-		dNoOfBytesWritten = 0;          
+
+		dNoOfBytesWritten = 0;
 		dNoOFBytestoWrite = sizeof(lpBuffer);  // Calculating the no of bytes to write into the port
 
 		status = WriteFile(mHandle,             // Handle to the Serialport
-						   lpBuffer,            // Data to be written to the port 
-						   dNoOFBytestoWrite,   // No of bytes to write into the port
-						   &dNoOfBytesWritten,  // No of bytes written to the port
-						   NULL);
+			lpBuffer,            // Data to be written to the port 
+			dNoOFBytestoWrite,   // No of bytes to write into the port
+			&dNoOfBytesWritten,  // No of bytes written to the port
+			NULL);
 
 		delete lpBuffer;
 		return status;
@@ -204,18 +204,18 @@ namespace protocoletariat
 	-- RETURNS: void
 	--
 	-- NOTES:
-	-- This is the default state of the main protocol engine, it is the first 
-	-- function called by the ProtocolEngine thread, and it has only two 
-	-- directions: 
-	-- If there are no frames inside the program’s output queue it simply waits 
-	-- for an ENQ from the paired system; otherwise, if there are frames inside 
-	-- the output queue waiting to be sent, the device will transmit an ENQ to 
+	-- This is the default state of the main protocol engine, it is the first
+	-- function called by the ProtocolEngine thread, and it has only two
+	-- directions:
+	-- If there are no frames inside the program’s output queue it simply waits
+	-- for an ENQ from the paired system; otherwise, if there are frames inside
+	-- the output queue waiting to be sent, the device will transmit an ENQ to
 	-- the paired device (hopefully) also in the idle state.
 	----------------------------------------------------------------------*/
 	void ProtocolEngine::Idle()
 	{
 		// Loop
-		while(protocolActive)
+		while (protocolActive)
 		{
 			if (*mRVIflag)
 			{
@@ -228,9 +228,9 @@ namespace protocoletariat
 				linkReceivedENQ = false;
 				AcknowledgeBid();
 			}
-			
+
 			// A signal has been received
-			if(WaitCommEvent (mHandle, &dwEvent, NULL))
+			if (WaitCommEvent(mHandle, &dwEvent, NULL))
 			{
 				Sleep(20);
 				if (*mDownloadReady)
@@ -248,13 +248,13 @@ namespace protocoletariat
 					}
 				}
 			}
-			
+
 			// If this device wants to take the handle
-			if(*mUploadQueue->front() != NULL)
+			if (*mUploadQueue->front() != NULL)
 			{
 				// Transmit ENQ
 				TransmitFrame(true, ASCII_ENQ);
-				
+
 				// Move to BidForLine
 				BidForLine();
 			}
@@ -270,12 +270,12 @@ namespace protocoletariat
 	{
 		// Start TOS
 		int timer = 0;
-		
+
 		// Loop while timeout has not exceeded
-		while(timer < TIMEOUT)
+		while (timer < TIMEOUT)
 		{
 			// Check for a CommEventTrigger
-			if (WaitCommEvent (mHandle, &dwEvent, NULL))
+			if (WaitCommEvent(mHandle, &dwEvent, NULL))
 			{
 				int innerTimer = 0;
 				while (timer < TIMEOUT && innerTimer < INNER_TIMEOUT)
@@ -320,14 +320,14 @@ namespace protocoletariat
 		// Start TOS
 		int timer = 0;
 		int dfs = 0;
-		
+
 		do
-		{	
+		{
 			// Loop while the timeout has no exceeded
-			while(timer < TIMEOUT)
+			while (timer < TIMEOUT)
 			{
 				// If CommEvent Triggered
-				if (WaitCommEvent (mHandle, &dwEvent, NULL))
+				if (WaitCommEvent(mHandle, &dwEvent, NULL))
 				{
 					int innerTimer = 0;
 					while (timer < TIMEOUT && innerTimer < INNER_TIMEOUT)
@@ -408,15 +408,15 @@ namespace protocoletariat
 	{
 		// Start TOR
 		int timer = 0;
-		
+
 		//initialize success
 		bool success = false;
-		
+
 		// Loop while timeout has not expired
-		while(timer < TIMEOUT && success == false)
+		while (timer < TIMEOUT && success == false)
 		{
 			// If CommEvent Triggered
-			if (WaitCommEvent (mHandle, &dwEvent, NULL))
+			if (WaitCommEvent(mHandle, &dwEvent, NULL))
 			{
 				int innerTimer = 0;
 				while (timer < 200 && innerTimer < 30)
@@ -449,13 +449,13 @@ namespace protocoletariat
 			Sleep(10);
 			timer++;
 		} // TOR expires
-		
-		if(success == false)
+
+		if (success == false)
 		{
 			// Move to retransmit
 			success = Retransmit();
 		}
-		
+
 		//return success
 		return success;
 	}
@@ -469,19 +469,19 @@ namespace protocoletariat
 	{
 		// Initialize txCounter variable to 1
 		int txCounter = 1;
-		
+
 		// Start TOR
 		int timer = 0;
-		
+
 		// Retransmit up to 3 times
 		do
 		{
 			TransmitFrame(false, NULL);
 			// Loop while timer has not expired
-			while(timer < TIMEOUT)
+			while (timer < TIMEOUT)
 			{
 				// If CommEvent Triggered
-				if (WaitCommEvent (mHandle, &dwEvent, NULL))
+				if (WaitCommEvent(mHandle, &dwEvent, NULL))
 				{
 					int innerTimer = 0;
 					while (timer < TIMEOUT && innerTimer < INNER_TIMEOUT)
@@ -512,7 +512,7 @@ namespace protocoletariat
 			} // TOR expires
 			txCounter++;
 		} while (txCounter < 3);
-		
+
 		//return
 		return false;
 	}
@@ -526,12 +526,12 @@ namespace protocoletariat
 	{
 		// Start TOR
 		int timer = 0;
-		
+
 		// Loop while timeout has not expired
-		while(timer < TIMEOUT)
+		while (timer < TIMEOUT)
 		{
 			// If CommEvent Triggered
-			if (WaitCommEvent (mHandle, &dwEvent, NULL))
+			if (WaitCommEvent(mHandle, &dwEvent, NULL))
 			{
 				int innerTimer = 0;
 				while (timer < TIMEOUT && innerTimer < INNER_TIMEOUT)
@@ -561,12 +561,12 @@ namespace protocoletariat
 			}
 			Sleep(10);
 			timer++;
-		}		
+		}
 	}
 
 	/*
 	RECEIVE Data Side
-	This side of the protocol handles the receiving of data from the paired device. 
+	This side of the protocol handles the receiving of data from the paired device.
 	*/
 
 	/*
@@ -591,19 +591,19 @@ namespace protocoletariat
 	{
 		// Start TOR
 		int timer = 0;
-		
+
 		// Initialize error detection success
 		bool errorDetection = false;
-		
+
 		// Initialize recieved/failed frames counter
 		int RxCounter = 0;
 		int FailedFrames = 0;
-		
+
 		// Loop until 3 consecutive failures or 10 successful frames
 		do
 		{
 			// Loop while timeout not exceeded
-			while(timer < TIMEOUT)
+			while (timer < TIMEOUT)
 			{
 				// If RVIevent triggered
 				if (*mRVIflag)
@@ -612,7 +612,7 @@ namespace protocoletariat
 					return;
 				}
 				// If CommEvent is triggered
-				if (WaitCommEvent (mHandle, &dwEvent, NULL))
+				if (WaitCommEvent(mHandle, &dwEvent, NULL))
 				{
 					int innerTimer = 0;
 					while (timer < TIMEOUT && innerTimer < INNER_TIMEOUT)
@@ -675,24 +675,24 @@ namespace protocoletariat
 	{
 		// Start TOS
 		int timer = 0;
-		
+
 		// Initialize frame and CRC holder
 		char frame[512];
 		char CRC[4];
 
 		bool errorDetected = false;
-		
+
 		while (timer < TIMEOUT)
 		{
 			// Get the 512 data characters from the download queue
-			for(int i = 1; i <= 513; i++)
+			for (int i = 1; i <= 513; i++)
 			{
 				// Read all chars from the front of the queue and remove it
 				frame[i - 1] = incFrame[i];
-				
+
 			}
-			
-			for(int i = 514; (i - 514) < 4; i++)
+
+			for (int i = 514; (i - 514) < 4; i++)
 			{
 				// Read the remaining chars from the front of the queue as CRC
 				CRC[i - 514] = incFrame[i];
@@ -701,10 +701,10 @@ namespace protocoletariat
 			mDownloadQueue->pop();
 
 			// Implement CRC error detection -- use available source code
-			// errorDetected = functionhere(frame, CRC);
-			
+			errorDetected = FileUploader::ValidateCrc(frame, CRC);
+
 			// If an error is detected
-			if(errorDetected)
+			if (errorDetected)
 			{
 				// Increment logfile corrupt frame counter
 				mLogfile->received_corrupted_packet++;
