@@ -77,9 +77,6 @@ namespace protocoletariat
 		std::vector<char> bufferFrame;
 		char* frame;
 
-		// TODO: change to a global flag
-		//bool bReading = true;
-
 		// create a manual reset event
 		*hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 		olRead->hEvent = *hEvent;
