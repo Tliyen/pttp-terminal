@@ -214,10 +214,6 @@ namespace protocoletariat
 				bufferFrame.resize(0); // abandon RVI control frame
 				return false; // continue without queuing the frame
 			}
-			else if (charRead == ENQ)
-			{
-				return true;
-			}
 			else // invalid char order
 			{
 				bufferFrame.resize(0);
