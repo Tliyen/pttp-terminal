@@ -127,11 +127,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 
 	StartEngine();
 
-	 //initial transfer
-	/*fileUploadParam->filePath = "c:\\test.txt";
-	fileUploadParam->uploadQueue = uploadQ;
-	uploadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)FileUploader::LoadTextFile, fileUploadParam, 0, &uploadThrdID);*/
-  
 	while (GetMessage(&Msg, NULL, 0, 0))
 	{
 		TranslateMessage(&Msg);
@@ -380,7 +375,6 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 		GetTextMetrics(hdc, &tm); // get text metrics
 		ReleaseDC(hwnd, hdc); // release device context
 		EndPaint(hwnd, &paintstruct); // Release DC
-
 		break;
 
 	case WM_CLOSE: // terminate program
@@ -567,7 +561,6 @@ bool protocoletariat::ConfigureCommSettings(HWND hwnd)
 void protocoletariat::StartEngine()
 {
 	// initialize download (read) thread
-	//olRead = { 0 };
 	fileDownloadParam->downloadQueue = downloadQ;
 	fileDownloadParam->olRead = &olRead;
 	fileDownloadParam->dwThreadExit = &readThreadExit;
@@ -594,7 +587,6 @@ void protocoletariat::StartEngine()
 	{
 		MessageBox(NULL, "Error setting port time-outs", TEXT("Error"), MB_OK);
 	}
-
 	if (!EscapeCommFunction(hComm, CLRDTR))
 	{
 		MessageBox(NULL, "Error clearing DTR", TEXT("Error"), MB_OK);
@@ -604,7 +596,6 @@ void protocoletariat::StartEngine()
 	{
 		MessageBox(NULL, "Error setting DTR", TEXT("Error"), MB_OK);
 	}
-
 	downloadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)FileDownloader::ReadSerialPort, fileDownloadParam, 0, &downloadThrdID);
 	
 	// initialize print data thread
