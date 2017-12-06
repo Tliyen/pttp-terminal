@@ -115,7 +115,7 @@ namespace protocoletariat
 	--
 	-- DATE: December 4, 2017
 	--
-	-- DESIGNER: Morgan Ariss & Jeremy Lee
+	-- DESIGNER: Morgan Ariss
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
@@ -195,9 +195,9 @@ namespace protocoletariat
 	--
 	-- DATE: December 2, 2017
 	--
-	-- DESIGNER: Morgan Ariss & Jeremy Lee
+	-- DESIGNER: Morgan Ariss
 	--
-	-- PROGRAMMER: Li-Yan Tong
+	-- PROGRAMMER: Morgan Ariss
 	--
 	-- INTERFACE: Idle()
 	--
@@ -250,7 +250,7 @@ namespace protocoletariat
 			}
 
 			// If this device wants to take the handle
-			if (*mUploadQueue->front() != NULL)
+			if (!(mUploadQueue->empty()))
 			{
 				// Transmit ENQ
 				TransmitFrame(true, ASCII_ENQ);
@@ -263,9 +263,30 @@ namespace protocoletariat
 
 	/*
 	BidForLine
-	An ENQ has been TRANSMITTED
-	The program must wait to RECEIVE an ACK from the pair device to ensure that it is ready to receive data. If it does, it can proceed down the TRANSMIT tree. If the timeout expires before that time, the device must move to the delay state.
+	
+	
 	*/
+	
+	/*----------------------------------------------------------------------
+	-- FUNCTION: BidForLine
+	--
+	-- DATE: December 4, 2017
+	--
+	-- DESIGNER: Morgan Ariss
+	--
+	-- PROGRAMMER: Morgan Ariss
+	--
+	-- INTERFACE: BidForLine()
+	--
+	-- RETURNS: void
+	--
+	-- NOTES:
+	-- This function will be called when an ENQ has been TRANSMITTED.
+	-- The program must wait to RECEIVE an ACK from the paired device to ensure 
+	-- that it is ready to receive data. If it does, it can proceed down the 
+	-- TRANSMIT tree. If the timeout expires before that time, the device must 
+	-- move to the link reset delay state.
+	----------------------------------------------------------------------*/
 	void ProtocolEngine::BidForLine()
 	{
 		// Start TOS
