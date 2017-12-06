@@ -242,9 +242,9 @@ namespace protocoletariat
 				// Check if the front of the queue an ENQ
 				if (incFrame[1] == CHAR_ENQ)
 				{
-					incFrame = nullptr;
-					delete incFrame;
 					mDownloadQueue->pop();
+					delete incFrame;
+					incFrame = nullptr;
 					*mDownloadReady = false;
 					AcknowledgeBid();
 					break;
@@ -312,9 +312,10 @@ namespace protocoletariat
 					// Check if the front of the queue an ACK
 					if (incFrame[1] == CHAR_ACK)
 					{
-						incFrame = nullptr;
 						// Remove the ACK
 						mDownloadQueue->pop();
+						delete incFrame;
+						incFrame = nullptr;
 
 						// Move to SendData()
 						SendData();
@@ -416,8 +417,9 @@ namespace protocoletariat
 					{
 						mLogfile->sent_packet++;
 					}
-					delete outFrame;
 					mUploadQueue->pop();
+					delete outFrame;
+					outFrame = nullptr;
 					// Move to LinkReset
 					LinkReset();
 					return;
