@@ -351,6 +351,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 		break;
 
 	case WM_DESTROY: // terminate program
+		protocolActive = false; // need to set it false here before Windows closes down
 		CleanUp();
 		TerminateProgram();
 		break;
