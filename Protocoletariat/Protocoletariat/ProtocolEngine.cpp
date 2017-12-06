@@ -1,20 +1,20 @@
 /*----------------------------------------------------------------------
--- SOURCE FILE: ProtocolEngine.cpp				- 
+-- SOURCE FILE: ProtocolEngine.cpp				-
 --
 -- PROGRAM: Protocoletariat
 --
 -- FUNCTIONS:
---		DWORD WINAPI ProtocolThread();
---		bool TransmitFrame();
---		void Idle();
---		void BidForLine();
---		void SendData();
---		bool ConfirmTransmission();
---		bool Retransmit();
---		void LinkReset();
---		void AcknowledgeBid();
---		void ReceiveData();
---		void ErrorDetection();
+--			DWORD WINAPI ProtocolThread();
+--			bool TransmitFrame();
+--			void Idle();
+--			void BidForLine();
+--			void SendData();
+--			bool ConfirmTransmission();
+--			bool Retransmit();
+--			void LinkReset();
+--			void AcknowledgeBid();
+--			void ReceiveData();
+--			void ErrorDetection();
 --
 --
 -- DATE: December 1, 2017

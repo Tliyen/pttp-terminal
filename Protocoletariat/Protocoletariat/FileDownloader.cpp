@@ -1,5 +1,8 @@
 /*----------------------------------------------------------------------
--- SOURCE FILE: FileDownloader.cpp		-
+-- SOURCE FILE: FileDownloader.cpp			- An application that gets
+--											  bytes (chars) from a
+--											  specified serial port and
+--											  converts them into frames.
 --
 --
 -- PROGRAM:		Protocoletariat
