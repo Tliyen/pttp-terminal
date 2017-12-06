@@ -9,7 +9,7 @@ namespace protocoletariat
 {
 	// Main variables - for creating WinMain
 	const TCHAR tchrProgramName[] = TEXT("Protocoletariat");
-	const LPTSTR lpszDefaultCommPort = TEXT("COM1"); // default port
+	const LPTSTR lpszDefaultCommPort = TEXT("COM4"); // default port
 
 	HWND hwnd;
 	LPTSTR lpszCommPort;

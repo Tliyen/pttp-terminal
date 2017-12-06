@@ -66,7 +66,7 @@ namespace protocoletariat
 		OVERLAPPED* olRead = param->olRead;
 		DWORD* dwThreadExit = param->dwThreadExit;
 		bool* downloadReady = param->dlReady;
-		
+
 		LogFile* mLogFile = param->logfile;
 
 		rviReceived = param->RVIflag; // member variable
@@ -124,10 +124,6 @@ namespace protocoletariat
 							bufferFrame.resize(0); // clean the frame buffer
 						}
 					}
-				}
-				else
-				{
-					// error msg
 				}
 			}
 			else
@@ -189,11 +185,7 @@ namespace protocoletariat
 	-- used by the calling function if the function returns true.
 	------------------------------------------------------------------*/
 	bool FileDownloader::combineCharsIntoFrame(std::vector<char>& bufferFrame, const char charRead)
-	{	// RVI bell char
-		//char* a = new char[1];
-		//a[0] = charRead;
-		//pq->push(a);
-
+	{
 		if (bufferFrame.size() == 0) // frame empty
 		{
 			if (charRead != SYN) // first char to put in frame is not SYN

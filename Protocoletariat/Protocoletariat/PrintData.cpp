@@ -157,7 +157,7 @@ namespace protocoletariat
 		unsigned int X = 0; // move to the beginning of line
 		unsigned int Y = 0; // move to the first line
 
-							// move to the specified row
+		// move to the specified row
 		while (row > 0)
 		{
 			Y += tm.tmHeight + tm.tmExternalLeading; // next line
