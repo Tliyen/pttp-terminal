@@ -28,8 +28,5 @@ namespace protocoletariat
 		static const char ENQ = 5;
 		static const char ACK = 6;
 		static const char RVI = 7;
-
-		//static std::queue<char*>* mDownloadQueue;
-		//static HWND* mHandle;
 	};
 }

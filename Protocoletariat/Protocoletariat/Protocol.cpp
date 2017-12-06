@@ -5,7 +5,7 @@
 --
 -- FUNCTIONS:
 --		void Idle();
---		void BidForLine(char ENQ);
+--		void BidForLine();
 --		void SendData();
 --		void ConfirmTransmission();
 --		void Retransmit();
@@ -43,7 +43,6 @@
 
 namespace protocoletariat
 {
-
 	/*----------------------------------------------------------------------
 	-- FUNCTION: Idle
 	--
