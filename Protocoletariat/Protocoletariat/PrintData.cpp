@@ -99,10 +99,13 @@ namespace protocoletariat
 					payload[i] = printQ->front()[i];
 				}
 
-				// Print Payload
-				for (int i = 0; i < payloadLength; i++)
+				if (payload[0] != '\0')
 				{
-					PrintChar(hwnd, &payload[i], mCurrentRow, pX, pY);
+					// Print Payload
+					for (int i = 0; i < payloadLength; i++)
+					{
+						PrintChar(hwnd, &payload[i], mCurrentRow, pX, pY);
+					}
 				}
 
 				// Remove Data from queue.
