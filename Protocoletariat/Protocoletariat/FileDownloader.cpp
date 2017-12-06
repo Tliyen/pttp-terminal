@@ -1,9 +1,56 @@
+/*----------------------------------------------------------------------
+-- SOURCE FILE: FileDownloader.cpp		-
+--
+--
+-- PROGRAM:		Protocoletariat
+--
+-- FUNCTIONS:
+--				DWORD WINAPI ReadSerialPort(paramFileDownloader* param)
+--				bool combineCharsIntoFrame(std::vector<char>& bufferFrame, const char charRead)
+--
+--
+-- DATE:		December 5, 2017
+--
+-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
+--
+-- PROGRAMMER:	Jeremy Lee
+--
+-- NOTES:
+----------------------------------------------------------------------*/
 #include "FileDownloader.h"
 
 namespace protocoletariat
 {
 	bool* FileDownloader::rviReceived = nullptr;
 
+	/*------------------------------------------------------------------
+	-- FUNCTION:	ReadSerialPort
+	--
+	-- DATE:		December 5, 2017
+	--
+	-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
+	--
+	-- PROGRAMMER:	Jeremy Lee
+	--
+	-- INTERFACE:	DWORD WINAPI ReadSerialPort(paramFileDownloader* param)
+	--
+	-- ARGUMENT:	param			-
+	--
+	-- RETURNS:		DWORD			-
+	--
+	-- NOTES:
+	-- This code is responsible to initializing the read buffer and then
+	-- reading bytes from the serial port. First step is to check the 
+	-- first byte and ensure that it is a SYN char. If it is not the SYN 
+	-- char, the loop continues from the beginning, which means the rest 
+	-- of the loop is ignored. If it is a SYN char, the next 1 byte in the 
+	-- stream is read and checked if it is a STX character after added to 
+	-- the read buffer. If it is a STX character, the next 516 bytes in 
+	-- the stream is read and added to the read buffer. Then, the read 
+	-- buffer is added to the global download queue so the protocol engine 
+	-- can take it, and a comm event is triggered to notify the protocol 
+	-- engine.
+	------------------------------------------------------------------*/
 	DWORD WINAPI FileDownloader::ReadSerialPort(paramFileDownloader* param)
 	{
 		std::queue<char*>* downloadQueue = param->downloadQueue;
@@ -95,6 +142,24 @@ namespace protocoletariat
 		return 0;
 	}
 
+	/*------------------------------------------------------------------
+	-- FUNCTION:	combineCharsIntoFrame
+	--
+	-- DATE:		December 5, 2017
+	--
+	-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
+	--
+	-- PROGRAMMER:	Jeremy Lee
+	--
+	-- INTERFACE:	bool combineCharsIntoFrame(std::vector<char>& bufferFrame, const char charRead)
+	--
+	-- ARGUMENT:	bufferFrame		-
+	--				charRead		-
+	--
+	-- RETURNS:		bool			-
+	--
+	-- NOTES:
+	------------------------------------------------------------------*/
 	bool FileDownloader::combineCharsIntoFrame(std::vector<char>& bufferFrame, const char charRead)
 	{	// RVI bell char
 		if (bufferFrame.size() == 0) // frame empty

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <queue>
-#include <windows.h>
+#include <cstdint>  // Includes ::std::uint32_t
+#include <fstream>
 #include <iomanip>  // Includes ::std::hex
 #include <iostream>
-#include <fstream>
-#include <cstdint>  // Includes ::std::uint32_t
+#include <queue>
+#include <windows.h>
 #include "CRC.h"
 
 namespace protocoletariat
@@ -14,12 +14,6 @@ namespace protocoletariat
 	{
 		std::queue<char*>* uploadQueue;
 		std::string filePath;
-	};
-
-	union mix_t
-	{
-		std::uint32_t theDWord;
-		std::uint8_t theBytes[4];
 	};
 
 	static class FileUploader

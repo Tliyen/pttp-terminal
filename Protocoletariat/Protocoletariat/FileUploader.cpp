@@ -1,3 +1,24 @@
+/*----------------------------------------------------------------------
+-- SOURCE FILE: FileUploader.cpp		-
+--
+--
+-- PROGRAM:		Protocoletariat
+--
+-- FUNCTIONS:
+--				DWORD WINAPI LoadTextFile(paramFileUploader* param)
+--				bool ConvertFileIntoFrames(const std::vector<char>& bufferRead)
+--				void QueueControlFrame(const char controlChar)
+--				bool ValidateCrc(char* payload, char* strCrcReceived)
+--
+--
+-- DATE:		December 5, 2017
+--
+-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
+--
+-- PROGRAMMER:	Jeremy Lee
+--
+-- NOTES:
+----------------------------------------------------------------------*/
 #include "FileUploader.h"
 
 namespace protocoletariat
@@ -5,6 +26,24 @@ namespace protocoletariat
 	std::queue<char*>* FileUploader::mUploadQueue = nullptr;
 	std::string FileUploader::mFilePath = "";
 
+	/*------------------------------------------------------------------
+	-- FUNCTION:	LoadTextFile
+	--
+	-- DATE:		December 5, 2017
+	--
+	-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
+	--
+	-- PROGRAMMER:	Jeremy Lee
+	--
+	-- INTERFACE:	DWORD WINAPI LoadTextFile(paramFileUploader* param)
+	--
+	-- ARGUMENT:	param			-
+	--
+	-- RETURNS:		DWORD			-
+	--
+	-- NOTES:
+	-- 
+	------------------------------------------------------------------*/
 	DWORD WINAPI FileUploader::LoadTextFile(paramFileUploader* param)
 	{
 		mUploadQueue = param->uploadQueue;
@@ -44,6 +83,23 @@ namespace protocoletariat
 		return 0;
 	}
 
+	/*------------------------------------------------------------------
+	-- FUNCTION:	ConvertFileIntoFrames
+	--
+	-- DATE:		December 5, 2017
+	--
+	-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
+	--
+	-- PROGRAMMER:	Jeremy Lee
+	--
+	-- INTERFACE:	bool ConvertFileIntoFrames(const std::vector<char>& bufferRead)
+	--
+	-- ARGUMENT:	bufferRead		-
+	--
+	-- RETURNS:		bool			-
+	--
+	-- NOTES:
+	------------------------------------------------------------------*/
 	bool FileUploader::ConvertFileIntoFrames(const std::vector<char>& bufferRead)
 	{
 		bool fileConverted = false;
@@ -128,6 +184,23 @@ namespace protocoletariat
 		return false;
 	}
 
+	/*------------------------------------------------------------------
+	-- FUNCTION:	QueueControlFrame
+	--
+	-- DATE:		December 5, 2017
+	--
+	-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
+	--
+	-- PROGRAMMER:	Jeremy Lee
+	--
+	-- INTERFACE:	void QueueControlFrame(const char controlChar)
+	--
+	-- ARGUMENT:	controlChar		-
+	--
+	-- RETURNS:		void
+	--
+	-- NOTES:
+	------------------------------------------------------------------*/
 	void FileUploader::QueueControlFrame(const char controlChar)
 	{
 		char* frameCtr = new char[2];
@@ -137,6 +210,24 @@ namespace protocoletariat
 		mUploadQueue->push(frameCtr);
 	}
 
+	/*------------------------------------------------------------------
+	-- FUNCTION:	ValidateCrc
+	--
+	-- DATE:		December 5, 2017
+	--
+	-- DESIGNER:	Morgan Ariss, Jeremy Lee, Luke Lee, Li-Yan Tong
+	--
+	-- PROGRAMMER:	Jeremy Lee
+	--
+	-- INTERFACE:	bool ValidateCrc(char* payload, char* strCrcReceived)
+	--
+	-- ARGUMENT:	payload			-
+	--				strCrcReceived	-
+	--
+	-- RETURNS:		bool			-
+	--
+	-- NOTES:
+	------------------------------------------------------------------*/
 	bool FileUploader::ValidateCrc(char* payload, char* strCrcReceived)
 	{
 		char* strCrcGenerated = new char[4];
