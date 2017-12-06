@@ -1,17 +1,12 @@
 /*----------------------------------------------------------------------
-<<<<<<< HEAD
--- SOURCE FILE: ProtocolEngine.cpp				-
-=======
 -- SOURCE FILE: ProtocolEngine.cpp           - This file is responsible for
 --											   running the protocol engine.
->>>>>>> 56821104aca1c840eccbc25ead0ea1fdcacd0809
 --
 -- PROGRAM: Protocoletariat
 --
 -- FUNCTIONS:
-<<<<<<< HEAD
 --			DWORD WINAPI ProtocolThread();
---			bool TransmitFrame();
+--			bool TransmitFrame(bool control, char type);
 --			void Idle();
 --			void BidForLine();
 --			void SendData();
@@ -21,19 +16,6 @@
 --			void AcknowledgeBid();
 --			void ReceiveData();
 --			void ErrorDetection();
-=======
---		DWORD WINAPI ProtocolThread();
---		bool TransmitFrame();
---		void Idle();
---		void BidForLine();
---		void SendData();
---		bool ConfirmTransmission();
---		bool Retransmit();
---		void LinkReset();
---		void AcknowledgeBid();
---		void ReceiveData();
---		bool ErrorDetection();
->>>>>>> 56821104aca1c840eccbc25ead0ea1fdcacd0809
 --
 --
 -- DATE: December 1, 2017
@@ -137,10 +119,14 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: TransmitFrame()
+	-- INTERFACE: bool TransmitFrame(bool control, char type)
 	--
-	-- RETURNS: bool	- true if frame is successfully transmitted to the
-	--					  serial port; false otherwise.
+	-- ARGUMENT: control	- a bool flag to indicate if the frame of interest
+	--						  is a control frame or not.
+	--			 type		- indicates the type of the character in the frame.
+	--
+	-- RETURNS: bool		- true if frame is successfully transmitted to the
+	--						  serial port; false otherwise.
 	--
 	-- NOTES:
 	-- This function is called upon by the other ProtocolEngine functions to
@@ -251,7 +237,9 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: Idle()
+	-- INTERFACE: void Idle()
+	--
+	-- ARGUMENT: void
 	--
 	-- RETURNS: void
 	--
@@ -336,6 +324,8 @@ namespace protocoletariat
 	--
 	-- INTERFACE: void BidForLine()
 	--
+	-- ARGUMENT: void
+	--
 	-- RETURNS: void
 	--
 	-- NOTES:
@@ -406,6 +396,8 @@ namespace protocoletariat
 	-- PROGRAMMER: Morgan Ariss
 	--
 	-- INTERFACE: void SendData()
+	--
+	-- ARGUMENT: void
 	--
 	-- RETURNS: void
 	--
@@ -560,6 +552,8 @@ namespace protocoletariat
 	--
 	-- INTERFACE: bool ConfirmTransmission()
 	--
+	-- ARGUMENT: void
+	--
 	-- RETURNS: bool	- true if an ACK gets back, indicating that the
 	--					  receiver receives the frame successfully; false
 	--					  if retransmission fails 3 times.
@@ -646,6 +640,8 @@ namespace protocoletariat
 	-- PROGRAMMER: Morgan Ariss
 	--
 	-- INTERFACE: bool Retransmit()
+	--
+	-- ARGUMENT: void
 	--
 	-- RETURNS: bool	- true if the retransmission is successful; false
 	--					  if it fails 3 times.
@@ -740,6 +736,8 @@ namespace protocoletariat
 	--
 	-- INTERFACE: void LinkReset()
 	--
+	-- ARGUMENT: void
+	--
 	-- RETURNS: void
 	--
 	-- NOTES:
@@ -807,6 +805,8 @@ namespace protocoletariat
 	--
 	-- INTERFACE: void AcknowledgeBid()
 	--
+	--ARGUMENT: void
+	--
 	-- RETURNS: void
 	--
 	-- NOTES:
@@ -848,6 +848,8 @@ namespace protocoletariat
 	-- PROGRAMMER: Morgan Ariss
 	--
 	-- INTERFACE: void ReceiveData()
+	--
+	-- ARGUMENT: void
 	--
 	-- RETURNS: void
 	--
@@ -958,6 +960,8 @@ namespace protocoletariat
 	-- PROGRAMMER: Morgan Ariss & Jeremy Lee
 	--
 	-- INTERFACE: bool ErrorDetection()
+	--
+	-- ARGUMENT: void
 	--
 	-- RETURNS: bool	- true if no error is detected; false if an error is
 	--					  detected or reaches timeout.
