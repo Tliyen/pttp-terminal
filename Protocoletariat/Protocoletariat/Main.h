@@ -53,6 +53,7 @@ namespace protocoletariat
 	bool ConfigureCommSettings(HWND hwnd);
 
 	void ClearQueue(std::queue<char*>* q);
-	void CleanUp();
 	void StartEngine();
+	void CleanUp();
+	void TerminateProgram();
 }
