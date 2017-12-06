@@ -93,7 +93,10 @@ namespace protocoletariat
 
 		linkReceivedENQ = false;
 
-		Idle();
+		while (protocolActive)
+		{
+			Idle();
+		}
 
 		return 0;
 	}
