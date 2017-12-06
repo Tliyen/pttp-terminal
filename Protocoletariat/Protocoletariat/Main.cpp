@@ -109,6 +109,11 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	dataToPrintQ = new std::queue<char*>();
 
 	StartEngine();
+
+	 //initial transfer
+	fileUploadParam->filePath = "c:\\test.txt";
+	fileUploadParam->uploadQueue = uploadQ;
+	uploadThrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)FileUploader::LoadTextFile, fileUploadParam, 0, &uploadThrdID);
   
 	while (GetMessage(&Msg, NULL, 0, 0))
 	{

@@ -78,6 +78,8 @@ namespace protocoletariat
 				QueueControlFrame(EOT);
 				// trigger ENQ request event for the protocol engine
 				unsigned int size = mUploadQueue->size();
+				bool b = mUploadQueue->empty();
+				b = mUploadQueue->empty();
 			}
 			else
 			{
