@@ -16,12 +16,11 @@
 -- PROGRAMMER:	Jeremy Lee
 --
 -- NOTES:
--- This thread is responsible for handling the uploading of the text file 
--- to be send through the serial port. It gets all characters from the 
--- intended file and crams them into a frame, then places the frame into 
--- the UploadQueue where it can be grabbed by the protocol engine at the
--- appropriate time. This functionality is achived through two functions
--- working in tandum.
+-- This file is responsible for handling the downloading of frames from 
+-- the serial port. These frames will be taken, run through basic 
+-- validation to ensure that the SYN char is in place. The SYN char will
+-- be stripped from the frame, and it will be placed in the download queue
+-- ready for processing by the Protocol Engine.
 ----------------------------------------------------------------------*/
 #include "FileDownloader.h"
 
@@ -165,7 +164,7 @@ namespace protocoletariat
 	-- RETURNS:		bool			- (success condition)
 	--
 	-- NOTES:
-	-- This function is called to combine all the chars read from the file
+	-- This function is called to combine all the chars read from the port
 	-- into a frame that can be placed in the upload queue. The frame is 
 	-- loaded into the already created char pointer, which is then called 
 	-- used by the calling function if the function returns true.
