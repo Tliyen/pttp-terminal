@@ -481,6 +481,7 @@ bool protocoletariat::ConfigureCommSettings(HWND hwnd)
 		return false;
 	}
 
+	bCommOn = true;
 	return true;
 }
 
