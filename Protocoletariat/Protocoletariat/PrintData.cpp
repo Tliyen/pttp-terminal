@@ -1,34 +1,39 @@
 /*----------------------------------------------------------------------
 -- SOURCE FILE: PrintData.cpp
 --
--- PROGRAM: Protocoletariat
+-- PROGRAM:		Protocoletariat
 --
 -- FUNCTIONS:
---		void PrintReceivedData();
---		void DrawCharsByRow();
---		void UpdateLog();
+--				DWORD WINAPI  PrintReceivedData(paramPrintData* param);
+--				void PrintPayload(HWND* hwnd, char* letter, unsigned int row, 
+--							int* X, int* Y)
+--				void PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row, 
+--							int* X, int* Y)
 --
 -- DATE: December 1, 2017
+--		 Initialize variable and methods
+--		 December 5, 2017
+--		 Change to print by character & utilize pointers
+--		 December 6, 2017
+--		 Code Clean up
 --
 -- DESIGNER: Jeremy Lee & Luke Lee
 --
 -- PROGRAMMER: Li-Yan Tong
 --
 -- NOTES:
-<<<<<<< HEAD
--- The program is responsible for displaying transfered data and updating
--- log file statistics on the terminal Windows screen.
+-- This part of the program is responsible for displaying transfered data 
+-- and updating log file statistics on the terminal Windows screen.
+--
+-- It gathers packet transfer information from a LogFile
+-- struct containing a count of sent, recieved, lost and corrupted
+-- packets.  The log statistics are shown before and after a
+-- transmission.
 -- 
 -- It assigns a pointer to the print data queue and displays the
 -- transferred data character by character onto the screen and updates
--- the current x and y coordinates on screen accordingly.
---
--- This class also display the log statistics before and after a
--- transmission.
-=======
--- This part of the program is responsible for displaying Packet 
--- transfer information and sucessfully transfered text data.
->>>>>>> ae40d3e7fe12777da0063b819ea189badc8bc8f1
+-- the current x and y coordinates on screen accordingly.  After printing
+-- it removes the latest print information from a data queue.
 ----------------------------------------------------------------------*/
 
 #include "PrintData.h"
@@ -38,7 +43,7 @@ namespace protocoletariat
 	int mCurrentRow = 4;
 
 	/*----------------------------------------------------------------------
-	-- FUNCTION: PrintReceivedData()
+	-- FUNCTION: PrintReceivedData
 	--
 	-- DATE: December 1, 2017
 	--
@@ -49,29 +54,30 @@ namespace protocoletariat
 	-- INTERFACE: DWORD WINAPI PrintReceivedData(paramPrintData* param)
 	--
 	-- ARGUMENT: param			- a pointer to the paramPrintData structure
-	--							  containing all the variables required in
-	--							  PrintData functions.
+	--							  containing all the variables (windows GUI and print
+  --                data) required in PrintData functions.
 	--
 	-- RETURNS: DWORD WINAPI	- 0 if the intended functions run successfully
 	--
 	-- NOTES:
-	-- This function takes a string and displays it (one character) on a
-	-- device context. One major benefit of this function is that it
-	-- calculates the position of the last character written on screen, and
-	-- determines if it is off the Window by calculating the Window's width.
+	-- This function thread takes a paraPrintData struct to gather device 
+	-- context and properly print characters in the terminal.  The struct 
+	-- also contains text data in printQueue and packet transfer information 
+	-- in a logfile that this function will print out.
+	--
+	-- This function continously loops and prints transfer information and 
+	-- text data until this thread is terminated.
 	----------------------------------------------------------------------*/
 	DWORD WINAPI PrintData::PrintReceivedData(paramPrintData* param)
 	{
-
 		std::queue<char*>* printQ = param->printQueue;
 		LogFile* logfile = param->logfile;
 		HWND* hwnd = param->hwnd;
-		//PrintData::hwnd = hwnd;
 
 		int* pX = param->X;
 		int* pY = param->Y;
 
-		// Switch out with master switch boolean later
+		// Active switch while engine is running
 		while (protocolActive)
 		{
 			// Build Log
@@ -113,13 +119,10 @@ namespace protocoletariat
 			{
 				// Load up payload
 				char* payload = new char[512];
-
 				payload = printQ->front();
-
-				// Print Payload
-
 				int payloadLength = strlen(payload);
 
+				// Print Payload
 				for (int i = 0; i < payloadLength; i++)
 				{
 					char* print = &payload[i];
@@ -130,6 +133,7 @@ namespace protocoletariat
 				delete payload;					
 				printQ->pop();
 
+				// Save it
 				Sleep(2000);
 			}
 		}
@@ -137,45 +141,44 @@ namespace protocoletariat
 	}
 
 	/*----------------------------------------------------------------------
-	-- FUNCTION:	DrawCharsByRow
+	-- FUNCTION:	PrintPayload
 	--
-	-- DATE:		October 15, 2017
+	-- DATE:		December 2, 2017
 	--
 	-- DESIGNER:	Jeremy Lee, Luke Lee
 	--
 	-- PROGRAMMER:	Li-Yan Tong
 	--
-	-- INTERFACE:	void DrawCharsByRow(const TCHAR* chars,
-	--									unsigned int row)
+	-- INTERFACE:	void PrintPayload(HWND* hwnd, char* letter, unsigned int row, 
+	--									int* X, int* Y)
 	--
-	-- ARGUMENT:	chars		- Pointer to the beginning of a character
-	--							  string to draw on the Window.
+	-- ARGUMENT:	hwnd		- Windows handle access GUI information
+	--				letter		- char Pointer a character to draw on the Window.
 	--				row			- Line number to draw a character string on.
 	--							  Starts from 0.
+	--				X			- int Pointer to x-coordinate of a caret to print
+	--							  characters
+	--				Y			- int Pointer to y-coordinate of a caret to print
+	--							  characters
 	--
 	-- RETURNS: void
 	--
 	-- NOTES:
-	-- A function to draw a character string to the Window.
-	-- Finds the x and y coordinate to start drawing the input character
-	-- string from. Continues to print data on a new line specified by the
-	-- row input, and then draws the input character string.
+	-- This function takes a string and displays it (one character) on a
+	-- device context. One major benefit of this function is that it
+	-- calculates the position of the last character written on screen, and
+	-- determines if it is off the Window by calculating the Window's width.
 	----------------------------------------------------------------------*/
-	void PrintData::PrintPayload(HWND* hwnd, char* chars, unsigned int row, int* X, int* Y)
+	void PrintData::PrintPayload(HWND* hwnd, char* letter, unsigned int row, int* X, int* Y)
 	{
 		HDC hdc;
 		TEXTMETRIC tm;
 		SIZE size;
 		RECT rect;
 
-		//const int offsetRightSide = 25;
-
-		//*X = 0; // move to the beginning of line
-		//*Y = 0; // move to this row
-
 		hdc = GetDC(*hwnd); // Acquire DC
 		GetTextMetrics(hdc, &tm); // get text metrics
-		GetTextExtentPoint32(hdc, chars, 1, &size); // compute length of a string 
+		GetTextExtentPoint32(hdc, letter, 1, &size); // compute length of a string 
 
 		//move to this row
 		if (mCurrentRow == 4) {
@@ -186,23 +189,20 @@ namespace protocoletariat
 			}
 		}
 
-		TextOut(hdc, *X, *Y, chars, 1);  // Display string
+		TextOut(hdc, *X, *Y, letter, 1);  // Display string
 		*X += size.cx; // advance to end of previous string
 		ReleaseDC(*hwnd, hdc); // release device context
 
 		if (GetWindowRect(*hwnd, &rect))
 		{
 			int width = rect.right - rect.left; // get Window width
-			if (*X >= width)//- offsetRightSide)
+			if (*X >= width)
 			{
 				*X = 0;
 				*Y = *Y + tm.tmHeight + tm.tmExternalLeading; // next line
 			}
 		}
-
-
 		mCurrentRow += *Y; // Set Current row to last row printed
-
 	}
 
 	/*----------------------------------------------------------------------
@@ -217,7 +217,8 @@ namespace protocoletariat
 	-- INTERFACE:	void PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row, int* X, int* Y)
 	--
 	-- ARGUMENT:	hwnd		- a pointer to the main Windows HWND handle.
-	--				chars		- character to be printed on the terminal
+	--				chars		- pointer to the beginning of a character
+	--							  string to draw on the Window.
 	--				row			- Line number to draw a character string on.
 	--							  Starts from 0.
 	--				X			- a pointer to an int representing the horizontal

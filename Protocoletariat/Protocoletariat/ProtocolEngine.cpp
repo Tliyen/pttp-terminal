@@ -262,9 +262,15 @@ namespace protocoletariat
 			if (!(mUploadQueue->empty()))
 			{
 				// Transmit ENQ
+				std::cout << "Sending ENQ" << std::endl;
 				if (TransmitFrame(true, ASCII_ENQ))
 				{
+					std::cout << "Sent ENQ" << std::endl;
 					mLogfile->sent_packet++;
+				}
+				else
+				{
+					std::cout << "Failed Sending ENQ" << std::endl;
 				}
 
 				// Move to BidForLine
@@ -412,9 +418,15 @@ namespace protocoletariat
 										mDownloadQueue->pop();
 									}
 									// Transmit EOT control frame through serial port
+									std::cout << "Sending EOT" << std::endl;
 									if (TransmitFrame(true, ASCII_EOT))
 									{
+										std::cout << "Sent EOT" << std::endl;
 										mLogfile->sent_packet++;
+									}
+									else
+									{
+										std::cout << "Failed Sending EOT" << std::endl;
 									}
 									// Move to LinkReset
 									LinkReset();
@@ -431,9 +443,15 @@ namespace protocoletariat
 					if (outFrame[1] == CHAR_EOT)
 					{
 						// Transmit EOT control frame through Serial Port
+						std::cout << "Sending EOT" << std::endl;
 						if (TransmitFrame(true, ASCII_EOT))
 						{
+							std::cout << "Sent EOT" << std::endl;
 							mLogfile->sent_packet++;
+						}
+						else
+						{
+							std::cout << "Failed Sending EOT" << std::endl;
 						}
 						delete outFrame;
 						outFrame = nullptr;
@@ -455,9 +473,15 @@ namespace protocoletariat
 						if (!ConfirmTransmission())
 						{
 							// Transmit EOT control frame through Serial Port
+							std::cout << "Sending EOT" << std::endl;
 							if (TransmitFrame(true, ASCII_EOT))
 							{
+								std::cout << "Sent EOT" << std::endl;
 								mLogfile->sent_packet++;
+							}
+							else
+							{
+								std::cout << "Failed Sending EOT" << std::endl;
 							}
 							// Move to LinkReset
 							LinkReset();
@@ -596,7 +620,16 @@ namespace protocoletariat
 		// Retransmit up to 3 times
 		do
 		{
-			TransmitFrame(false, NULL);
+			std::cout << "Sending DATA Frame" << std::endl;
+			if (TransmitFrame(false, NULL))
+			{
+				std::cout << "Sent DATA Frame" << std::endl;
+			}
+			else
+			{
+				std::cout << "Failed Sending DATA Frame" << std::endl;
+			}
+			
 			// Loop while timer has not expired
 			while (timer < TIMEOUT)
 			{
@@ -740,9 +773,15 @@ namespace protocoletariat
 		}
 
 		// Transmit ACK control frame
+		std::cout << "Sending ACK" << std::endl;
 		if (TransmitFrame(true, ASCII_ACK))
 		{
+			std::cout << "Sent ACK" << std::endl;
 			mLogfile->sent_packet++;
+		}
+		else
+		{
+			std::cout << "Failed Sending ACK" << std::endl;
 		}
 		// Move to ReceiveData
 		ReceiveData();
@@ -932,9 +971,15 @@ namespace protocoletariat
 				// Increment the logfile successful frames counter
 				mLogfile->sent_packet++;
 				// Transmit ACK control frame
+				std::cout << "Sending ACK" << std::endl;
 				if (TransmitFrame(true, ASCII_ACK))
 				{
+					std::cout << "Sent ACK" << std::endl;
 					mLogfile->sent_packet++;
+				}
+				else
+				{
+					std::cout << "Failed Sending ACK" << std::endl;
 				}
 				// Move back to ReceiveData
 				return true;
