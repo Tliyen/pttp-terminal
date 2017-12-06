@@ -8,6 +8,7 @@
 #include <vector>
 #include <queue>
 #include "global.h"
+#include <sstream>
 //#include "Main.h"
 
 namespace protocoletariat

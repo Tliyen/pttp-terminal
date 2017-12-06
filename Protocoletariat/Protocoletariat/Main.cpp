@@ -499,8 +499,8 @@ void protocoletariat::StartEngine()
 	
 	// initialize print data thread
 	printDataParam->printQueue = &dataToPrintQ;
-	printDataParam->hwnd = hwnd;
-	printDataParam->hComm = hComm;
+	printDataParam->hwnd = &hwnd;
+	printDataParam->hComm = &hComm;
 	printDataParam->X = &X;
 	printDataParam->Y = &Y;
 	printDataParam->logfile = logfile;

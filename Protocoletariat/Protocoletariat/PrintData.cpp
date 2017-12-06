@@ -24,7 +24,7 @@
 namespace protocoletariat
 {
 	//static HWND* hwnd = nullptr;
-	int mCurrentRow = 4;
+	int mCurrentRow = 50;
 	bool printDataActive = true;
 
 	/*----------------------------------------------------------------------
@@ -57,6 +57,63 @@ namespace protocoletariat
 		int* pX = param->X;
 		int* pY = param->Y;
 
+		/*
+		//TESTING VALUES
+		char* tester = new char[512];
+		tester = "ok this is a test";
+
+		std::ostringstream ost;
+
+		ost.str("");
+		ost.clear();
+
+		ost << tester;
+		std::string tester_s = ost.str();
+
+		PrintPayload(hwnd, (TCHAR*)tester_s.c_str(), mCurrentRow, pX, pY);
+
+		char* tester2 = new char[512];
+		tester2 = "Ping";
+
+		ost.str("");
+		ost.clear();
+
+		ost << tester2;
+
+		tester_s = ost.str();
+
+		PrintPayload(hwnd, (TCHAR*)tester_s.c_str(), mCurrentRow, pX, pY);
+
+		char* tester3 = new char[512];
+		tester3 = "Ping Ping Ping!";
+
+		ost.str("");
+		ost.clear();
+
+		ost << tester3;
+
+		tester_s = ost.str();
+
+		PrintPayload(hwnd, (TCHAR*)tester_s.c_str(), mCurrentRow, pX, pY);
+
+		logfile->sent_packet++;
+
+		std::ostringstream oss;
+		oss << "Test this: " << logfile->sent_packet;
+		std::string logtest = oss.str();
+		//logtest.append("Test this: ");
+		//logtest.append(std::to_string(logfile->sent_packet) + "");
+		PrintLog(hwnd, (TCHAR*)logtest.c_str(), 2, pX, pY);
+
+		oss.str("");
+		oss.clear();
+
+		oss << "Test this: adfsasdf" << logfile->sent_packet;
+		std::string logtest2 = oss.str();
+		PrintLog(hwnd, (TCHAR*)logtest2.c_str(), 2, pX, pY);
+		*/
+
+		// Switch out with master switch boolean later
 		while (printDataActive) 
 		{
 			if (!printQ->empty())
@@ -66,39 +123,51 @@ namespace protocoletariat
 
 			payload = printQ->front();
 
-			// wchar_t Conversion
-			//wchar_t printPayload[513];
-			//size_t outSize;
-			//mbstowcs_s(&outSize, printPayload, 513, payload, 512);
+			// Build Payload String
+			std::ostringstream ost;
+			ost << payload;
+			std::string payload_s = ost.str();
 
-			PrintPayload(hwnd,(TCHAR*)payload, mCurrentRow, pX, pY);
+			// Print Payload
+			PrintPayload(hwnd, (TCHAR*)payload_s.c_str(), mCurrentRow, pX, pY);
 
 			// Remove Data from queue.
 			printQ->pop();
 
+			// Build Log
+			std::ostringstream oss;
+
 			// Print Sent Packets
-			std::string logSent;
-			logSent.append("Sent Packets: ");
-			logSent.append(logfile->sent_packet + " ");
-			PrintLog(hwnd,(TCHAR*)logSent.c_str(), 0, pX, pY);
+			oss << "Sent Packets: " << logfile->sent_packet;
+			std::string logSent = oss.str();
+			PrintLog(hwnd,(const TCHAR*)logSent.c_str(), 0, pX, pY);
+
+			oss.str("");
+			oss.clear();
 
 			// Print Lost Packets
-			std::string logLost;
-			logLost.append("Lost Packets: ");
-			logLost.append(logfile->lost_packet + " ");
-			PrintLog(hwnd,(TCHAR*)logLost.c_str(), 1, pX, pY);
+			oss << "Lost Packets: " << logfile->lost_packet;
+			std::string logLost = oss.str();
+			PrintLog(hwnd,(const TCHAR*)logLost.c_str(), 1, pX, pY);
+
+			oss.str("");
+			oss.clear();
 
 			// Print Recieved Packets
-			std::string logReceive;
-			logReceive.append("Recieved Packets: ");
-			logReceive.append(logfile->received_packet + " ");
-			PrintLog(hwnd,(TCHAR*)logReceive.c_str(), 2, pX, pY);
+			oss << "Lost Packets: " << logfile->lost_packet;
+			std::string logReceive = oss.str();
+			PrintLog(hwnd,(const TCHAR*)logReceive.c_str(), 2, pX, pY);
+
+			oss.str("");
+			oss.clear();
 
 			// Print Corrupt Packets
-			std::string logCorrupt;
-			logCorrupt.append("Lost/Corrupt Packets: ");
-			logCorrupt.append(logfile->received_corrupted_packet + "");
-			PrintLog(hwnd,(TCHAR*)logCorrupt.c_str(), 3, pX, pY);
+			oss << "Corrupt Packets: : " << logfile->lost_packet;
+			std::string logCorrupt = oss.str();
+			PrintLog(hwnd,(const TCHAR*)logCorrupt.c_str(), 3, pX, pY);
+
+			oss.str("");
+			oss.clear();
 
 			Sleep(2000);
 			}
@@ -142,27 +211,24 @@ namespace protocoletariat
 		const int offsetRightSide = 25;
 
 		*X = 0; // move to the beginning of line
-		*Y += mCurrentRow; // move to the last empty line
+		*Y = row; // move to this row
 
 		hdc = GetDC(*hwnd); // Acquire DC
 		GetTextMetrics(hdc, &tm); // get text metrics
-		GetTextExtentPoint32(hdc, (char*)*chars, _tcslen(chars), &size); // compute length of a string 
-		TextOut(hdc, *X, *Y, (char*)*chars, _tcslen(chars));  // Display string
+		GetTextExtentPoint32(hdc, chars, _tcslen(chars), &size); // compute length of a string 
 		*X += size.cx; // advance to end of previous string
 		if (GetWindowRect(*hwnd, &rect))
 		{
 			int width = rect.right - rect.left; // get Window width
-			if (*X >= width - offsetRightSide)
+			if (*X >= width )//- offsetRightSide)
 			{
 				*X = 0;
 				*Y = *Y + tm.tmHeight + tm.tmExternalLeading; // next line
 			}
 		}
+		TextOut(hdc, *X, *Y, chars, _tcslen(chars));  // Display string
 
-		// draws the specified input string
-		//TextOut(hdc, X, Y, chars, _tcslen(chars));
-
-		mCurrentRow = *Y; // Set Current row to last row printed
+		row = *Y; // Set Current row to last row printed
 		ReleaseDC(*hwnd, hdc); // release device context
 	}
 
