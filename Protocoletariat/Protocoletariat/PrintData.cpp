@@ -1,10 +1,13 @@
 /*----------------------------------------------------------------------
--- SOURCE FILE: PrintData.cpp
+-- SOURCE FILE: PrintData.cpp -	An Application that will monitor and display
+--								LogFile containing packet transfer data and 
+--								print transfered text data.
+--									
 --
 -- PROGRAM:		Protocoletariat
 --
 -- FUNCTIONS:
---				DWORD WINAPI  PrintReceivedData(paramPrintData* param);
+--				DWORD WINAPI PrintReceivedData(paramPrintData* param)
 --				void PrintChar(HWND* hwnd, char* letter, unsigned int row,
 --									int* X, int* Y)
 --				void PrintLog(HWND* hwnd, const TCHAR* chars, unsigned int row)
@@ -46,17 +49,17 @@ namespace protocoletariat
 	--
 	-- DATE: December 1, 2017
 	--
-	-- DESIGNER: Jeremy Lee, Luke Lee
+	-- DESIGNER:	Jeremy Lee, Luke Lee
 	--
-	-- PROGRAMMER: Li-Yan Tong
+	-- PROGRAMMER:	Li-Yan Tong
 	--
-	-- INTERFACE: DWORD WINAPI PrintReceivedData(paramPrintData* param)
+	-- INTERFACE:	DWORD WINAPI PrintReceivedData(paramPrintData* param)
 	--
-	-- ARGUMENT: param			- a pointer to the paramPrintData structure
-	--							  containing all the variables (windows GUI and print
-	--							  data) required in PrintData functions.
+	-- ARGUMENT:	param			- a pointer to the paramPrintData structure
+	--								  containing all the variables (windows GUI and print
+	--							      data) required in PrintData functions.
 	--
-	-- RETURNS: DWORD WINAPI	- 0 if the intended functions run successfully
+	-- RETURNS:		DWORD WINAPI	- 0 if the intended functions run successfully
 	--
 	-- NOTES:
 	-- This function thread takes a paraPrintData struct to gather device
@@ -137,7 +140,7 @@ namespace protocoletariat
 	--				row			- Line number to draw a character string on.
 	--							  Starts from 0.
 	--
-	-- RETURNS: void
+	-- RETURNS:		void
 	--
 	-- NOTES:
 	-- A function to draw a character string to the Window.
@@ -157,7 +160,7 @@ namespace protocoletariat
 		unsigned int X = 0; // move to the beginning of line
 		unsigned int Y = 0; // move to the first line
 
-							// move to the specified row
+		// move to the specified row
 		while (row > 0)
 		{
 			Y += tm.tmHeight + tm.tmExternalLeading; // next line
@@ -195,7 +198,7 @@ namespace protocoletariat
 	--				Y			- int Pointer to y-coordinate of a caret to print
 	--							  characters
 	--
-	-- RETURNS: void
+	-- RETURNS:		void
 	--
 	-- NOTES:
 	-- This function takes a string and displays it (one character) on a
@@ -214,28 +217,33 @@ namespace protocoletariat
 		GetTextMetrics(hdc, &tm); // get text metrics
 		GetTextExtentPoint32(hdc, letter, 1, &size); // compute length of a string 
 
-		//move to this row
-		if (mCurrentRow == 1) {
-			while (row > 0)
-			{
-				*Y += tm.tmHeight + tm.tmExternalLeading; // next line
-				row--;
-			}
-		}
 
-		TextOut(hdc, *X, *Y, letter, 1);  // Display string
-		*X += size.cx; // advance to end of previous string
-		ReleaseDC(*hwnd, hdc); // release device context
 
-		if (GetWindowRect(*hwnd, &rect))
-		{
-			int width = rect.right - rect.left; // get Window width
-			if (*X >= width)
-			{
-				*X = 0;
-				*Y = *Y + tm.tmHeight + tm.tmExternalLeading; // next line
+		//if (*letter != -51)
+		//{
+			//move to this row
+			if (mCurrentRow == 1) {
+				while (row > 0)
+				{
+					*Y += tm.tmHeight + tm.tmExternalLeading; // next line
+					row--;
+				}
 			}
-		}
-		mCurrentRow += *Y; // Set Current row to last row printed
+
+			TextOut(hdc, *X, *Y, letter, 1);  // Display string
+			*X += size.cx; // advance to end of previous string
+			ReleaseDC(*hwnd, hdc); // release device context
+
+			if (GetWindowRect(*hwnd, &rect))
+			{
+				int width = rect.right - rect.left; // get Window width
+				if (*X >= width)
+				{
+					*X = 0;
+					*Y = *Y + tm.tmHeight + tm.tmExternalLeading; // next line
+				}
+			}
+			mCurrentRow += *Y; // Set Current row to last row printed
+		//}
 	}
 }

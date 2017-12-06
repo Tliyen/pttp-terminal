@@ -66,7 +66,7 @@ namespace protocoletariat
 		OVERLAPPED* olRead = param->olRead;
 		DWORD* dwThreadExit = param->dwThreadExit;
 		bool* downloadReady = param->dlReady;
-		
+
 		LogFile* mLogFile = param->logfile;
 
 		rviReceived = param->RVIflag; // member variable
@@ -121,10 +121,6 @@ namespace protocoletariat
 							bufferFrame.resize(0); // clean the frame buffer
 						}
 					}
-				}
-				else
-				{
-					// error msg
 				}
 			}
 			else

@@ -19,9 +19,9 @@
 -- PROGRAMMER:	Jeremy Lee
 --
 -- NOTES:
--- This thread is responsible for handling the uploading of the text file 
--- to be send through the serial port. It gets all characters from the 
--- intended file and crams them into a frame, then places the frame into 
+-- This thread is responsible for handling the uploading of the text file
+-- to be send through the serial port. It gets all characters from the
+-- intended file and crams them into a frame, then places the frame into
 -- the UploadQueue where it can be grabbed by the protocol engine at the
 -- appropriate time.
 -- This file also inserts an EOT frame at the end of the file so that the
@@ -52,9 +52,9 @@ namespace protocoletariat
 	-- RETURNS:		DWORD		- 0 if the intended functions run successfully
 	--
 	-- NOTES:
-	-- This function is responsible for initiating the reading of the 
+	-- This function is responsible for initiating the reading of the
 	-- file. It is then responsible for calling the necessary functions
-	-- to form the text into frames, with the appropriate control 
+	-- to form the text into frames, with the appropriate control
 	-- characters so that they can be successfully handled by the protocol
 	-- engine.
 	------------------------------------------------------------------*/
@@ -84,14 +84,6 @@ namespace protocoletariat
 				bool b = mUploadQueue->empty();
 				b = mUploadQueue->empty();
 			}
-			else
-			{
-				// failure msg
-			}
-		}
-		else
-		{
-			// failure msg
 		}
 
 		fileRead.clear();
@@ -119,11 +111,11 @@ namespace protocoletariat
 	--								  otherwise.
 	--
 	-- NOTES:
-	-- This function is called by the LoadTextFile function when there 
+	-- This function is called by the LoadTextFile function when there
 	-- is a text file that needs to be read.
 	-- It will use the characters taken from the frame in the serial port
-	-- and place it into a frame after removing the SYN character. This 
-	-- readied frame will then be pushed into the uploadQueue, ready for 
+	-- and place it into a frame after removing the SYN character. This
+	-- readied frame will then be pushed into the uploadQueue, ready for
 	-- access by the Protocol Engine.
 	------------------------------------------------------------------*/
 	bool FileUploader::ConvertFileIntoFrames(const std::vector<char>& bufferRead)
@@ -147,6 +139,11 @@ namespace protocoletariat
 				frame[j++] = bufferRead[i++];
 			}
 
+			while (j < MAX_FRAME_SIZE - 4) // 514/518
+			{
+				frame[j++] = '\0';
+			}
+
 			// CRC_32
 			char* framePayloadOnly = new char[MAX_FRAME_SIZE - 6]; // 512/518
 			for (unsigned int k = 0; k < MAX_FRAME_SIZE - 6; ++k)
@@ -158,20 +155,6 @@ namespace protocoletariat
 			// generate CRC only with the payload
 			CRC::Table<std::uint32_t, 32> table(CRC::CRC_32());
 			std::uint32_t crc = CRC::Calculate(framePayloadOnly, 512, table);
-
-			// debug ---------------------------------------------------
-			//std::cout << "payload only: " << std::endl;
-			//unsigned int count = 0;
-			//std::cout << "[";
-			//while (count < MAX_FRAME_SIZE - 6)
-			//{
-			//	std::cout << framePayloadOnly[count++];
-			//}
-			//std::cout << "]";
-			//std::cout << std::endl;
-			//std::cout << "char count: " << count << std::endl;
-			//std::cout << "crc generated: " << crc << std::endl;
-			// debug ---------------------------------------------------
 
 			delete framePayloadOnly;
 
@@ -197,16 +180,6 @@ namespace protocoletariat
 			return true;
 		}
 
-		// failure debug -----------------------------------------------
-		unsigned int k = 0;
-		std::cerr << "Abnormal file read: ";
-		while (k < bufferRead.size())
-		{
-			std::cerr << bufferRead[k];
-		}
-		std::cerr << std::endl;
-		// -------------------------------------------------------------
-
 		return false;
 	}
 
@@ -227,7 +200,7 @@ namespace protocoletariat
 	-- RETURNS:		void
 	--
 	-- NOTES:
-	-- This function is called when the text file has been completely 
+	-- This function is called when the text file has been completely
 	-- read. It pushes an EOT control frame into the uploadQueue, which
 	-- allows the protocol engine to signify its completion to the pair
 	-- device.
@@ -259,8 +232,8 @@ namespace protocoletariat
 	--								  the CRC generated; false otherwise.
 	--
 	-- NOTES:
-	-- This function is called by the protocol engine to Validate the 
-	-- frame that has been received through the serial port. It will return 
+	-- This function is called by the protocol engine to Validate the
+	-- frame that has been received through the serial port. It will return
 	-- true if the frame is validated, otherwise it will return false.
 	------------------------------------------------------------------*/
 	bool FileUploader::ValidateCrc(char* payload, char* strCrcReceived)
