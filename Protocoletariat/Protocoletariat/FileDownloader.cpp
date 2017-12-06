@@ -16,8 +16,8 @@
 -- PROGRAMMER:	Jeremy Lee
 --
 -- NOTES:
--- This file is responsible for handling the downloading of frames from 
--- the serial port. These frames will be taken, run through basic 
+-- This file is responsible for handling the downloading of frames from
+-- the serial port. These frames will be taken, run through basic
 -- validation to ensure that the SYN char is in place. The SYN char will
 -- be stripped from the frame, and it will be placed in the download queue
 -- ready for processing by the Protocol Engine.
@@ -46,15 +46,15 @@ namespace protocoletariat
 	--
 	-- NOTES:
 	-- This code is responsible to initializing the read buffer and then
-	-- reading bytes from the serial port. First step is to check the 
-	-- first byte and ensure that it is a SYN char. If it is not the SYN 
-	-- char, the loop continues from the beginning, which means the rest 
-	-- of the loop is ignored. If it is a SYN char, the next 1 byte in the 
-	-- stream is read and checked if it is a STX character after added to 
-	-- the read buffer. If it is a STX character, the next 516 bytes in 
-	-- the stream is read and added to the read buffer. Then, the read 
-	-- buffer is added to the global download queue so the protocol engine 
-	-- can take it, and a comm event is triggered to notify the protocol 
+	-- reading bytes from the serial port. First step is to check the
+	-- first byte and ensure that it is a SYN char. If it is not the SYN
+	-- char, the loop continues from the beginning, which means the rest
+	-- of the loop is ignored. If it is a SYN char, the next 1 byte in the
+	-- stream is read and checked if it is a STX character after added to
+	-- the read buffer. If it is a STX character, the next 516 bytes in
+	-- the stream is read and added to the read buffer. Then, the read
+	-- buffer is added to the global download queue so the protocol engine
+	-- can take it, and a comm event is triggered to notify the protocol
 	-- engine.
 	------------------------------------------------------------------*/
 	DWORD WINAPI FileDownloader::ReadSerialPort(paramFileDownloader* param)
@@ -68,8 +68,8 @@ namespace protocoletariat
 		HANDLE* hEvent = param->hEvent;
 		DWORD dwRead, dwLrc, dwEndTime;
 		pq = param->printQueue;
-		char bufferChar[2] = "";
-		std::vector<char> bufferFrame(MAX_FRAME_SIZE);
+		char bufferChar[1];
+		std::vector<char> bufferFrame;
 		char* frame;
 
 		// TODO: change to a global flag
@@ -82,9 +82,10 @@ namespace protocoletariat
 
 		while (bReading)
 		{
-			bufferChar[0] = '\0';
+			bufferChar[0];
 			if (!ReadFile(*handle, bufferChar, 1, &dwRead, olRead))
 			{
+				std::cout << bufferChar;
 				dwRead = 0;
 				if ((dwLrc = GetLastError()) == ERROR_IO_PENDING)
 				{
@@ -101,18 +102,20 @@ namespace protocoletariat
 						// process read char
 						if (combineCharsIntoFrame(bufferFrame, bufferChar[0])) // frame complete
 						{
-							frame = new char[MAX_FRAME_SIZE - 1]; // exclude first char (SYN)
+							frame = new char[MAX_FRAME_SIZE]; // exclude first char (SYN)
 
 							unsigned int i = 0;
-							while (i < bufferFrame.size() && i < MAX_FRAME_SIZE - 1) // exclude first char (SYN)
+							while (i < bufferFrame.size() && i < MAX_FRAME_SIZE) // exclude first char (SYN)
 							{
-								frame[i++] = bufferFrame[1 + (i++)];
+								frame[i] = bufferFrame[i];
+								i++;
 							}
 
+							std::cout << frame[0];
 							downloadQueue->push(frame); // queue the downloaded frame
 							*downloadReady = true; // set flag for protocol engine
 
-							bufferFrame.clear(); // clean the frame buffer
+							bufferFrame.resize(0); // clean the frame buffer
 						}
 					}
 				}
@@ -128,18 +131,20 @@ namespace protocoletariat
 					// process read char
 					if (combineCharsIntoFrame(bufferFrame, bufferChar[0])) // frame complete
 					{
-						frame = new char[MAX_FRAME_SIZE - 1]; // exclude first char (SYN)
+						frame = new char[MAX_FRAME_SIZE]; // exclude first char (SYN)
 
 						unsigned int i = 0;
-						while (i < bufferFrame.size() && i < MAX_FRAME_SIZE - 1) // exclude first char (SYN)
+						while (i < bufferFrame.size() && i < MAX_FRAME_SIZE) // exclude first char (SYN)
 						{
-							frame[i++] = bufferFrame[1 + (i++)];
+							frame[i] = bufferFrame[i];
+							i++;
 						}
 
+						std::cout << frame[0];
 						downloadQueue->push(frame); // queue the downloaded frame
 						*downloadReady = true; // set flag for protocol engine
 
-						bufferFrame.clear(); // clean the frame buffer
+						bufferFrame.resize(0); // clean the frame buffer
 					}
 				}
 			}
@@ -170,8 +175,8 @@ namespace protocoletariat
 	--
 	-- NOTES:
 	-- This function is called to combine all the chars read from the port
-	-- into a frame that can be placed in the upload queue. The frame is 
-	-- loaded into the already created char pointer, which is then called 
+	-- into a frame that can be placed in the upload queue. The frame is
+	-- loaded into the already created char pointer, which is then called
 	-- used by the calling function if the function returns true.
 	------------------------------------------------------------------*/
 	bool FileDownloader::combineCharsIntoFrame(std::vector<char>& bufferFrame, const char charRead)
@@ -185,6 +190,10 @@ namespace protocoletariat
 			if (charRead != SYN) // first char to put in frame is not SYN
 			{
 				// do nothing
+			}
+			else
+			{
+				bufferFrame.push_back(charRead);
 			}
 		}
 		else if (bufferFrame.back() == SYN) // only SYN in frame
@@ -202,12 +211,16 @@ namespace protocoletariat
 			else if (charRead == RVI) // RVI received
 			{
 				*rviReceived = true; // set flag for protocol engine
-				bufferFrame.clear(); // abandon RVI control frame
+				bufferFrame.resize(0); // abandon RVI control frame
 				return false; // continue without queuing the frame
+			}
+			else if (charRead == ENQ)
+			{
+				return true;
 			}
 			else // invalid char order
 			{
-				bufferFrame.clear();
+				bufferFrame.resize(0);
 			}
 		}
 		else if (bufferFrame.back() == STX) // incoming payload
