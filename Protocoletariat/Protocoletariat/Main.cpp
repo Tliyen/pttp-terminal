@@ -123,6 +123,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	dlReady = false;
 	protocolActive = false;
 	RVIflag = false;
+	globalRVI = false;
 
 	StartEngine();
 
