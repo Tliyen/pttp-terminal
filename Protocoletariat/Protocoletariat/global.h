@@ -17,8 +17,8 @@ namespace protocoletariat
 		}
 	};
 
-	// bCommOn to be used as global flag
-	extern bool bCommOn;
+	// to be used as global flag
+	extern bool protocolActive;
 }
 
 

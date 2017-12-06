@@ -73,14 +73,14 @@ namespace protocoletariat
 		char* frame;
 
 		// TODO: change to a global flag
-		bool bReading = true;
+		//bool bReading = true;
 
 		// create a manual reset event
 		*hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 		olRead->hEvent = *hEvent;
 		ResetEvent(olRead->hEvent); // manually reset event
 
-		while (bReading)
+		while (protocolActive)
 		{
 			bufferChar[0];
 			if (!ReadFile(*handle, bufferChar, 1, &dwRead, olRead))

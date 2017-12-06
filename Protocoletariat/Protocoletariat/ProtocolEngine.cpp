@@ -59,7 +59,7 @@ namespace protocoletariat
 	bool* ProtocolEngine::mDownloadReady;
 	bool* ProtocolEngine::mRVIflag;
 
-	bool ProtocolEngine::protocolActive;
+	//bool ProtocolEngine::protocolActive;
 
 	HANDLE* ProtocolEngine::mHandle = nullptr;
 

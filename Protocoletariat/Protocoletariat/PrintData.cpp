@@ -25,7 +25,7 @@ namespace protocoletariat
 {
 	//static HWND* hwnd = nullptr;
 	int mCurrentRow = 4;
-	bool printDataActive = true;
+	//bool protocolActive;
 
 	/*----------------------------------------------------------------------
 	-- FUNCTION: PrintReceivedData()
@@ -139,7 +139,7 @@ namespace protocoletariat
 		*/
 
 		// Switch out with master switch boolean later
-		while (printDataActive)
+		while (protocolActive)
 		{
 			if (!printQ->empty())
 			{
@@ -196,7 +196,7 @@ namespace protocoletariat
 				oss.str("");
 				oss.clear();
 
-				Sleep(250);
+				Sleep(2000);
 			}
 		}
 

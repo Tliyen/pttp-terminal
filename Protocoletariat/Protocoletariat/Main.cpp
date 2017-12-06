@@ -331,6 +331,7 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 			if (IDOK == MessageBox(hwnd, "OK to close window?", "Exit", MB_ICONQUESTION | MB_OKCANCEL))
 			{
 				CleanUp();
+				TerminateProgram();
 			}
 			break;
 		}
@@ -404,7 +405,7 @@ bool protocoletariat::InitializeCommHandle(LPTSTR CommPort)
 		return false;
 	}
 
-	bCommOn = true;
+	protocolActive = true;
 	return true;
 }
 
@@ -490,7 +491,7 @@ bool protocoletariat::ConfigureCommSettings(HWND hwnd)
 		return false;
 	}
 
-	bCommOn = true;
+	protocolActive = true;
 	return true;
 }
 
@@ -623,7 +624,7 @@ void protocoletariat::ClearQueue(std::queue<char*>* q)
 ----------------------------------------------------------------------*/
 void protocoletariat::CleanUp()
 {
-	bCommOn = false;
+	protocolActive = false;
 
 	ClearQueue(uploadQ);
 	ClearQueue(downloadQ);

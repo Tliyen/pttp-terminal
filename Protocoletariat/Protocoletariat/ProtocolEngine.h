@@ -76,7 +76,7 @@ namespace protocoletariat
 		static bool* mRVIflag;
 
 		static bool linkReceivedENQ;
-		static bool protocolActive;
+		//static bool protocolActive;
 		
 		static HANDLE* mHandle;
 		static OVERLAPPED& olWrite;
