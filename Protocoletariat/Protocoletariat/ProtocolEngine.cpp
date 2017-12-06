@@ -5,7 +5,7 @@
 --
 -- FUNCTIONS:
 --		DWORD WINAPI ProtocolThread();
---		bool TransmitFrame(bool control, char type);
+--		bool TransmitFrame();
 --		void Idle();
 --		void BidForLine();
 --		void SendData();
@@ -114,14 +114,10 @@ namespace protocoletariat
 	--
 	-- PROGRAMMER: Morgan Ariss
 	--
-	-- INTERFACE: bool TransmitFrame(bool control, char type)
+	-- INTERFACE: TransmitFrame()
 	--
-	-- ARGUMENT: control	- a boolean flag indicating if the frame being
-	--						  transmitted is a control frame or not
-	--			 type		- a char variable specifying the control character
-	--
-	-- RETURNS: bool		- true if frame is successfully transmitted to the
-	--						  serial port; false otherwise.
+	-- RETURNS: bool	- true if frame is successfully transmitted to the
+	--					  serial port; false otherwise.
 	--
 	-- NOTES:
 	-- This function is called upon by the other ProtocolEngine functions to
@@ -186,13 +182,35 @@ namespace protocoletariat
 			dNoOFBytestoWrite = 518;  // Calculating the no of bytes to write into the port
 		}
 
-		dNoOFBytestoWrite = sizeof(lpBuffer);  // Calculating the no of bytes to write into the port
+		//dNoOFBytestoWrite = sizeof(lpBuffer);  // Calculating the no of bytes to write into the port
 
-		status = WriteFile(*mHandle,            // Handle to the Serialport
+		if (!WriteFile(*mHandle,            // Handle to the Serialport
 			lpBuffer,							// Data to be written to the port 
 			dNoOFBytestoWrite,					// No of bytes to write into the port
 			&dwRes,								// No of bytes written to the port
-			&osWrite);
+			&osWrite))
+		{
+			if (GetLastError() != ERROR_IO_PENDING)
+			{
+				status = false;
+			}
+			else {
+				//Write is pending
+				dwRes = WaitForSingleObject(osWrite.hEvent, 2000);
+				switch (dwRes)
+				{
+				case WAIT_OBJECT_0:
+					if (!GetOverlappedResult(*mHandle, &osWrite, &dwWritten, FALSE))
+						status = false;
+					else
+						status = true;
+					break;
+				default:
+					status = false;
+					break;
+				}
+			}
+		}
 
 		delete lpBuffer;
 		return status;
