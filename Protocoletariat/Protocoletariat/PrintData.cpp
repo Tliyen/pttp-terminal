@@ -189,7 +189,7 @@ namespace protocoletariat
 				oss.clear();
 
 				// Print Corrupt Packets
-				oss << "Corrupt Packets: : " << logfile->lost_packet;
+				oss << "Corrupt Packets: : " << logfile->received_corrupted_packet;
 				std::string logCorrupt = oss.str();
 				PrintLog(hwnd, (const TCHAR*)logCorrupt.c_str(), 3, pX, pY);
 
