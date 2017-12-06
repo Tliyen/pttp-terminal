@@ -4,12 +4,13 @@
 -- PROGRAM: Protocoleriat
 --
 -- FUNCTIONS:
---		void ProtocolThread();
+--		DWORD WINAPI ProtocolThread();
+--		bool TransmitFrame();
 --		void Idle();
 --		void BidForLine();
 --		void SendData();
---		void ConfirmTransmission();
---		void Retransmit();
+--		bool ConfirmTransmission();
+--		bool Retransmit();
 --		void LinkReset();
 --		void AcknowledgeBid();
 --		void ReceiveData();
@@ -50,10 +51,6 @@ namespace protocoletariat
 	std::queue<char*>* ProtocolEngine::mDownloadQueue = nullptr;
 	std::queue<char*>* ProtocolEngine::mPrintQueue = nullptr;
 
-	// const char* ProtocolEngine::ENQframe = CHAR_SYN + ASCII_ENQ;
-	// const char* ProtocolEngine::ACKframe = { ASCII_SYN, ASCII_ACK };
-	// const char* ProtocolEngine::EOTframe = { ASCII_SYN, ASCII_EOT };
-
 	char* ProtocolEngine::incFrame;
 	char* ProtocolEngine::outFrame;
 
@@ -65,8 +62,6 @@ namespace protocoletariat
 	bool ProtocolEngine::protocolActive;
 
 	HANDLE* ProtocolEngine::mHandle = nullptr;
-	// OVERLAPPED& ProtocolEngine::olWrite;
-	// DWORD& ProtocolEngine::dwThreadExit;
 
 	DWORD ProtocolEngine::dwEvent, ProtocolEngine::dwError;
 
@@ -148,8 +143,8 @@ namespace protocoletariat
 
 		bool status;
 
-		olWrite.hEvent = CreateEvent(NULL, true, false, NULL);
-		if (olWrite.hEvent == NULL)
+		osWrite.hEvent = CreateEvent(NULL, true, false, NULL);
+		if (osWrite.hEvent == NULL)
 		{
 			// Event could not be created
 			return false;
@@ -189,7 +184,7 @@ namespace protocoletariat
 			&dwRes,								// No of bytes written to the port
 			&osWrite);
 
-		delete lpBuffer;
+		// delete lpBuffer;
 		return status;
 	}
 
@@ -368,6 +363,9 @@ namespace protocoletariat
 			// Loop while the timeout has no exceeded
 			while (timer < TIMEOUT)
 			{
+				// read the front of the upload queue into the outFrame
+				outFrame = mUploadQueue->front();
+
 				// If CommEvent Triggered
 				if (WaitCommEvent(mHandle, &dwEvent, NULL))
 				{
@@ -379,9 +377,6 @@ namespace protocoletariat
 						{
 							// read the front frame from the downloadQueue into incFrame
 							incFrame = mDownloadQueue->front();
-
-							// read the front of the upload queue into the outFrame
-							outFrame = mUploadQueue->front();
 
 							// If front of download queue is RVI
 							if (incFrame[1] == CHAR_RVI)
@@ -400,46 +395,46 @@ namespace protocoletariat
 								LinkReset();
 								return;
 							}
-							// If front of upload queue is EOT
-							else if (outFrame[1] == CHAR_EOT)
-							{
-								// Transmit EOT control frame through Serial Port
-								if (TransmitFrame(true, ASCII_EOT))
-								{
-									mLogfile->sent_packet++;
-								}
-								delete outFrame;
-								mUploadQueue->pop();
-								// Move to LinkReset
-								LinkReset();
-								return;
-							}
-							// If the frame at the front of the upload queue is a data frame
-							else if (outFrame[1] == CHAR_STX)
-							{
-								// Transmit the data frame through the serial port
-								TransmitFrame(false, NULL);
-								// Move to ConfirmTransmission
-								if (!ConfirmTransmission())
-								{
-									// Transmit EOT control frame through Serial Port
-									if (TransmitFrame(true, ASCII_EOT))
-									{
-										mLogfile->sent_packet++;
-									}
-									// Move to LinkReset
-									LinkReset();
-									return;
-								}
-								timer = 0;
-								dfs++;
-								break;
-							}
 						}
 						innerTimer++;
 						timer++;
 					}
 					innerTimer = 0;
+				}
+				// If front of upload queue is EOT
+				if (outFrame[1] == CHAR_EOT)
+				{
+					// Transmit EOT control frame through Serial Port
+					if (TransmitFrame(true, ASCII_EOT))
+					{
+						mLogfile->sent_packet++;
+					}
+					delete outFrame;
+					mUploadQueue->pop();
+					// Move to LinkReset
+					LinkReset();
+					return;
+				}
+				// If the frame at the front of the upload queue is a data frame
+				else if (outFrame[1] == CHAR_STX)
+				{
+					// Transmit the data frame through the serial port
+					TransmitFrame(false, NULL);
+					// Move to ConfirmTransmission
+					if (!ConfirmTransmission())
+					{
+						// Transmit EOT control frame through Serial Port
+						if (TransmitFrame(true, ASCII_EOT))
+						{
+							mLogfile->sent_packet++;
+						}
+						// Move to LinkReset
+						LinkReset();
+						return;
+					}
+					timer = 0;
+					dfs++;
+					break;
 				}
 				Sleep(10);
 				timer++;
