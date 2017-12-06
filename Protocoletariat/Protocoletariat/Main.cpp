@@ -369,7 +369,8 @@ LRESULT CALLBACK protocoletariat::WndProc(HWND hwnd, UINT Message,
 		}
 		else if (wParam == RVI_KEY)
 		{
-			MessageBox(hwnd, "RVI key is detected", "RVI Event", MB_OK);
+			ProtocolEngine::TransmitFrame(true, RVI_KEY);
+			//MessageBox(hwnd, "RVI key is detected", "RVI Event", MB_OK);
 			break;
 		}
 		break;
@@ -679,7 +680,7 @@ void protocoletariat::CleanUp()
 	Sleep(500);
 	ClearQueue(uploadQ);
 	ClearQueue(downloadQ);
-	ClearQueue(dataToPrintQ);	
+	ClearQueue(dataToPrintQ);
 }
 
 /*----------------------------------------------------------------------
