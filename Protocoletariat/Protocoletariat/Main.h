@@ -16,7 +16,9 @@ namespace protocoletariat
 	HANDLE		hComm;
 	COMMCONFIG	ccfg;
 
-	bool		bCommOn, bReading;
+	// bCommOn to be used as global flag
+	bool		bCommOn;
+	//bool		bReading;
 
 	int indexReadChar = 0;
 	int X = 0, Y = 0; // current str coordinates
@@ -26,8 +28,9 @@ namespace protocoletariat
 	std::queue<char*> downloadQ;
 	std::queue<char*> dataToPrintQ;
 	LogFile* logfile;
+	bool dlReady; // flag for download ready
+	bool RVIflag; // flag becomes true when RVI event detected
 	bool globalRVI;
-	bool dlReady;
 
 	// Thread handles
 	HANDLE uploadThrd, downloadThrd, printThrd, protocolThrd;
