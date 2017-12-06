@@ -1,6 +1,5 @@
 #pragma once
 
-
 struct LogFile {
 	int sent_packet;
 	int lost_packet;

@@ -21,7 +21,7 @@
 
 namespace protocoletariat
 {
-	static bool* rviReceived = nullptr;
+	bool* FileDownloader::rviReceived = nullptr;
 
 	/*------------------------------------------------------------------
 	-- FUNCTION:	ReadSerialPort

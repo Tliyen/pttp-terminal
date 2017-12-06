@@ -45,7 +45,7 @@
 #define STRICT
 
 #include "Menu.h"
-#include "global.h"
+#include "Global.h"
 #include "Main.h"
 #include "FileUploader.h"
 #include "FileDownloader.h"
