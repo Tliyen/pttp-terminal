@@ -12,7 +12,8 @@
 
 #define ASCII_SYN 0x22
 
-#define TIMEOUT 2000
+#define TIMEOUT 200
+#define INNER_TIMEOUT 30
 
 #include <windows.h>
 #include <Winbase.h>
@@ -30,7 +31,8 @@ namespace protocoletariat
 		
 		LogFile* logfile;
 
-		bool* downloadReady;
+		bool* dlReady;
+		bool* RVIflag;
 		
 		HANDLE* hComm;
 		OVERLAPPED& olWrite = *(new OVERLAPPED());
@@ -70,6 +72,8 @@ namespace protocoletariat
 		static LogFile* mLogfile;
 
 		static bool* mDownloadReady;
+		static bool* mRVIflag;
+
 		static bool linkReceivedENQ;
 		static bool protocolActive;
 		
