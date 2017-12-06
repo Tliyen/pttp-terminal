@@ -66,6 +66,9 @@ namespace protocoletariat
 		OVERLAPPED* olRead = param->olRead;
 		DWORD* dwThreadExit = param->dwThreadExit;
 		bool* downloadReady = param->dlReady;
+		
+		LogFile* mLogFile = param->logfile;
+
 		rviReceived = param->RVIflag; // member variable
 		HANDLE* hEvent = param->hEvent;
 		DWORD dwRead, dwLrc, dwEndTime;
@@ -104,6 +107,7 @@ namespace protocoletariat
 						// process read char
 						if (combineCharsIntoFrame(bufferFrame, bufferChar[0])) // frame complete
 						{
+							mLogFile->received_packet++;
 							frame = new char[MAX_FRAME_SIZE]; // exclude first char (SYN)
 
 							unsigned int i = 0;
@@ -133,6 +137,7 @@ namespace protocoletariat
 					// process read char
 					if (combineCharsIntoFrame(bufferFrame, bufferChar[0])) // frame complete
 					{
+						mLogFile->received_packet++;
 						frame = new char[MAX_FRAME_SIZE]; // exclude first char (SYN)
 
 						unsigned int i = 0;

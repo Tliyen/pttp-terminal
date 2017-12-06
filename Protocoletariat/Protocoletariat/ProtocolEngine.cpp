@@ -417,7 +417,7 @@ namespace protocoletariat
 					//if (WaitCommEvent(mHandle, &dwEvent, NULL))
 					//{
 					int innerTimer = 0;
-					while (timer < TIMEOUT && innerTimer < INNER_TIMEOUT)
+					while (timer < TIMEOUT && innerTimer < 5)
 					{
 						Sleep(10);
 						if (*mDownloadReady)

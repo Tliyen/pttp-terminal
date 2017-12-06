@@ -3,6 +3,7 @@
 #include <queue>
 #include <windows.h>
 #include "PrintData.h"
+#include "global.h"
 
 namespace protocoletariat
 {
@@ -16,6 +17,8 @@ namespace protocoletariat
 		HANDLE* hEvent;
 		bool* dlReady;
 		bool* RVIflag;
+
+		LogFile* logfile;
 	};
 
 	static class FileDownloader
